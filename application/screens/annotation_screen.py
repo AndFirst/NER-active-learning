@@ -12,7 +12,6 @@ from kivy.config import Config
 
 Config.set("input", "mouse", "mouse,multitouch_on_demand")
 
-
 kv_string = """
 <AnnotationForm>:
     spacing: 10
@@ -53,6 +52,10 @@ kv_string = """
 Builder.load_string(kv_string)
 
 
+# @TODO One label - multiple word - IREK
+# @TODO Save on 'Akceptuj' click - IREK
+# @TODO Reset on 'Reset' click - IREK
+# @TODO Save on press exit button when there is unsaved progress. - IREK
 class AnnotationForm(BoxLayout):
     selected_label = ObjectProperty(None, allownone=True)
 

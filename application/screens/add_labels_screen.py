@@ -3,6 +3,7 @@ from kivy.uix.screenmanager import Screen
 from kivy.lang import Builder
 from components.prev_next_buttons import PrevNextButtons
 from components.add_label_form import AddLabelForm
+
 kv_string = """
 <AddLabelsScreen>:
     orientation: 'vertical'
@@ -13,12 +14,12 @@ kv_string = """
         id: prev_next_buttons
         back_text: "Wstecz"
         next_text: "Dalej"
-
 """
 
 Builder.load_string(kv_string)
 
 
+# @TODO Write adding labels logic - IREK
 class AddLabelsScreen(Screen):
 
     def __init__(self, **kwargs):

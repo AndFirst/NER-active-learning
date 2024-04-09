@@ -31,8 +31,8 @@ Builder.load_string(kv_string)
 
 
 class ExistingProjectScreen(Screen):
-    selected_path = StringProperty('')  # Zmienna przechowująca wybraną ścieżkę
-    popup = None  # Atrybut klasy do przechowywania referencji do okna dialogowego
+    selected_path = StringProperty('')
+    popup = None
 
     def __init__(self, **kwargs):
         super(ExistingProjectScreen, self).__init__(**kwargs)

@@ -15,6 +15,8 @@ kv_string = """
 Builder.load_string(kv_string)
 
 
+# @TODO Write summarising of input data - ZUZIA
+# @TODO on "Dalej" check if data is correct. - IREK
 class SummaryScreen(Screen):
     def __init__(self, **kwargs):
         shared_data = kwargs.pop('shared_data', None)

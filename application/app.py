@@ -1,13 +1,24 @@
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager
 from screens import (WelcomeScreen, ExistingProjectScreen, CreateProjectScreen,
-                     MainMenuScreen,  DatasetScreen, AddLabelsScreen, SummaryScreen)
+                     MainMenuScreen, DatasetScreen, AddLabelsScreen, SummaryScreen)
 from ui_colors import BACKGROUND_COLOR
 from kivy.core.window import Window
 from pathlib import Path
 from kivy.modules import inspector
 
 
+# @TODO Move SharedData to another file <CLEANUP> - RAFAŁ
+# @TODO Translate all into English - ALL
+# @TODO Integrate both apps: - IREK
+#   1. Chosen labels and their colors should be visible in annotation screen.
+# @TODO Justfile/Makefile - RAFAŁ
+# @TODO setup unit tests - RAFAŁ
+# @TODO Placeholder for stats - ZUZIA
+# @TODO Labels preview on main screen - ZUZIA
+# @TODO Dataset preview on main screen - ZUZIA
+# @TODO SharedData to defaultdict - RAFAŁ
+# @TODO Empty shared data when exit from "create project path" - IREK
 class SharedData:
     def __init__(self):
         self.data = {}

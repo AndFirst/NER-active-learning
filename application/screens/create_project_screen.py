@@ -2,6 +2,7 @@ from kivy.uix.screenmanager import Screen
 from kivy.lang import Builder
 from kivy.uix.popup import Popup
 from kivy.uix.label import Label
+
 kv_string = """
 <CreateProjectScreen>:
     BoxLayout:
@@ -16,6 +17,7 @@ kv_string = """
             TextInput:
                 id: name_input
                 hint_text: 'Nazwa projektu'
+                multiline: False
             TextInput:
                 id: description_input
                 hint_text: 'Opis projektu'
@@ -28,6 +30,9 @@ kv_string = """
 Builder.load_string(kv_string)
 
 
+# @TODO Add more project data inputs,  - ZUZIA
+#   1. Add save project path
+#   2. Clean up interface
 class CreateProjectScreen(Screen):
     def __init__(self, **kwargs):
         # Pobierz shared_data z kwargs i usuń go
