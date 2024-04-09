@@ -6,7 +6,7 @@ from kivy.lang import Builder
 from components.label_row import LabelRow
 from kivy.clock import Clock
 from kivy.properties import ObjectProperty
-# Definicja kodu Kivy jako string
+
 kv_string = '''
 <AddLabelForm>:
     orientation: 'vertical'

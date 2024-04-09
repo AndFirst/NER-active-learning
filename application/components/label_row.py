@@ -1,5 +1,6 @@
 from kivy.lang import Builder
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.textinput import TextInput
 
 kv_string = """
 <LabelRow>:
@@ -8,40 +9,43 @@ kv_string = """
     height: 60
     spacing: 20
     TextInput:
+        id: text_input
         multiline: False
-        size_hint_x: 0.8  # Ustawienie szerokości TextInput na 80% szerokości LabelRow
+        size_hint_x: 0.8 
+        on_text_validate: root.add_new_row() if self.text else None
     Button:
         text: "Usuń"
-        size_hint_x: 0.2  # Ustawienie szerokości Button na 20% szerokości LabelRow
-        height: root.height  # Ustawienie wysokości Button na wysokość LabelRow
+        size_hint_x: 0.2 
+        height: root.height 
+        on_release: root.remove_row()
 """
 
 Builder.load_string(kv_string)
 
 
 class LabelRow(BoxLayout):
-    pass
+    def remove_row(self):
+        parent = self.parent
+        if parent and len(parent.children) > 1:
+            parent.remove_widget(self)
 
-    # def __init__(self, on_add_row, on_delete_row, text, **kwargs):
-    #     super(LabelRow, self).__init__(**kwargs)
-    #     self.orientation = 'horizontal'
-    #     self.size_hint_y = None
-    #     self.height = 60
-
-    #     # Pole tekstowe
-    #     self.text_input = LabelInput(
-    #         on_add_row=on_add_row,
-    #         text=text,
-    #         readonly=False,
-    #         size_hint=(0.5, None),
-    #         height=40,
-    #         multiline=False
-    #     )
-    #     self.add_widget(self.text_input)
-
-    #     # Przycisk "Usuń"
-    #     self.delete_button = Button(
-    #         text="Usuń", size_hint=(0.2, None), height=40)
-    #     self.delete_button.bind(
-    #         on_release=lambda instance: on_delete_row(self))
-    #     self.add_widget(self.delete_button)
+    def add_new_row(self):
+        parent = self.parent
+        if parent:
+            # Sprawdź, czy istnieje pusty wiersz
+            empty_row_exists = any(
+                child.ids.text_input.text == ""
+                for child in parent.children
+                if isinstance(child, LabelRow)
+            )
+            if empty_row_exists:
+                # Przenieś fokus na pusty wiersz
+                for child in parent.children:
+                    if isinstance(child, LabelRow) and child.ids.text_input.text == "":
+                        child.ids.text_input.focus = True
+                        break
+            else:
+                # Utwórz nowy wiersz i przenieś fokus na niego
+                new_row = LabelRow()
+                parent.add_widget(new_row)
+                new_row.ids.text_input.focus = True
