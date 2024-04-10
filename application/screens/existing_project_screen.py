@@ -13,18 +13,29 @@ kv_string = """
 <ExistingProjectScreen>:
     BoxLayout:
         orientation: 'vertical'
-        Button:
-            text: 'Wybierz folder'
-            size_hint: None, None
-            size: 150, 50
-            on_press: root.open_file_chooser()
-        Label:
-            text: 'Wybrana ścieżka: ' + root.selected_path
-            color: 0, 0, 0, 1  # Kolor tekstu: czarny
+        size_hint: (1, 1)
+        padding: 20
+        spacing: 10
+        BoxLayout:
+            canvas.before:
+                Color:
+                    rgba: 0, 0, 0, 1
+                Line:
+                    rectangle: (self.x, self.y, self.width, self.height)
+                    width: 1
+            orientation: 'vertical'
+            size_hint_y: 0.8
+            Button:
+                text: 'Wybierz folder'
+                size_hint: None, None
+                size: 150, 50
+                on_press: root.open_file_chooser()
+            Label:
+                text: 'Wybrana ścieżka: ' + root.selected_path
+                color: 0, 0, 0, 1  # Kolor tekstu: czarny
         PrevNextButtons:
+            size_hint_y: 0.2
             id: prev_next_buttons
-            back_text: "Wstecz"
-            next_text: "Dalej"
 """
 
 Builder.load_string(kv_string)

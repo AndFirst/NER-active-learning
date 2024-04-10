@@ -14,20 +14,12 @@ kv_string = """
         size_hint: (1, 1)
         padding: 20
         spacing: 10
-        canvas.before:
-            Color:
-                rgba: 0, 0, 0, 1
-            Line:
-                rectangle: (self.x, self.y, self.width, self.height)
-                width: 1
         AddLabelForm:
             id: add_label_form
             size_hint_y: 0.8
         PrevNextButtons:
             id: prev_next_buttons
             size_hint_y: 0.2
-            back_text: "Wstecz"
-            next_text: "Dalej"
 """
 
 Builder.load_string(kv_string)

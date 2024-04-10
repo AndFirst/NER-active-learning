@@ -14,18 +14,29 @@ kv_string = """
 <DatasetScreen>:
     BoxLayout:
         orientation: 'vertical'
-        Button:
-            text: 'Wybierz plik'
-            size_hint: None, None
-            size: 150, 50
-            on_press: root.open_file_chooser()
-        Label:
-            text: 'Wybrany plik: ' + root.selected_file
-            color: 0, 0, 0, 1  # Kolor tekstu: czarny
+        size_hint: (1, 1)
+        padding: 20
+        spacing: 10
+        BoxLayout:
+            canvas.before:
+                Color:
+                    rgba: 0, 0, 0, 1
+                Line:
+                    rectangle: (self.x, self.y, self.width, self.height)
+                    width: 1
+            orientation: 'vertical'
+            size_hint_y: 0.8
+            Button:
+                text: 'Wybierz plik'
+                size_hint: None, None
+                size: 150, 50
+                on_press: root.open_file_chooser()
+            Label:
+                text: 'Wybrany plik: ' + root.selected_file
+                color: 0, 0, 0, 1  # Kolor tekstu: czarny
         PrevNextButtons:
             id: prev_next_buttons
-            back_text: "Wstecz"
-            next_text: "Dalej"
+            size_hint_y: 0.2
 """
 
 Builder.load_string(kv_string)

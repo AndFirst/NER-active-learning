@@ -7,24 +7,35 @@ kv_string = """
 <CreateProjectScreen>:
     BoxLayout:
         orientation: 'vertical'
-        Label:
-            color: 0, 0, 0, 1
-            text: 'Wprowadź dane projektu:'
+        size_hint: (1, 1)
+        padding: 20
+        spacing: 10
         BoxLayout:
+            canvas.before:
+                Color:
+                    rgba: 0, 0, 0, 1
+                Line:
+                    rectangle: (self.x, self.y, self.width, self.height)
+                    width: 1
             orientation: 'vertical'
-            padding: (100, 10)
-            spacing: 20
-            TextInput:
-                id: name_input
-                hint_text: 'Nazwa projektu'
-                multiline: False
-            TextInput:
-                id: description_input
-                hint_text: 'Opis projektu'
+            size_hint_y: 0.8
+            Label:
+                color: 0, 0, 0, 1
+                text: 'Wprowadź dane projektu:'
+            BoxLayout:
+                orientation: 'vertical'
+                padding: (100, 10)
+                spacing: 20
+                TextInput:
+                    id: name_input
+                    hint_text: 'Nazwa projektu'
+                    multiline: False
+                TextInput:
+                    id: description_input
+                    hint_text: 'Opis projektu'
         PrevNextButtons:
+            size_hint_y: 0.2
             id: prev_next_buttons
-            back_text: "Wstecz"
-            next_text: "Dalej"
 """
 
 Builder.load_string(kv_string)
