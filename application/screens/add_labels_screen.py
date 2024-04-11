@@ -45,7 +45,7 @@ class AddLabelsScreen(Screen):
         elif len(set(labels)) != len(labels):
             self.show_error_popup("Labels must be unique")
         else:
-            self.shared_data.set_data('labels', labels)
+            self.shared_data.labels = labels
             self.manager.current = 'summary'
 
     def show_error_popup(self, message):

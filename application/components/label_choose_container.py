@@ -33,10 +33,7 @@ class LabelChooseContainer(StackLayout):
     def update_widgets(self):
         self.clear_widgets()  # Clear existing widgets
         for label_data in self.labels:
-            label = LabelData(
-                idx=label_data[1], label=label_data[0], color=label_data[2]
-            )
-            color_label = ColorLabel(label, annotation_form=self.annotation_form)
+            color_label = ColorLabel(label_data, annotation_form=self.annotation_form)
             self.add_widget(color_label)
 
     def on_labels_change(self, instance, value):

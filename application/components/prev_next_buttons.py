@@ -1,5 +1,4 @@
 from kivy.uix.boxlayout import BoxLayout
-from kivy.properties import StringProperty
 from kivy.lang import Builder
 
 kv_string = """

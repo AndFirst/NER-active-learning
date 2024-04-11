@@ -62,8 +62,8 @@ class CreateProjectScreen(Screen):
         description = self.ids.description_input.text.strip()
 
         if name and description:
-            self.shared_data.set_data('project_name', name)
-            self.shared_data.set_data('project_description', description)
+            self.shared_data.name = name
+            self.shared_data.description = description
             self.manager.current = 'data_set'
         else:
             # Wyświetl popupa

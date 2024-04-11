@@ -93,8 +93,7 @@ class DatasetScreen(Screen):
         if self.selected_file:
             if os.path.exists(self.selected_file):
                 print("Plik wybrany pomyślnie:", self.selected_file)
-                self.shared_data.set_data('dataset_path', self.selected_file)
-                print(self.shared_data.data)
+                self.shared_data.dataset_path = self.selected_file
                 self.manager.current = 'add_labels'
             else:
                 Popup(title='Błąd', content=Label(text='Wybrany plik nie istnieje.'),

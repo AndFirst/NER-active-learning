@@ -1,5 +1,11 @@
+import json
+
+from kivy.app import App
 from kivy.uix.screenmanager import Screen
 from kivy.lang import Builder
+import os
+
+from application.file_operations import save_project
 
 kv_string = """
 <SummaryScreen>:
@@ -30,4 +36,5 @@ class SummaryScreen(Screen):
         self.manager.current = 'add_labels'
 
     def go_to_main_menu(self):
+        save_project(self.shared_data, 'saved_projects/')
         self.manager.current = 'main_menu'

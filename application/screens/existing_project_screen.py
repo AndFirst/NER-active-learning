@@ -87,14 +87,23 @@ class ExistingProjectScreen(Screen):
 
     def check_files(self):
         if self.selected_path:
-            files = ['1.txt', '2.txt']
-            missing_files = [f for f in files if not os.path.exists(
+            setup_path = 'project.json'
+
+            dataset_files = {'unlabeled.json', 'unlabeled.jsonl', 'unlabeled.csv'}
+
+            existing_files = [f for f in dataset_files if os.path.exists(
                 os.path.join(self.selected_path, f))]
-            if missing_files:
-                Popup(title='Błąd', content=Label(text=f'Brak plików: {", ".join(missing_files)}'),
+
+            if not os.path.exists(os.path.join(self.selected_path, setup_path)):
+                Popup(title='Error',
+                      content=Label(text="Data inconsistency: not found project setup file."),
+                      size_hint=(None, None), size=(400, 200)).open()
+
+            elif len(existing_files) != 1:
+                Popup(title='Error',
+                      content=Label(text="Data inconsistency: \nThere must be exactly one file with unlabeled data."),
                       size_hint=(None, None), size=(400, 200)).open()
             else:
-                print("Wszystkie wymagane pliki znalezione.")
                 self.manager.current = 'main_menu'
         else:
             Popup(title='Błąd', content=Label(text='Nie wybrano ścieżki.'),
