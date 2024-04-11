@@ -21,18 +21,18 @@ kv_string = """
             size_hint_y: 0.8
             Label:
                 color: 0, 0, 0, 1
-                text: 'Wprowadź dane projektu:'
+                text: 'Insert project data:'
             BoxLayout:
                 orientation: 'vertical'
                 padding: (100, 10)
                 spacing: 20
                 TextInput:
                     id: name_input
-                    hint_text: 'Nazwa projektu'
+                    hint_text: 'Name'
                     multiline: False
                 TextInput:
                     id: description_input
-                    hint_text: 'Opis projektu'
+                    hint_text: 'Description'
         PrevNextButtons:
             size_hint_y: 0.2
             id: prev_next_buttons
@@ -46,11 +46,10 @@ Builder.load_string(kv_string)
 #   2. Clean up interface
 class CreateProjectScreen(Screen):
     def __init__(self, **kwargs):
-        # Pobierz shared_data z kwargs i usuń go
         shared_data = kwargs.pop('shared_data', None)
         super(CreateProjectScreen, self).__init__(**kwargs)
 
-        self.shared_data = shared_data  # Przypisz shared_data do atrybutu klasy
+        self.shared_data = shared_data
         self.ids.prev_next_buttons.on_back = self.go_to_welcome
         self.ids.prev_next_buttons.on_next = self.save_and_go_to_data_set
 
@@ -66,9 +65,8 @@ class CreateProjectScreen(Screen):
             self.shared_data.description = description
             self.manager.current = 'data_set'
         else:
-            # Wyświetl popupa
-            popup = Popup(title='Błąd',
+            popup = Popup(title='Error',
                           content=Label(
-                              text='Wprowadź wszystkie dane projektu.'),
+                              text='You have to enter all required fields.'),
                           size_hint=(None, None), size=(300, 200))
             popup.open()

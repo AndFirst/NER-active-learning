@@ -12,13 +12,13 @@ kv_string = """
             pos_hint: {'top':1}
             color: 0, 0, 0, 1
             Button:
-                text: 'Adnotuj'
+                text: 'Annotate'
             Button:
-                text: 'Zbiór danych'
+                text: 'Dataset'
             Button:
-                text: 'Etykiety'
+                text: 'Labels'
             Button:
-                text: 'Metryki'
+                text: 'Stats'
         AnnotationForm:
             id: annotation_form        
             size_hint_x: 0.8

@@ -27,13 +27,13 @@ kv_string = """
             orientation: 'vertical'
             size_hint_y: 0.8
             Button:
-                text: 'Wybierz plik'
+                text: 'Choose file'
                 size_hint: None, None
                 size: 150, 50
                 on_press: root.open_file_chooser()
             Label:
-                text: 'Wybrany plik: ' + root.selected_file
-                color: 0, 0, 0, 1  # Kolor tekstu: czarny
+                text: 'Chosen file: ' + root.selected_file
+                color: 0, 0, 0, 1 
         PrevNextButtons:
             id: prev_next_buttons
             size_hint_y: 0.2
@@ -43,13 +43,13 @@ Builder.load_string(kv_string)
 
 
 class DatasetScreen(Screen):
-    selected_file = StringProperty('')  # Zmienna przechowująca wybrany plik
-    popup = None  # Atrybut klasy do przechowywania referencji do okna dialogowego
+    selected_file = StringProperty('')
+    popup = None
 
     def __init__(self, **kwargs):
         shared_data = kwargs.pop('shared_data', None)
         super(DatasetScreen, self).__init__(**kwargs)
-        self.shared_data = shared_data  # Przypisz shared_data do atrybutu klasy
+        self.shared_data = shared_data
 
         self.ids.prev_next_buttons.on_back = self.go_to_create_project
         self.ids.prev_next_buttons.on_next = self.check_file
@@ -72,32 +72,29 @@ class DatasetScreen(Screen):
             path=app_path, filters=filters, dirselect=False)
         file_chooser.bind(on_submit=self.on_submit)
 
-        # Dodanie przycisku "Wybierz" do okna dialogowego
         choose_button = Button(
-            text='Wybierz', size_hint=(None, None), size=(150, 50))
+            text='Choose dataset', size_hint=(None, None), size=(150, 50))
         choose_button.bind(on_press=lambda instance: self.on_submit(
             file_chooser, file_chooser.selection, None))
         file_chooser.add_widget(choose_button)
 
-        self.popup = Popup(title='Wybierz plik',
+        self.popup = Popup(title='Choose file',
                            content=file_chooser, size_hint=(0.9, 0.9))
         self.popup.open()
 
     def on_submit(self, instance, selection, touch):
         if selection:
             self.selected_file = selection[0]
-            print("Selected file:", self.selected_file)
-        self.popup.dismiss()  # Zamknięcie okna dialogowego po wybraniu pliku
+        self.popup.dismiss()
 
     def check_file(self):
         if self.selected_file:
             if os.path.exists(self.selected_file):
-                print("Plik wybrany pomyślnie:", self.selected_file)
                 self.shared_data.dataset_path = self.selected_file
                 self.manager.current = 'add_labels'
             else:
-                Popup(title='Błąd', content=Label(text='Wybrany plik nie istnieje.'),
+                Popup(title='Error', content=Label(text='Chosen file not exist.'),
                       size_hint=(None, None), size=(300, 200)).open()
         else:
-            Popup(title='Błąd', content=Label(text='Nie wybrano pliku.'),
+            Popup(title='Error', content=Label(text='File not chosen.'),
                   size_hint=(None, None), size=(300, 200)).open()

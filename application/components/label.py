@@ -32,12 +32,10 @@ kv_string = """
 Builder.load_string(kv_string)
 
 
-# Zmieniona klasa ColorLabel
 class ColorLabel(BoxLayout):
     border_color = ListProperty([0, 0, 0, 0])
     selected = NumericProperty(0)
 
-    # Dodane właściwości klasy do przechowywania referencji do AnnotationForm i aktualnej etykiety
     annotation_form = ObjectProperty(None)
     label_data = ObjectProperty(None)
 
@@ -49,12 +47,10 @@ class ColorLabel(BoxLayout):
 
     def on_touch_down(self, touch):
         if self.collide_point(*touch.pos):
-            # Deselect all other labels before selecting this one
             for label in self.annotation_form.ids.choose_container.children:
                 if label != self:
                     label.selected = 0
 
-            # Toggle selection state for the clicked label
             self.selected = 1 - self.selected
 
             if self.selected:

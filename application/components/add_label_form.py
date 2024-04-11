@@ -1,11 +1,6 @@
-from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.textinput import TextInput
-from kivy.uix.button import Button
 from kivy.lang import Builder
 from components.label_row import LabelRow
-from kivy.clock import Clock
-from kivy.properties import ObjectProperty
 
 kv_string = '''
 <AddLabelForm>:
@@ -46,7 +41,6 @@ kv_string = '''
 
 '''
 
-# Wczytanie kodu Kivy z stringa
 Builder.load_string(kv_string)
 
 

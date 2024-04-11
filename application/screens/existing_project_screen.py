@@ -26,12 +26,12 @@ kv_string = """
             orientation: 'vertical'
             size_hint_y: 0.8
             Button:
-                text: 'Wybierz folder'
+                text: 'Choose directory'
                 size_hint: None, None
                 size: 150, 50
                 on_press: root.open_file_chooser()
             Label:
-                text: 'Wybrana ścieżka: ' + root.selected_path
+                text: 'Path: ' + root.selected_path
                 color: 0, 0, 0, 1  # Kolor tekstu: czarny
         PrevNextButtons:
             size_hint_y: 0.2
@@ -68,22 +68,20 @@ class ExistingProjectScreen(Screen):
             path=app_path, filters=filters, dirselect=True)
         file_chooser.bind(on_submit=self.on_submit)
 
-        # Dodanie przycisku "Wybierz" do okna dialogowego
         choose_button = Button(
-            text='Wybierz', size_hint=(None, None), size=(150, 50))
+            text='Choose', size_hint=(None, None), size=(150, 50))
         choose_button.bind(on_press=lambda instance: self.on_submit(
             file_chooser, file_chooser.selection, None))
         file_chooser.add_widget(choose_button)
 
-        self.popup = Popup(title='Wybierz folder',
+        self.popup = Popup(title='Choose directory',
                            content=file_chooser, size_hint=(0.9, 0.9))
         self.popup.open()
 
     def on_submit(self, instance, selection, touch):
         if selection:
             self.selected_path = selection[0]
-            print("Selected path:", self.selected_path)
-        self.popup.dismiss()  # Zamknięcie okna dialogowego po wybraniu folderu
+        self.popup.dismiss()
 
     def check_files(self):
         if self.selected_path:
@@ -106,5 +104,5 @@ class ExistingProjectScreen(Screen):
             else:
                 self.manager.current = 'main_menu'
         else:
-            Popup(title='Błąd', content=Label(text='Nie wybrano ścieżki.'),
+            Popup(title='Error', content=Label(text='Path not chosen.'),
                   size_hint=(None, None), size=(300, 200)).open()

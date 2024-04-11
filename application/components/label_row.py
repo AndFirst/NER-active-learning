@@ -1,8 +1,6 @@
 import string
-
 from kivy.lang import Builder
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 from kivy.uix.colorpicker import ColorPicker, ColorWheel
@@ -29,7 +27,6 @@ Builder.load_string("""
     height: 60
     spacing: 20
 
-    # Pole tekstowe z generowanym losowo kolorem
     LabelTextInput:
         id: text_input
         font_size: 20
@@ -38,7 +35,6 @@ Builder.load_string("""
         hint_text: "Label e.g. GEO_123 (max 20 chars)"
         on_text_validate: root.add_new_row() if self.text else None
 
-    # Przycisk wyboru koloru
     Button:
         id: color_display    
         text: ""
@@ -49,7 +45,6 @@ Builder.load_string("""
         background_down: '' 
         on_release: root.show_color_picker()
 
-    # Przycisk usuwania
     Button:
         text: "Remove"
         size_hint_x: 0.2

@@ -1,12 +1,8 @@
-from kivy.app import App
-from kivy.core.window import Window
 from kivy.lang import Builder
 from kivy.properties import ObjectProperty, ListProperty
 from kivy.uix.boxlayout import BoxLayout
-
 from application.components.annotation_box import AnnotationBox
 from application.components.label import ColorLabel
-from application.ui_colors import BACKGROUND_COLOR
 from application.components.label_choose_container import LabelChooseContainer
 from kivy.config import Config
 
@@ -40,13 +36,13 @@ kv_string = """
                 rectangle: (self.x, self.y, self.width, self.height)
                 width: 1 
         Button:
-            text: 'Akceptuj'
+            text: 'Accept'
             font_size: '25sp'
-            background_color: 0, 1, 0, 1  # Zielony kolor w formacie RGBA
+            background_color: 0, 1, 0, 1  
         Button:
-            text: 'Resetuj'
+            text: 'Reset'
             font_size: '25sp'
-            background_color: 1, 0, 0, 1  # Czerwony kolor w formacie RGBA
+            background_color: 1, 0, 0, 1 
 """
 
 Builder.load_string(kv_string)

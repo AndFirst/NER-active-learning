@@ -23,19 +23,19 @@ Builder.load_string(kv_string)
 
 
 class AnnotationBox(StackLayout):
-    data = ListProperty([])  # Initial data
+    data = ListProperty([])
     annotation_form = ObjectProperty(None)
 
     def __init__(self, **kwargs):
         super(AnnotationBox, self).__init__(**kwargs)
-        self.update_widgets()  # Update widgets based on initial data
+        self.update_widgets()
 
     def update_widgets(self):
-        self.clear_widgets()  # Clear existing widgets
+        self.clear_widgets()
         for annotation in self.data:
             annotate_label = AnnotateLabel(word=annotation, label=None)
             word = AnnotationWord(annotate_label, annotation_form=self.annotation_form)
-            self.add_widget(word)  # Add word to current row
+            self.add_widget(word)
 
     def on_data(self, instance, value):
-        self.update_widgets()  # Update widgets when data changes
+        self.update_widgets()

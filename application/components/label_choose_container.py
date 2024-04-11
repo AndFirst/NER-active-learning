@@ -1,10 +1,7 @@
 from kivy.lang import Builder
 from kivy.properties import ListProperty, ObjectProperty
-from kivy.uix.label import Label
 from kivy.uix.stacklayout import StackLayout
-
 from application.components.label import ColorLabel
-from application.data_types import LabelData
 
 kv_string = """
 <LabelChooseContainer>:
@@ -22,8 +19,8 @@ Builder.load_string(kv_string)
 
 
 class LabelChooseContainer(StackLayout):
-    labels = ListProperty([])  # Initial data
-    annotation_form = ObjectProperty(None)  # Added property to store annotation_form
+    labels = ListProperty([])
+    annotation_form = ObjectProperty(None)
 
     def __init__(self, **kwargs):
         super(LabelChooseContainer, self).__init__(**kwargs)
@@ -31,7 +28,7 @@ class LabelChooseContainer(StackLayout):
         self.update_widgets()
 
     def update_widgets(self):
-        self.clear_widgets()  # Clear existing widgets
+        self.clear_widgets()
         for label_data in self.labels:
             color_label = ColorLabel(label_data, annotation_form=self.annotation_form)
             self.add_widget(color_label)
