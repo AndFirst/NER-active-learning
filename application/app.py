@@ -28,6 +28,9 @@ class SharedData:
 
     def get_data(self, key):
         return self.data.get(key)
+    
+    def get_dict(self):
+        return self.data
 
 
 class Application(App):
