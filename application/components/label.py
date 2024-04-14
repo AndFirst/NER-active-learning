@@ -14,7 +14,7 @@ kv_string = """
             rectangle: (self.x, self.y, self.width, self.height)
             width: 3
         Color:
-            rgba: root.border_color[:3] + [0.3] 
+            rgba: root.border_color[:3] + [0.5] 
         Rectangle:
             pos: self.pos
             size: self.size
