@@ -37,7 +37,10 @@ class MainMenuScreen(Screen):
         shared_data = kwargs.pop('shared_data', None)
         super(MainMenuScreen, self).__init__(**kwargs)
         self.shared_data = shared_data
-        self.ids.annotation_form.labels = shared_data.labels
+
+    def on_enter(self):
+        print('L3', self.shared_data.labels)
+        self.ids.annotation_form.labels = self.shared_data.labels
 
 
 class MyApp(App):

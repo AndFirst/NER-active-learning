@@ -1,3 +1,4 @@
+import copy
 import json
 
 from kivy.app import App
@@ -38,5 +39,7 @@ class SummaryScreen(Screen):
         self.manager.current = 'add_labels'
 
     def go_to_main_menu(self):
-        save_project(self.shared_data, 'saved_projects/')
+        print('L2', self.shared_data.labels)
+        data_copy = copy.copy(self.shared_data)
+        save_project(data_copy, 'saved_projects/')
         self.manager.current = 'main_menu'

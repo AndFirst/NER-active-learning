@@ -40,6 +40,7 @@ class AddLabelsScreen(Screen):
 
     def go_to_summary(self):
         labels = [LabelData(label=item.label, color=item.color) for item in self.ids.add_label_form.label_rows]
+        print('L1', labels)
         if any(label.is_empty() for label in labels):
             self.show_error_popup("Labels cannot be empty")
         elif len(set(labels)) != len(labels):
