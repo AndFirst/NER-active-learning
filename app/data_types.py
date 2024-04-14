@@ -74,6 +74,7 @@ class Sentence:
 class ProjectData:
     name: str = ""
     description: str = ""
+    save_path: str = ""
     dataset_path: str = ""
     labels: List[LabelData] = field(default_factory=list)
 

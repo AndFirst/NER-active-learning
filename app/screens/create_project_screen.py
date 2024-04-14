@@ -15,7 +15,9 @@ kv_string = """
         Label:
             color: 0, 0, 0, 1
             text: 'Project info:'
-            size_hint: (1, 1)
+            size_hint: (1, 0.3)
+            font_size: '30sp'
+            bold: True
             padding: 20
             spacing: 10
         BoxLayout:
@@ -40,20 +42,6 @@ kv_string = """
                 text: 'Save project path'
                 on_release: root.open_filechooser()
                 size_hint_y: 0.8
-            Label:
-                color: 0, 0, 0, 1
-                text: 'Insert project data:'
-            BoxLayout:
-                orientation: 'vertical'
-                padding: (100, 10)
-                spacing: 20
-                TextInput:
-                    id: name_input
-                    hint_text: 'Name'
-                    multiline: False
-                TextInput:
-                    id: description_input
-                    hint_text: 'Description'
         PrevNextButtons:
             size_hint_y: 0.2
             id: prev_next_buttons
@@ -75,6 +63,7 @@ class CreateProjectScreen(Screen):
         self.shared_data = ProjectData()
         self.ids.name_input.text = ""
         self.ids.description_input.text = ""
+        self.ids.path_button.text = "Save project path"
         self.manager.current = "welcome"
 
     def open_filechooser(self):
@@ -101,11 +90,13 @@ class CreateProjectScreen(Screen):
     def save_and_go_to_data_set(self):
         name = self.ids.name_input.text.strip()
         description = self.ids.description_input.text.strip()
-        self.ids.path_button.text.strip()
+        path = self.ids.path_button.text.strip()
 
-        if name and description:
+        if name and description and path != "Save project path":
             self.shared_data.name = name
             self.shared_data.description = description
+            self.shared_data.save_path = path
+            print(self.shared_data)
             self.manager.current = "data_set"
         else:
             popup = Popup(
