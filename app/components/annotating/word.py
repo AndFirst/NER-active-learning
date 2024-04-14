@@ -24,24 +24,19 @@ class Word(Label):
         super(Word, self).__init__(**kwargs)
 
     def on_touch_down(self, touch):
-        print(self.parent.parent.parent)
+        if self.parent is None or self.parent.parent is None or self.parent.parent.parent is None or self.parent.parent.parent.parent is None:
+            return
         form = self.parent.parent.parent.parent
         if self.collide_point(*touch.pos):
-            if form.selected_label:
-                if touch.button == "left":
-                    if not form.labels_to_merge:
-                        form.labels_to_merge.append(self)
-                    elif self.word == form.sentence.get_left_neighbor(
-                        form.labels_to_merge[0].word
-                    ):
-                        form.labels_to_merge.appendleft(self)
-                    elif self.word == form.sentence.get_right_neighbor(
-                        form.labels_to_merge[-1].word
-                    ):
-                        form.labels_to_merge.append(self)
-                    else:
-                        print("Nie da sie dodać tego labela")
-                    print(form.labels_to_merge)
-                    form.update_labels_to_merge()
+            if touch.button == 'left' and form.selected_label:
+                if form.multiword_mode:
+                    form.update_multi_word_mode(self.word)
+                else:
+                    form.update_single_word_mode(self.word)
+            elif touch.button == 'right':
+                if form.multiword_mode:
+                    form.commit_multi_label()
+                else:
+                    form.remove_label(self.word)
             else:
                 super().on_touch_down(touch)

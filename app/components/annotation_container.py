@@ -20,7 +20,6 @@ Builder.load_string(kv_string)
 
 class AnnotationContainer(StackLayout):
     sentence = ObjectProperty(None)
-    annotation_callback = ObjectProperty(None)
 
     def on_sentence(self, instance, value):
         self.update_tokens()
@@ -28,9 +27,5 @@ class AnnotationContainer(StackLayout):
     def update_tokens(self):
         self.clear_widgets()
         for token in self.sentence.tokens:
-            self.add_widget(
-                Token(
-                    annotation=token,
-                    update_form_state=self.annotation_callback,
-                )
-            )
+            if token.words:
+                self.add_widget(Token(annotation=token))

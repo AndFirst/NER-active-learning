@@ -1,9 +1,12 @@
 from collections import deque
 
 from kivy.lang import Builder
-from kivy.properties import ObjectProperty, ListProperty
+from kivy.properties import ObjectProperty, ListProperty, BooleanProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
+from kivy.uix.label import Label
+from kivy.uix.popup import Popup
+from kivy.uix.textinput import TextInput
 
 from components.label import ColorLabel
 from kivy.config import Config
@@ -24,19 +27,36 @@ kv_string = """
         id: choose_container
         label_callback: root.update_selected_label
     BoxLayout:
-        id: current_annotation
-        orientation: 'horizontal'
         size_hint_y: 0.1
-        canvas.before:
-            Color:
-                rgba: 0, 0, 0, 1
-            Line:
-                rectangle: (self.x, self.y, self.width, self.height)
-                width: 1
+        orientation: 'horizontal'
+        BoxLayout:
+            id: current_annotation
+            orientation: 'horizontal'
+            size_hint_x: 0.7
+            canvas.before:
+                Color:
+                    rgba: 0, 0, 0, 1 
+                Line:
+                    rectangle: (self.x, self.y, self.width, self.height)
+                    width: 1 
+        BoxLayout:
+            size_hint_x: 0.3
+            Button:
+                text: '?'
+                font_size: '25sp'
+                background_normal: ''
+                background_color: 0, 0, 0, 0
+                pos_hint: {'center_x': 0.5}
+                canvas.before:
+                    Color:
+                        rgba: 0.5, 0.5, 0.5, 1
+                    Ellipse:
+                        pos: (self.pos[0] + self.width / 2 - self.height / 2, self.pos[1])
+                        size: (self.height, self.height)
+                on_release: root.show_instruction_popup()
     AnnotationContainer:
         id: annotation_container
         size_hint_y: 0.6
-        annotation_callback: root.update_annotation
     BoxLayout:
         id: buttons 
         orientation: 'horizontal'
@@ -56,12 +76,18 @@ kv_string = """
             font_size: '25sp'
             background_color: 1, 0, 0, 1
             on_release: root.reset()
+        Button:
+            id: multiword_mode_button
+            
+            text: 'Multiword Mode'
+            font_size: '25sp'
+            background_color: [0, 1, 0, 1] if root.multiword_mode else [1, 0, 0, 1]
+            on_release: root.toggle_multiword_mode()
 """
 
 Builder.load_string(kv_string)
 
 
-# @TODO One label - multiple word - IREK
 # @TODO Save on 'Akceptuj' click - IREK
 # @TODO Save on press exit button when there is unsaved progress. - IREK
 class AnnotationForm(BoxLayout):
@@ -69,7 +95,43 @@ class AnnotationForm(BoxLayout):
     labels = ListProperty([])
     sentence = ObjectProperty(None)
     labels_to_merge = ObjectProperty(deque(), allownone=True)
-    words = ListProperty([], allownone=True)
+    multiword_mode = BooleanProperty(False)
+    last_added_annotation = ObjectProperty(None, allownone=True)
+
+    def show_instruction_popup(self):
+        instruction_text = (
+            "BUTTONS\n"
+            "Accept - accept current annotation and ask for next.\n"
+            "Reset - reset all labels in text.\n"
+            "Multiwords Mode"
+            "   while green you can merge words into multiword annotation.\n"
+            "       e.g. [United States] <- Geo\n"
+            "       Left click add word to multiword annotation.\n"
+            "       Right click ends current multiword annotation. \n"
+            "   while red you can create only single word annotations.\n"
+            "       e.g. [Poland] <- Geo\n"
+            "       Left click create single word annotation from clicked word. \n"
+            "       Right click removes label from clicked word. \n"
+        )
+
+        content_layout = BoxLayout(orientation='vertical', padding=20, spacing=10)
+
+        instruction_input = TextInput(text=instruction_text, readonly=True,
+                                      padding=(10, 10))
+
+        close_button = Button(text='Close', size_hint=(None, None), size=(100, 50))
+        close_button.bind(on_release=lambda btn: popup.dismiss())
+
+        content_layout.add_widget(instruction_input)
+        content_layout.add_widget(close_button)
+
+        popup = Popup(title="Manual", content=content_layout, size_hint=(None, None), size=(600, 600))
+        popup.open()
+
+    def toggle_multiword_mode(self):
+        self.multiword_mode = not self.multiword_mode
+        self.ids.multiword_mode_button.background_color = [0, 1, 0, 1] if self.multiword_mode else [1, 0, 0, 1]
+        self.commit_multi_label()
 
     def on_labels(self, instance, value):
         self.ids.choose_container.labels = value
@@ -87,9 +149,6 @@ class AnnotationForm(BoxLayout):
             color_label.size_hint = 1, 1
             self.ids.current_annotation.add_widget(color_label)
             self.labels_to_merge = deque()
-            for child in self.ids.buttons.children[:]:
-                if isinstance(child, Button) and child.text == "Merge":
-                    self.ids.buttons.remove_widget(child)
 
     def update_selected_label(self, new_label: ColorLabel):
         for label_widget in self.ids.choose_container.children:
@@ -104,15 +163,7 @@ class AnnotationForm(BoxLayout):
             self.selected_label = new_label
         else:
             self.selected_label = None
-
-    def update_annotation(self, token: Token, touch):
-        if self.selected_label and not is_key_pressed("ctrl"):
-            if touch.button == "left":
-                token.annotation.label = self.selected_label.label_data
-            elif touch.button == "right":
-                token.annotation.label = None
-            token.update_label()
-            token.canvas.ask_update()
+        self.commit_multi_label()
 
     def reset(self):
         new_tokens = []
@@ -127,72 +178,104 @@ class AnnotationForm(BoxLayout):
             label.selected = 0
         self.labels_to_merge = deque()
 
-    def on_labels_to_merge(self, instance, value):
-        self.update_labels_to_merge()
-
-    def update_labels_to_merge(self):
-        print(len(self.labels_to_merge))
-        if (
-            len(self.labels_to_merge) == 1
-            and len(self.ids.buttons.children) == 2
-        ):
-            # Tworzenie przycisku 'Merge'
-            merge_button = Button(text="Merge", size_hint=(None, 1), width=100)
-            merge_button.bind(
-                on_release=self.merge_labels
-            )  # Bindowanie przycisku do metody merge_labels
-            self.ids.buttons.add_widget(
-                merge_button
-            )  # Dodanie przycisku do kontenera
-        elif len(self.labels_to_merge) == 0:
-            for child in self.ids.buttons.children[:]:
-                if isinstance(child, Button) and child.text == "Merge":
-                    self.ids.buttons.remove_widget(child)
-
-    def merge_labels(self, instance):
-        if not self.selected_label:
-            print("No label selected for merging.")
-            return
-
-        merged_words = [Word(label.text) for label in self.labels_to_merge]
-        merged_annotation = Annotation(
-            words=merged_words, label=self.selected_label.label_data
-        )
-
-        first_removed_word = self.labels_to_merge[0].word
-        index_to_insert = None
-
-        # Znajdź indeks tokenu zawierającego pierwsze słowo do usunięcia
-        for index, token in enumerate(self.sentence.tokens):
-            if first_removed_word in token.words:
-                index_to_insert = index
-                if len(token.words) > 1 and not set(token.words).issubset(
-                    set(merged_words)
-                ):
-                    index_to_insert += 1
-                break
-
-        if index_to_insert is not None:
-            # Usuń etykiety do połączenia
-            for label in self.labels_to_merge:
-                word_to_remove = label.word
-                for token in self.sentence.tokens:
-                    if word_to_remove in token.words:
-                        token.words.remove(word_to_remove)
-                    if not token.words:
-                        self.sentence.tokens.remove(token)
-
-            # Wstaw scaloną etykietę
-            self.sentence.tokens.insert(index_to_insert, merged_annotation)
+    def remove_label(self, word: Word):
+        token = self.sentence.get_word_parent(word)
+        if len(token.words) == 1:
+            token.label = None
         else:
-            # Jeśli nie znaleziono odpowiedniego miejsca, dodaj na końcu
-            self.sentence.tokens.append(merged_annotation)
-
-        # Czyszczenie stanu
-        self.labels_to_merge = deque()
-
-        # Aktualizacja widżetu AnnotationContainer
+            word_index = token.words.index(word)
+            left_words = token.words[:word_index]
+            right_words = token.words[word_index + 1:]
+            new_tokens = []
+            if left_words:
+                new_tokens.append(Annotation(words=left_words, label=token.label))
+            new_tokens.append(Annotation(words=[word], label=None))
+            if right_words:
+                new_tokens.append(Annotation(words=right_words, label=token.label))
+            index_to_replace = self.sentence.tokens.index(token)
+            self.sentence.tokens.pop(index_to_replace)
+            self.sentence.tokens[index_to_replace:index_to_replace] = new_tokens
         self.ids.annotation_container.sentence = self.sentence
         self.ids.annotation_container.update_tokens()
 
-        print("Merged labels:", merged_annotation)
+    def update_single_word_mode(self, word: Word):
+        parent = self.sentence.get_word_parent(word)
+
+        left_neighbor = self.sentence.get_left_neighbor(word)
+        right_neighbor = self.sentence.get_right_neighbor(word)
+
+        left_parent = self.sentence.get_word_parent(left_neighbor)
+        right_parent = self.sentence.get_word_parent(right_neighbor)
+
+        annotation = Annotation(words=[word], label=self.selected_label.label_data)
+
+        left_index = parent.words.index(left_neighbor) if left_parent == parent else None
+        right_index = parent.words.index(right_neighbor) if right_parent == parent else None
+        new_tokens = []
+        if left_index is not None:
+            left_index += 1
+            left_words = parent.words[:left_index]
+            new_tokens.append(Annotation(words=left_words, label=parent.label))
+        new_tokens.append(annotation)
+        if right_index is not None:
+            right_words = parent.words[right_index:]
+            new_tokens.append(Annotation(words=right_words, label=parent.label))
+        index_to_replace = self.sentence.tokens.index(parent)
+        self.sentence.tokens.pop(index_to_replace)
+        self.sentence.tokens[index_to_replace:index_to_replace] = new_tokens
+
+        self.ids.annotation_container.sentence = self.sentence
+        self.ids.annotation_container.update_tokens()
+
+    def update_multi_word_mode(self, word: Word):
+        if not self.labels_to_merge:
+            self.labels_to_merge.append(word)
+        elif word == self.sentence.get_left_neighbor(self.labels_to_merge[0]):
+            self.labels_to_merge.appendleft(word)
+        elif word == self.sentence.get_right_neighbor(self.labels_to_merge[-1]):
+            self.labels_to_merge.append(word)
+        else:
+            return
+
+        merged_annotation = Annotation(words=list(self.labels_to_merge), label=self.selected_label.label_data)
+
+        first_removed_word = self.labels_to_merge[0]
+        last_removed_word = self.labels_to_merge[-1]
+
+        parent = self.sentence.get_word_parent(word)
+        left_neighbor = self.sentence.get_left_neighbor(first_removed_word)
+        right_neighbor = self.sentence.get_right_neighbor(last_removed_word)
+
+        for index, token in enumerate(self.sentence.tokens):
+            if first_removed_word in token.words:
+                index_to_insert = index
+                if len(token.words) > 1 and right_neighbor not in token.words or left_neighbor in token.words:
+                    index_to_insert += 1
+                break
+
+        new_tokens = []
+        if self.sentence.get_word_parent(left_neighbor) == parent:
+            left_index = parent.words.index(left_neighbor)
+            left_words = parent.words[:left_index + 1]
+            new_tokens.append(Annotation(words=left_words, label=parent.label))
+
+        new_tokens.append(merged_annotation)
+
+        if self.sentence.get_word_parent(right_neighbor) == parent:
+            right_index = parent.words.index(right_neighbor)
+            right_words = parent.words[right_index:]
+            new_tokens.append(Annotation(words=right_words, label=parent.label))
+
+        index_to_replace = self.sentence.tokens.index(parent)
+        self.sentence.tokens[index_to_replace:index_to_replace] = new_tokens
+        self.sentence.tokens.remove(parent)
+        if self.last_added_annotation:
+            self.sentence.tokens.remove(self.last_added_annotation)
+        self.last_added_annotation = merged_annotation
+
+        self.ids.annotation_container.sentence = self.sentence
+        self.ids.annotation_container.update_tokens()
+
+    def commit_multi_label(self):
+        self.last_added_annotation = None
+        self.labels_to_merge = deque()
