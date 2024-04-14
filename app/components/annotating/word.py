@@ -24,16 +24,21 @@ class Word(Label):
         super(Word, self).__init__(**kwargs)
 
     def on_touch_down(self, touch):
-        if self.parent is None or self.parent.parent is None or self.parent.parent.parent is None or self.parent.parent.parent.parent is None:
+        if (
+            self.parent is None
+            or self.parent.parent is None
+            or self.parent.parent.parent is None
+            or self.parent.parent.parent.parent is None
+        ):
             return
         form = self.parent.parent.parent.parent
         if self.collide_point(*touch.pos):
-            if touch.button == 'left' and form.selected_label:
+            if touch.button == "left" and form.selected_label:
                 if form.multiword_mode:
                     form.update_multi_word_mode(self.word)
                 else:
                     form.update_single_word_mode(self.word)
-            elif touch.button == 'right':
+            elif touch.button == "right":
                 if form.multiword_mode:
                     form.commit_multi_label()
                 else:

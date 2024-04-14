@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Tuple, Optional, Any, List, Dict
+from typing import Tuple, Optional, Any, List, Dict, IO
 
 
 @dataclass
@@ -69,6 +69,19 @@ class Sentence:
             if word in token.words:
                 return token
 
+    def to_csv(self, fh: IO[str]) -> None:
+        # @TODO Add B-label, I-label to recognize multilabel sentence
+        labels = [
+            token.label.label if token.label else "O"
+            for token in self.tokens
+            for word in token.words
+        ]
+        words = [word.word for token in self.tokens for word in token.words]
+
+        merged = words + ["<END_SENTENCE>"] + labels
+        row = ",".join(merged)
+        fh.write(row + "\n")
+
 
 @dataclass
 class ProjectData:
@@ -82,3 +95,9 @@ class ProjectData:
         data = self.__dict__
         data["labels"] = [label.to_dict() for label in data["labels"]]
         return data
+
+    @classmethod
+    def from_dict(cls, data_dict):
+        label_dicts = data_dict.pop("labels", [])
+        labels = [LabelData(**label_dict) for label_dict in label_dicts]
+        return cls(labels=labels, **data_dict)

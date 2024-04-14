@@ -1,10 +1,10 @@
-from kivy.app import App
+import csv
+from collections import deque
+
 from kivy.core.window import Window
-from kivy.uix.screenmanager import Screen, ScreenManager
+from kivy.uix.screenmanager import Screen
 from kivy.lang import Builder
 from data_types import (
-    ProjectData,
-    LabelData,
     Annotation,
     Sentence,
     Word,
@@ -42,50 +42,29 @@ class MainMenuScreen(Screen):
         shared_data = kwargs.pop("shared_data", None)
         super(MainMenuScreen, self).__init__(**kwargs)
         self.shared_data = shared_data
+        sentences = self.read_sentences_from_csv(
+            "app/saved_projects/prototype_showcase/unlabeled.csv"
+        )
+        self.sentences = deque()
+        for sentence in sentences:
+            annotations = [
+                Annotation(words=[Word(word)], label=None) for word in sentence
+            ]
+            self.sentences.append(Sentence(tokens=annotations))
+        self.ids.annotation_form.sentence = self.sentences.popleft()
+
+    def gen_sentence(self):
+        if len(self.sentences) > 0:
+            yield self.sentences.popleft()
 
     def on_enter(self):
-        print('L3', self.shared_data.labels)
+        print(self.shared_data)
         self.ids.annotation_form.labels = self.shared_data.labels
 
-
-class MyApp(App):
-
-    def build(self):
-        label1 = LabelData(label="Cat", color=(1, 0, 0, 1))
-        label2 = LabelData(label="Dog", color=(0, 1, 0, 1))
-        label3 = LabelData(label="Bird", color=(0, 0, 1, 1))
-
-        shared_data = ProjectData(
-            name="Animal Recognition Project",
-            description="A project to recognize various animals",
-            dataset_path="/path/to/dataset",
-            labels=[label1, label2, label3],
-        )
-        screen_manager = ScreenManager()
-        main_menu_screen = MainMenuScreen(
-            name="main_menu", shared_data=shared_data
-        )
-        screen_manager.add_widget(main_menu_screen)
-        data = [
-            "A" * 10,
-            "B" * 10,
-            "C" * 10,
-            "D" * 10,
-            "E" * 10,
-            "F" * 10,
-            "G" * 10,
-            "H" * 10,
-            "I" * 10,
-            "J" * 10,
-        ]
-        annotations = [
-            Annotation(words=[Word(word)], label=None) for word in data
-        ]
-        sentence = Sentence(tokens=annotations)
-
-        main_menu_screen.ids.annotation_form.sentence = sentence
-        return screen_manager
-
-
-if __name__ == "__main__":
-    MyApp().run()
+    def read_sentences_from_csv(self, csv_file_path):
+        sentences = []
+        with open(csv_file_path, "r") as file:
+            reader = csv.reader(file, delimiter="\t")
+            for row in reader:
+                sentences.append(row)
+        return sentences

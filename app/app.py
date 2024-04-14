@@ -42,7 +42,11 @@ class Application(App):
         shared_data = ProjectData()
         sm = ScreenManager()
         sm.add_widget(WelcomeScreen(name="welcome"))
-        sm.add_widget(ExistingProjectScreen(name="existing_project"))
+        sm.add_widget(
+            ExistingProjectScreen(
+                name="existing_project", shared_data=shared_data
+            )
+        )
         sm.add_widget(
             CreateProjectScreen(name="create_project", shared_data=shared_data)
         )

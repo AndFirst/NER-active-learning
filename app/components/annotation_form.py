@@ -11,9 +11,7 @@ from kivy.uix.textinput import TextInput
 from components.label import ColorLabel
 from kivy.config import Config
 
-from components.token import Token
 from data_types import Annotation, Sentence, Word
-from utils import is_key_pressed
 
 Config.set("input", "mouse", "mouse,multitouch_on_demand")
 
@@ -71,6 +69,7 @@ kv_string = """
             text: 'Accept'
             font_size: '25sp'
             background_color: 0, 1, 0, 1  
+            on_release: root.accept()
         Button:
             text: 'Reset'
             font_size: '25sp'
@@ -93,10 +92,30 @@ Builder.load_string(kv_string)
 class AnnotationForm(BoxLayout):
     selected_label = ObjectProperty(None, allownone=True)
     labels = ListProperty([])
-    sentence = ObjectProperty(None)
+    sentence = ObjectProperty(None, allownone=True)
     labels_to_merge = ObjectProperty(deque(), allownone=True)
     multiword_mode = BooleanProperty(False)
     last_added_annotation = ObjectProperty(None, allownone=True)
+
+    def accept(self):
+        with open(
+            "app/saved_projects/prototype_showcase/labeled.csv", "a"
+        ) as file:
+            self.sentence.to_csv(file)
+        try:
+            self.sentence = next(self.parent.parent.gen_sentence())
+        except StopIteration:
+            self.sentence = None
+            content = Label(
+                text="All data has been annotated.\nYou're free now! Have a nice day!",
+            )
+            popup = Popup(
+                title="Annotation Complete",
+                content=content,
+                size_hint=(None, None),
+                size=(400, 200),
+            )
+            popup.open()
 
     def show_instruction_popup(self):
         instruction_text = (
@@ -114,23 +133,35 @@ class AnnotationForm(BoxLayout):
             "       Right click removes label from clicked word. \n"
         )
 
-        content_layout = BoxLayout(orientation='vertical', padding=20, spacing=10)
+        content_layout = BoxLayout(
+            orientation="vertical", padding=20, spacing=10
+        )
 
-        instruction_input = TextInput(text=instruction_text, readonly=True,
-                                      padding=(10, 10))
+        instruction_input = TextInput(
+            text=instruction_text, readonly=True, padding=(10, 10)
+        )
 
-        close_button = Button(text='Close', size_hint=(None, None), size=(100, 50))
+        close_button = Button(
+            text="Close", size_hint=(None, None), size=(100, 50)
+        )
         close_button.bind(on_release=lambda btn: popup.dismiss())
 
         content_layout.add_widget(instruction_input)
         content_layout.add_widget(close_button)
 
-        popup = Popup(title="Manual", content=content_layout, size_hint=(None, None), size=(600, 600))
+        popup = Popup(
+            title="Manual",
+            content=content_layout,
+            size_hint=(None, None),
+            size=(600, 600),
+        )
         popup.open()
 
     def toggle_multiword_mode(self):
         self.multiword_mode = not self.multiword_mode
-        self.ids.multiword_mode_button.background_color = [0, 1, 0, 1] if self.multiword_mode else [1, 0, 0, 1]
+        self.ids.multiword_mode_button.background_color = (
+            [0, 1, 0, 1] if self.multiword_mode else [1, 0, 0, 1]
+        )
         self.commit_multi_label()
 
     def on_labels(self, instance, value):
@@ -185,16 +216,22 @@ class AnnotationForm(BoxLayout):
         else:
             word_index = token.words.index(word)
             left_words = token.words[:word_index]
-            right_words = token.words[word_index + 1:]
+            right_words = token.words[word_index + 1 :]
             new_tokens = []
             if left_words:
-                new_tokens.append(Annotation(words=left_words, label=token.label))
+                new_tokens.append(
+                    Annotation(words=left_words, label=token.label)
+                )
             new_tokens.append(Annotation(words=[word], label=None))
             if right_words:
-                new_tokens.append(Annotation(words=right_words, label=token.label))
+                new_tokens.append(
+                    Annotation(words=right_words, label=token.label)
+                )
             index_to_replace = self.sentence.tokens.index(token)
             self.sentence.tokens.pop(index_to_replace)
-            self.sentence.tokens[index_to_replace:index_to_replace] = new_tokens
+            self.sentence.tokens[index_to_replace:index_to_replace] = (
+                new_tokens
+            )
         self.ids.annotation_container.sentence = self.sentence
         self.ids.annotation_container.update_tokens()
 
@@ -207,10 +244,20 @@ class AnnotationForm(BoxLayout):
         left_parent = self.sentence.get_word_parent(left_neighbor)
         right_parent = self.sentence.get_word_parent(right_neighbor)
 
-        annotation = Annotation(words=[word], label=self.selected_label.label_data)
+        annotation = Annotation(
+            words=[word], label=self.selected_label.label_data
+        )
 
-        left_index = parent.words.index(left_neighbor) if left_parent == parent else None
-        right_index = parent.words.index(right_neighbor) if right_parent == parent else None
+        left_index = (
+            parent.words.index(left_neighbor)
+            if left_parent == parent
+            else None
+        )
+        right_index = (
+            parent.words.index(right_neighbor)
+            if right_parent == parent
+            else None
+        )
         new_tokens = []
         if left_index is not None:
             left_index += 1
@@ -219,7 +266,9 @@ class AnnotationForm(BoxLayout):
         new_tokens.append(annotation)
         if right_index is not None:
             right_words = parent.words[right_index:]
-            new_tokens.append(Annotation(words=right_words, label=parent.label))
+            new_tokens.append(
+                Annotation(words=right_words, label=parent.label)
+            )
         index_to_replace = self.sentence.tokens.index(parent)
         self.sentence.tokens.pop(index_to_replace)
         self.sentence.tokens[index_to_replace:index_to_replace] = new_tokens
@@ -232,12 +281,17 @@ class AnnotationForm(BoxLayout):
             self.labels_to_merge.append(word)
         elif word == self.sentence.get_left_neighbor(self.labels_to_merge[0]):
             self.labels_to_merge.appendleft(word)
-        elif word == self.sentence.get_right_neighbor(self.labels_to_merge[-1]):
+        elif word == self.sentence.get_right_neighbor(
+            self.labels_to_merge[-1]
+        ):
             self.labels_to_merge.append(word)
         else:
             return
 
-        merged_annotation = Annotation(words=list(self.labels_to_merge), label=self.selected_label.label_data)
+        merged_annotation = Annotation(
+            words=list(self.labels_to_merge),
+            label=self.selected_label.label_data,
+        )
 
         first_removed_word = self.labels_to_merge[0]
         last_removed_word = self.labels_to_merge[-1]
@@ -249,14 +303,18 @@ class AnnotationForm(BoxLayout):
         for index, token in enumerate(self.sentence.tokens):
             if first_removed_word in token.words:
                 index_to_insert = index
-                if len(token.words) > 1 and right_neighbor not in token.words or left_neighbor in token.words:
+                if (
+                    len(token.words) > 1
+                    and right_neighbor not in token.words
+                    or left_neighbor in token.words
+                ):
                     index_to_insert += 1
                 break
 
         new_tokens = []
         if self.sentence.get_word_parent(left_neighbor) == parent:
             left_index = parent.words.index(left_neighbor)
-            left_words = parent.words[:left_index + 1]
+            left_words = parent.words[: left_index + 1]
             new_tokens.append(Annotation(words=left_words, label=parent.label))
 
         new_tokens.append(merged_annotation)
@@ -264,7 +322,9 @@ class AnnotationForm(BoxLayout):
         if self.sentence.get_word_parent(right_neighbor) == parent:
             right_index = parent.words.index(right_neighbor)
             right_words = parent.words[right_index:]
-            new_tokens.append(Annotation(words=right_words, label=parent.label))
+            new_tokens.append(
+                Annotation(words=right_words, label=parent.label)
+            )
 
         index_to_replace = self.sentence.tokens.index(parent)
         self.sentence.tokens[index_to_replace:index_to_replace] = new_tokens

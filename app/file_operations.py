@@ -43,3 +43,11 @@ def save_project(project_data: ProjectData, directory: str):
     # Saving project data to JSON file
     with open(os.path.join(new_folder_path, "project.json"), "w") as json_file:
         json.dump(project_data.to_dict(), json_file)
+    with open(os.path.join(new_folder_path, "labeled" + extension), "w"):
+        pass
+
+
+def load_project_from_file(file_path: str) -> dict:
+    with open(file_path, "r") as json_file:
+        project_data = json.load(json_file)
+    return project_data

@@ -19,13 +19,14 @@ Builder.load_string(kv_string)
 
 
 class AnnotationContainer(StackLayout):
-    sentence = ObjectProperty(None)
+    sentence = ObjectProperty(None, allownone=True)
 
     def on_sentence(self, instance, value):
         self.update_tokens()
 
     def update_tokens(self):
         self.clear_widgets()
-        for token in self.sentence.tokens:
-            if token.words:
-                self.add_widget(Token(annotation=token))
+        if self.sentence:
+            for token in self.sentence.tokens:
+                if token.words:
+                    self.add_widget(Token(annotation=token))
