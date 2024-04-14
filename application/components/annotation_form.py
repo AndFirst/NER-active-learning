@@ -4,6 +4,9 @@ from kivy.lang import Builder
 from kivy.properties import ObjectProperty, ListProperty, BooleanProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
+from kivy.uix.label import Label
+from kivy.uix.popup import Popup
+from kivy.uix.textinput import TextInput
 
 from application.components.label import ColorLabel
 from application.components.label_choose_container import LabelChooseContainer
@@ -26,15 +29,33 @@ kv_string = """
         id: choose_container
         label_callback: root.update_selected_label
     BoxLayout:
-        id: current_annotation
-        orientation: 'horizontal'
         size_hint_y: 0.1
-        canvas.before:
-            Color:
-                rgba: 0, 0, 0, 1 
-            Line:
-                rectangle: (self.x, self.y, self.width, self.height)
-                width: 1 
+        orientation: 'horizontal'
+        BoxLayout:
+            id: current_annotation
+            orientation: 'horizontal'
+            size_hint_x: 0.7
+            canvas.before:
+                Color:
+                    rgba: 0, 0, 0, 1 
+                Line:
+                    rectangle: (self.x, self.y, self.width, self.height)
+                    width: 1 
+        BoxLayout:
+            size_hint_x: 0.3
+            Button:
+                text: '?'
+                font_size: '25sp'
+                background_normal: ''
+                background_color: 0, 0, 0, 0
+                pos_hint: {'center_x': 0.5}
+                canvas.before:
+                    Color:
+                        rgba: 0.5, 0.5, 0.5, 1
+                    Ellipse:
+                        pos: (self.pos[0] + self.width / 2 - self.height / 2, self.pos[1])
+                        size: (self.height, self.height)
+                on_release: root.show_instruction_popup()
     AnnotationContainer:
         id: annotation_container
         size_hint_y: 0.6
@@ -69,7 +90,6 @@ kv_string = """
 Builder.load_string(kv_string)
 
 
-# @TODO One label - multiple word - IREK
 # @TODO Save on 'Akceptuj' click - IREK
 # @TODO Save on press exit button when there is unsaved progress. - IREK
 class AnnotationForm(BoxLayout):
@@ -79,6 +99,36 @@ class AnnotationForm(BoxLayout):
     labels_to_merge = ObjectProperty(deque(), allownone=True)
     multiword_mode = BooleanProperty(False)
     last_added_annotation = ObjectProperty(None, allownone=True)
+
+    def show_instruction_popup(self):
+        instruction_text = (
+            "BUTTONS\n"
+            "Accept - accept current annotation and ask for next.\n"
+            "Reset - reset all labels in text.\n"
+            "Multiwords Mode"
+            "   while green you can merge words into multiword annotation.\n"
+            "       e.g. [United States] <- Geo\n"
+            "       Left click add word to multiword annotation.\n"
+            "       Right click ends current multiword annotation. \n"
+            "   while red you can create only single word annotations.\n"
+            "       e.g. [Poland] <- Geo\n"
+            "       Left click create single word annotation from clicked word. \n"
+            "       Right click removes label from clicked word. \n"
+        )
+
+        content_layout = BoxLayout(orientation='vertical', padding=20, spacing=10)
+
+        instruction_input = TextInput(text=instruction_text, readonly=True,
+                                      padding=(10, 10))
+
+        close_button = Button(text='Close', size_hint=(None, None), size=(100, 50))
+        close_button.bind(on_release=lambda btn: popup.dismiss())
+
+        content_layout.add_widget(instruction_input)
+        content_layout.add_widget(close_button)
+
+        popup = Popup(title="Manual", content=content_layout, size_hint=(None, None), size=(600, 600))
+        popup.open()
 
     def toggle_multiword_mode(self):
         self.multiword_mode = not self.multiword_mode
