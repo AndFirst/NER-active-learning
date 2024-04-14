@@ -2,8 +2,6 @@ from kivy.properties import ObjectProperty
 from kivy.uix.label import Label
 from kivy.lang import Builder
 
-from application.data_types import Annotation
-from application.utils import is_key_pressed
 
 kv_string = """
 <Word>:
@@ -30,15 +28,19 @@ class Word(Label):
         form = self.parent.parent.parent.parent
         if self.collide_point(*touch.pos):
             if form.selected_label:
-                if touch.button == 'left':
+                if touch.button == "left":
                     if not form.labels_to_merge:
                         form.labels_to_merge.append(self)
-                    elif self.word == form.sentence.get_left_neighbor(form.labels_to_merge[0].word):
+                    elif self.word == form.sentence.get_left_neighbor(
+                        form.labels_to_merge[0].word
+                    ):
                         form.labels_to_merge.appendleft(self)
-                    elif self.word == form.sentence.get_right_neighbor(form.labels_to_merge[-1].word):
+                    elif self.word == form.sentence.get_right_neighbor(
+                        form.labels_to_merge[-1].word
+                    ):
                         form.labels_to_merge.append(self)
                     else:
-                        print('Nie da sie dodać tego labela')
+                        print("Nie da sie dodać tego labela")
                     print(form.labels_to_merge)
                     form.update_labels_to_merge()
             else:

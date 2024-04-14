@@ -7,7 +7,6 @@ from kivy.utils import platform
 import os
 from kivy.app import App
 from kivy.uix.label import Label
-from components.prev_next_buttons import PrevNextButtons
 from kivy.uix.button import Button
 
 kv_string = """
@@ -43,11 +42,11 @@ Builder.load_string(kv_string)
 
 
 class DatasetScreen(Screen):
-    selected_file = StringProperty('')
+    selected_file = StringProperty("")
     popup = None
 
     def __init__(self, **kwargs):
-        shared_data = kwargs.pop('shared_data', None)
+        shared_data = kwargs.pop("shared_data", None)
         super(DatasetScreen, self).__init__(**kwargs)
         self.shared_data = shared_data
 
@@ -55,31 +54,41 @@ class DatasetScreen(Screen):
         self.ids.prev_next_buttons.on_next = self.check_file
 
     def go_to_create_project(self):
-        self.manager.current = 'create_project'
+        self.manager.current = "create_project"
 
     def go_to_add_labels(self):
-        self.manager.current = 'add_labels'
+        self.manager.current = "add_labels"
 
     def open_file_chooser(self):
         app_path = App.get_running_app().home_dir
-        if platform == 'win':
-            filters = ['*.csv', '*.json', '*.jsonl']
+        if platform == "win":
+            filters = ["*.csv", "*.json", "*.jsonl"]
         else:
-            filters = [lambda folder, filename: any(
-                filename.endswith(ext) for ext in ('.csv', '.json', '.jsonl'))]
+            filters = [
+                lambda folder, filename: any(
+                    filename.endswith(ext)
+                    for ext in (".csv", ".json", ".jsonl")
+                )
+            ]
 
         file_chooser = FileChooserIconView(
-            path=app_path, filters=filters, dirselect=False)
+            path=app_path, filters=filters, dirselect=False
+        )
         file_chooser.bind(on_submit=self.on_submit)
 
         choose_button = Button(
-            text='Choose dataset', size_hint=(None, None), size=(150, 50))
-        choose_button.bind(on_press=lambda instance: self.on_submit(
-            file_chooser, file_chooser.selection, None))
+            text="Choose dataset", size_hint=(None, None), size=(150, 50)
+        )
+        choose_button.bind(
+            on_press=lambda instance: self.on_submit(
+                file_chooser, file_chooser.selection, None
+            )
+        )
         file_chooser.add_widget(choose_button)
 
-        self.popup = Popup(title='Choose file',
-                           content=file_chooser, size_hint=(0.9, 0.9))
+        self.popup = Popup(
+            title="Choose file", content=file_chooser, size_hint=(0.9, 0.9)
+        )
         self.popup.open()
 
     def on_submit(self, instance, selection, touch):
@@ -91,10 +100,18 @@ class DatasetScreen(Screen):
         if self.selected_file:
             if os.path.exists(self.selected_file):
                 self.shared_data.dataset_path = self.selected_file
-                self.manager.current = 'add_labels'
+                self.manager.current = "add_labels"
             else:
-                Popup(title='Error', content=Label(text='Chosen file not exist.'),
-                      size_hint=(None, None), size=(300, 200)).open()
+                Popup(
+                    title="Error",
+                    content=Label(text="Chosen file not exist."),
+                    size_hint=(None, None),
+                    size=(300, 200),
+                ).open()
         else:
-            Popup(title='Error', content=Label(text='File not chosen.'),
-                  size_hint=(None, None), size=(300, 200)).open()
+            Popup(
+                title="Error",
+                content=Label(text="File not chosen."),
+                size_hint=(None, None),
+                size=(300, 200),
+            ).open()

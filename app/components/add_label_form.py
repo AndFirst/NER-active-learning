@@ -2,7 +2,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.lang import Builder
 from components.label_row import LabelRow
 
-kv_string = '''
+kv_string = """
 <AddLabelForm>:
     orientation: 'vertical'
     padding: 20
@@ -13,7 +13,7 @@ kv_string = '''
             rectangle: (self.x, self.y, self.width, self.height)
             width: 1
     ScrollView:
-        id: scroll_view    
+        id: scroll_view
         scroll_type: ['bars']
         size_hint: 1, 1
         bar_width: 20
@@ -39,7 +39,7 @@ kv_string = '''
             LabelRow:
 
 
-'''
+"""
 
 Builder.load_string(kv_string)
 
@@ -47,5 +47,9 @@ Builder.load_string(kv_string)
 class AddLabelForm(BoxLayout):
     @property
     def label_rows(self):
-        label_rows = [child for child in self.ids.layout.children if isinstance(child, LabelRow)]
+        label_rows = [
+            child
+            for child in self.ids.layout.children
+            if isinstance(child, LabelRow)
+        ]
         return label_rows

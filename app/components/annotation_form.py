@@ -5,14 +5,12 @@ from kivy.properties import ObjectProperty, ListProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 
-from application.components.label import ColorLabel
-from application.components.label_choose_container import LabelChooseContainer
-from application.components.annotation_container import AnnotationContainer
+from components.label import ColorLabel
 from kivy.config import Config
 
-from application.components.token import Token
-from application.data_types import Annotation, Sentence, Word
-from application.utils import is_key_pressed
+from components.token import Token
+from data_types import Annotation, Sentence, Word
+from utils import is_key_pressed
 
 Config.set("input", "mouse", "mouse,multitouch_on_demand")
 
@@ -31,10 +29,10 @@ kv_string = """
         size_hint_y: 0.1
         canvas.before:
             Color:
-                rgba: 0, 0, 0, 1 
+                rgba: 0, 0, 0, 1
             Line:
                 rectangle: (self.x, self.y, self.width, self.height)
-                width: 1 
+                width: 1
     AnnotationContainer:
         id: annotation_container
         size_hint_y: 0.6
@@ -45,7 +43,7 @@ kv_string = """
         size_hint_y: 0.1
         canvas.before:
             Color:
-                rgba: 0, 0, 0, 1 
+                rgba: 0, 0, 0, 1
             Line:
                 rectangle: (self.x, self.y, self.width, self.height)
                 width: 1 
@@ -56,7 +54,7 @@ kv_string = """
         Button:
             text: 'Reset'
             font_size: '25sp'
-            background_color: 1, 0, 0, 1 
+            background_color: 1, 0, 0, 1
             on_release: root.reset()
 """
 
@@ -95,7 +93,10 @@ class AnnotationForm(BoxLayout):
 
     def update_selected_label(self, new_label: ColorLabel):
         for label_widget in self.ids.choose_container.children:
-            if isinstance(label_widget, ColorLabel) and label_widget != new_label:
+            if (
+                isinstance(label_widget, ColorLabel)
+                and label_widget != new_label
+            ):
                 label_widget.selected = 0
 
         new_label.selected = 1 - new_label.selected
@@ -105,10 +106,10 @@ class AnnotationForm(BoxLayout):
             self.selected_label = None
 
     def update_annotation(self, token: Token, touch):
-        if self.selected_label and not is_key_pressed('ctrl'):
-            if touch.button == 'left':
+        if self.selected_label and not is_key_pressed("ctrl"):
+            if touch.button == "left":
                 token.annotation.label = self.selected_label.label_data
-            elif touch.button == 'right':
+            elif touch.button == "right":
                 token.annotation.label = None
             token.update_label()
             token.canvas.ask_update()
@@ -131,11 +132,18 @@ class AnnotationForm(BoxLayout):
 
     def update_labels_to_merge(self):
         print(len(self.labels_to_merge))
-        if len(self.labels_to_merge) == 1 and len(self.ids.buttons.children) == 2:
+        if (
+            len(self.labels_to_merge) == 1
+            and len(self.ids.buttons.children) == 2
+        ):
             # Tworzenie przycisku 'Merge'
             merge_button = Button(text="Merge", size_hint=(None, 1), width=100)
-            merge_button.bind(on_release=self.merge_labels)  # Bindowanie przycisku do metody merge_labels
-            self.ids.buttons.add_widget(merge_button)  # Dodanie przycisku do kontenera
+            merge_button.bind(
+                on_release=self.merge_labels
+            )  # Bindowanie przycisku do metody merge_labels
+            self.ids.buttons.add_widget(
+                merge_button
+            )  # Dodanie przycisku do kontenera
         elif len(self.labels_to_merge) == 0:
             for child in self.ids.buttons.children[:]:
                 if isinstance(child, Button) and child.text == "Merge":
@@ -147,7 +155,9 @@ class AnnotationForm(BoxLayout):
             return
 
         merged_words = [Word(label.text) for label in self.labels_to_merge]
-        merged_annotation = Annotation(words=merged_words, label=self.selected_label.label_data)
+        merged_annotation = Annotation(
+            words=merged_words, label=self.selected_label.label_data
+        )
 
         first_removed_word = self.labels_to_merge[0].word
         index_to_insert = None
@@ -156,7 +166,9 @@ class AnnotationForm(BoxLayout):
         for index, token in enumerate(self.sentence.tokens):
             if first_removed_word in token.words:
                 index_to_insert = index
-                if len(token.words) > 1 and not set(token.words).issubset(set(merged_words)):
+                if len(token.words) > 1 and not set(token.words).issubset(
+                    set(merged_words)
+                ):
                     index_to_insert += 1
                 break
 

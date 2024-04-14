@@ -42,7 +42,7 @@ Builder.load_string(kv_string)
 
 
 class ExistingProjectScreen(Screen):
-    selected_path = StringProperty('')
+    selected_path = StringProperty("")
     popup = None
 
     def __init__(self, **kwargs):
@@ -51,31 +51,42 @@ class ExistingProjectScreen(Screen):
         self.ids.prev_next_buttons.on_next = self.check_files
 
     def go_to_welcome(self):
-        self.manager.current = 'welcome'
+        self.manager.current = "welcome"
 
     def go_to_main_menu(self):
-        self.manager.current = 'main_menu'
+        self.manager.current = "main_menu"
 
     def open_file_chooser(self):
         app_path = App.get_running_app().home_dir
-        if platform == 'win':
-            filters = ['*']
+        if platform == "win":
+            filters = ["*"]
         else:
-            filters = [lambda folder, filename: os.path.isdir(
-                os.path.join(folder, filename))]
+            filters = [
+                lambda folder, filename: os.path.isdir(
+                    os.path.join(folder, filename)
+                )
+            ]
 
         file_chooser = FileChooserIconView(
-            path=app_path, filters=filters, dirselect=True)
+            path=app_path, filters=filters, dirselect=True
+        )
         file_chooser.bind(on_submit=self.on_submit)
 
         choose_button = Button(
-            text='Choose', size_hint=(None, None), size=(150, 50))
-        choose_button.bind(on_press=lambda instance: self.on_submit(
-            file_chooser, file_chooser.selection, None))
+            text="Choose", size_hint=(None, None), size=(150, 50)
+        )
+        choose_button.bind(
+            on_press=lambda instance: self.on_submit(
+                file_chooser, file_chooser.selection, None
+            )
+        )
         file_chooser.add_widget(choose_button)
 
-        self.popup = Popup(title='Choose directory',
-                           content=file_chooser, size_hint=(0.9, 0.9))
+        self.popup = Popup(
+            title="Choose directory",
+            content=file_chooser,
+            size_hint=(0.9, 0.9),
+        )
         self.popup.open()
 
     def on_submit(self, instance, selection, touch):
@@ -85,24 +96,47 @@ class ExistingProjectScreen(Screen):
 
     def check_files(self):
         if self.selected_path:
-            setup_path = 'project.json'
+            setup_path = "project.json"
 
-            dataset_files = {'unlabeled.json', 'unlabeled.jsonl', 'unlabeled.csv'}
+            dataset_files = {
+                "unlabeled.json",
+                "unlabeled.jsonl",
+                "unlabeled.csv",
+            }
 
-            existing_files = [f for f in dataset_files if os.path.exists(
-                os.path.join(self.selected_path, f))]
+            existing_files = [
+                f
+                for f in dataset_files
+                if os.path.exists(os.path.join(self.selected_path, f))
+            ]
 
-            if not os.path.exists(os.path.join(self.selected_path, setup_path)):
-                Popup(title='Error',
-                      content=Label(text="Data inconsistency: not found project setup file."),
-                      size_hint=(None, None), size=(400, 200)).open()
+            if not os.path.exists(
+                os.path.join(self.selected_path, setup_path)
+            ):
+                Popup(
+                    title="Error",
+                    content=Label(
+                        text="Data inconsistency: not found project setup file."
+                    ),
+                    size_hint=(None, None),
+                    size=(400, 200),
+                ).open()
 
             elif len(existing_files) != 1:
-                Popup(title='Error',
-                      content=Label(text="Data inconsistency: \nThere must be exactly one file with unlabeled data."),
-                      size_hint=(None, None), size=(400, 200)).open()
+                Popup(
+                    title="Error",
+                    content=Label(
+                        text="Data inconsistency: \nThere must be exactly one file with unlabeled data."
+                    ),
+                    size_hint=(None, None),
+                    size=(400, 200),
+                ).open()
             else:
-                self.manager.current = 'main_menu'
+                self.manager.current = "main_menu"
         else:
-            Popup(title='Error', content=Label(text='Path not chosen.'),
-                  size_hint=(None, None), size=(300, 200)).open()
+            Popup(
+                title="Error",
+                content=Label(text="Path not chosen."),
+                size_hint=(None, None),
+                size=(300, 200),
+            ).open()

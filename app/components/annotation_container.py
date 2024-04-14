@@ -2,7 +2,7 @@ from kivy.lang import Builder
 from kivy.properties import ObjectProperty
 from kivy.uix.stacklayout import StackLayout
 
-from application.components.token import Token
+from components.token import Token
 
 kv_string = """
 <AnnotationContainer>:
@@ -10,7 +10,7 @@ kv_string = """
     spacing: 10
     canvas.before:
         Color:
-            rgba: 0, 0, 0, 1 
+            rgba: 0, 0, 0, 1
         Line:
             rectangle: (self.x, self.y, self.width, self.height)
             width: 1
@@ -28,4 +28,9 @@ class AnnotationContainer(StackLayout):
     def update_tokens(self):
         self.clear_widgets()
         for token in self.sentence.tokens:
-            self.add_widget(Token(annotation=token, update_form_state=self.annotation_callback))
+            self.add_widget(
+                Token(
+                    annotation=token,
+                    update_form_state=self.annotation_callback,
+                )
+            )

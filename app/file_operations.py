@@ -1,17 +1,22 @@
-import csv
 import json
-from typing import TextIO
 
-from application.data_types import ProjectData
+from data_types import ProjectData
 import os
 import shutil
 
 
 def create_unique_folder_name(directory: str, project_name: str) -> str:
     if os.path.exists(os.path.join(directory, project_name)):
-        subfolders = [f for f in os.listdir(directory) if os.path.isdir(os.path.join(directory, f))]
-        existing_numbers = [int(folder.split("_")[-1]) for folder in subfolders if
-                            folder.startswith(project_name + '_')]
+        subfolders = [
+            f
+            for f in os.listdir(directory)
+            if os.path.isdir(os.path.join(directory, f))
+        ]
+        existing_numbers = [
+            int(folder.split("_")[-1])
+            for folder in subfolders
+            if folder.startswith(project_name + "_")
+        ]
         if existing_numbers:
             return f"{project_name}_{max(existing_numbers) + 1}"
         else:

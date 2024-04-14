@@ -1,7 +1,7 @@
 from kivy.uix.boxlayout import BoxLayout
 from kivy.properties import ObjectProperty, ListProperty
 from kivy.lang import Builder
-from application.components.annotating.word import Word
+from components.annotating.word import Word
 
 token_kv_string = """
 <Token>:

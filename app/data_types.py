@@ -19,10 +19,7 @@ class LabelData:
         return hash(self.label.lower())
 
     def to_dict(self) -> Dict[str, Any]:
-        return {
-            "label": self.label,
-            "color": self.color
-        }
+        return {"label": self.label, "color": self.color}
 
 
 @dataclass
@@ -82,5 +79,5 @@ class ProjectData:
 
     def to_dict(self):
         data = self.__dict__
-        data['labels'] = [label.to_dict() for label in data['labels']]
+        data["labels"] = [label.to_dict() for label in data["labels"]]
         return data

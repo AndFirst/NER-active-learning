@@ -3,7 +3,7 @@ from kivy.lang import Builder
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
-from kivy.uix.colorpicker import ColorPicker, ColorWheel
+from kivy.uix.colorpicker import ColorWheel
 from kivy.uix.popup import Popup
 from kivy.properties import ListProperty
 import random
@@ -11,7 +11,7 @@ import random
 
 class LabelTextInput(TextInput):
     max_length = 20
-    allowed_characters = set(string.ascii_letters + string.digits + '-_')
+    allowed_characters = set(string.ascii_letters + string.digits + "-_")
 
     def insert_text(self, substring, from_undo=False):
         if all(c in self.allowed_characters for c in substring):
@@ -20,7 +20,8 @@ class LabelTextInput(TextInput):
         return False
 
 
-Builder.load_string("""
+Builder.load_string(
+    """
 <LabelRow>:
     orientation: 'horizontal'
     size_hint_y: None
@@ -50,7 +51,8 @@ Builder.load_string("""
         size_hint_x: 0.2
         height: root.height
         on_release: root.remove_row()
-""")
+"""
+)
 
 
 class LabelRow(BoxLayout):
@@ -85,8 +87,15 @@ class LabelRow(BoxLayout):
                 if isinstance(child, LabelRow) and child is not self
             ]
             if new_label_text.lower() in existing_labels:
-                content = Label(text="This label already exists.", halign="center")
-                popup = Popup(title="Error", content=content, size_hint=(None, None), size=(400, 200))
+                content = Label(
+                    text="This label already exists.", halign="center"
+                )
+                popup = Popup(
+                    title="Error",
+                    content=content,
+                    size_hint=(None, None),
+                    size=(400, 200),
+                )
                 popup.open()
                 return
             # Sprawdź, czy istnieje pusty wiersz
@@ -98,7 +107,10 @@ class LabelRow(BoxLayout):
             if empty_row_exists:
                 # Przenieś fokus na pusty wiersz
                 for child in parent.children:
-                    if isinstance(child, LabelRow) and child.ids.text_input.text == "":
+                    if (
+                        isinstance(child, LabelRow)
+                        and child.ids.text_input.text == ""
+                    ):
                         child.ids.text_input.focus = True
                         break
             else:
@@ -110,7 +122,12 @@ class LabelRow(BoxLayout):
     def show_color_picker(self):
         color_picker = ColorWheel(color=self.color)
         color_picker.bind(color=self.on_color_select)
-        self.popup = Popup(title='Choose color', content=color_picker, size_hint=(None, None), size=(400, 400))
+        self.popup = Popup(
+            title="Choose color",
+            content=color_picker,
+            size_hint=(None, None),
+            size=(400, 400),
+        )
         self.popup.open()
 
     def on_color_select(self, instance, color):
