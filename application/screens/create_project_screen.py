@@ -6,6 +6,8 @@ from kivy.uix.button import Button
 from kivy.uix.filechooser import FileChooserIconView
 from kivy.uix.boxlayout import BoxLayout
 
+from application.data_types import ProjectData
+
 kv_string = """
 <CreateProjectScreen>:
     BoxLayout:
@@ -13,7 +15,16 @@ kv_string = """
         Label:
             color: 0, 0, 0, 1
             text: 'Project info:'
+        size_hint: (1, 1)
+        padding: 20
+        spacing: 10
         BoxLayout:
+            canvas.before:
+                Color:
+                    rgba: 0, 0, 0, 1
+                Line:
+                    rectangle: (self.x, self.y, self.width, self.height)
+                    width: 1
             orientation: 'vertical'
             padding: (100, 10)
             spacing: 20
@@ -28,10 +39,24 @@ kv_string = """
                 id: path_button
                 text: 'Save project path'
                 on_release: root.open_filechooser()
+            size_hint_y: 0.8
+            Label:
+                color: 0, 0, 0, 1
+                text: 'Insert project data:'
+            BoxLayout:
+                orientation: 'vertical'
+                padding: (100, 10)
+                spacing: 20
+                TextInput:
+                    id: name_input
+                    hint_text: 'Name'
+                    multiline: False
+                TextInput:
+                    id: description_input
+                    hint_text: 'Description'
         PrevNextButtons:
+            size_hint_y: 0.2
             id: prev_next_buttons
-            back_text: "Wstecz"
-            next_text: "Dalej"
 """
 
 Builder.load_string(kv_string)
@@ -46,6 +71,9 @@ class CreateProjectScreen(Screen):
         self.ids.prev_next_buttons.on_next = self.save_and_go_to_data_set
 
     def go_to_welcome(self):
+        self.shared_data = ProjectData()
+        self.ids.name_input.text = ''
+        self.ids.description_input.text = ''
         self.manager.current = 'welcome'
 
     def open_filechooser(self):
@@ -68,14 +96,13 @@ class CreateProjectScreen(Screen):
         description = self.ids.description_input.text.strip()
         path = self.ids.path_button.text.strip()
 
-        if name and description and path:
-            self.shared_data.set_data('project_name', name)
-            self.shared_data.set_data('project_description', description)
-            self.shared_data.set_data('project_path', path)
+        if name and description:
+            self.shared_data.name = name
+            self.shared_data.description = description
             self.manager.current = 'data_set'
         else:
             popup = Popup(title='Error',
                           content=Label(
-                              text='Provide project information'),
+                              text='You have to enter all required fields.'),
                           size_hint=(None, None), size=(300, 200))
             popup.open()

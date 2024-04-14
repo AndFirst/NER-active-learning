@@ -9,13 +9,11 @@ class AddLabelScrollView(ScrollView):
         self.bar_width = 20
         self.scroll_type = ['bars']
 
-        # Layout dla etykiet
         self.labels_layout = BoxLayout(
             orientation='vertical', spacing=5, size_hint_y=None)
         self.labels_layout.bind(
             minimum_height=self.labels_layout.setter('height'))
 
-        # Dodanie layoutu do ScrollView
         self.add_widget(self.labels_layout)
 
     def add_label_row(self, on_add_row, on_delete_row, text=''):
@@ -28,4 +26,4 @@ class AddLabelScrollView(ScrollView):
         if len(self.labels_layout.children) > 1:
             self.labels_layout.remove_widget(row)
         else:
-            print("Nie można usunąć wszystkich wierszy.")
+            print("Cannot remove all labels")

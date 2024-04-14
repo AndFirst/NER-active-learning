@@ -1,14 +1,10 @@
 from kivy.lang import Builder
 from kivy.properties import ListProperty, ObjectProperty
-from kivy.uix.label import Label
 from kivy.uix.stacklayout import StackLayout
-
 from application.components.label import ColorLabel
-from application.data_types import LabelData
 
 kv_string = """
 <LabelChooseContainer>:
-    size_hint: 1, 0.2
     padding: 10
     spacing: 10
     canvas.before:
@@ -22,22 +18,20 @@ Builder.load_string(kv_string)
 
 
 class LabelChooseContainer(StackLayout):
-    labels = ListProperty([])  # Initial data
-    annotation_form = ObjectProperty(None)  # Added property to store annotation_form
+    labels = ListProperty([])
+    label_callback = ObjectProperty(None)
 
-    def __init__(self, **kwargs):
-        super(LabelChooseContainer, self).__init__(**kwargs)
-        self.bind(labels=self.on_labels_change)
-        self.update_widgets()
+    # def __init__(self, callback**kwargs):
+    #     super(LabelChooseContainer, self).__init__(**kwargs)
 
-    def update_widgets(self):
-        self.clear_widgets()  # Clear existing widgets
+    def on_labels(self, *args):
+        self.update_labels()
+
+    def on_callback(self, *args):
+        self.update_labels()
+
+    def update_labels(self):
+        self.clear_widgets()
         for label_data in self.labels:
-            label = LabelData(
-                idx=label_data[1], label=label_data[0], color=label_data[2]
-            )
-            color_label = ColorLabel(label, annotation_form=self.annotation_form)
+            color_label = ColorLabel(label_data=label_data, update_form_state=self.label_callback)
             self.add_widget(color_label)
-
-    def on_labels_change(self, instance, value):
-        self.update_widgets()

@@ -1,3 +1,6 @@
+import json
+
+from kivy.app import App
 from kivy.uix.screenmanager import Screen
 from kivy.lang import Builder
 from kivy.uix.label import Label
@@ -9,6 +12,9 @@ from kivy.uix.label import Label
 from kivy.uix.scrollview import ScrollView
 
 from kivy.uix.gridlayout import GridLayout  # Import GridLayout
+import os
+
+from application.file_operations import save_project
 
 kv_string = """
 <SummaryScreen>:
@@ -33,10 +39,14 @@ kv_string = """
                 font_size: 20 
                 bold: True 
                 halign: 'right'  
+        BoxLayout:
+            size_hint_y: 0.8
+            orientation: 'vertical'
+            Label:
+                text: 'Summary:'
         PrevNextButtons:
             id: prev_next_buttons
-            back_text: "Wstecz"
-            next_text: "Dalej"
+            size_hint_y: 0.2
 """
 Builder.load_string(kv_string)
 
@@ -66,6 +76,7 @@ class SummaryScreen(Screen):
         self.manager.current = 'add_labels'
 
     def go_to_main_menu(self):
+        save_project(self.shared_data, 'saved_projects/')
         self.manager.current = 'main_menu'
 
     def on_enter(self):
