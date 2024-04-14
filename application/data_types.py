@@ -39,6 +39,11 @@ class ProjectData:
 
 
 @dataclass
-class AnnotateLabel:
-    word: str
+class Annotation:
+    words: List[str]
     label: Optional[LabelData]
+
+
+@dataclass
+class Sentence:
+    tokens: list[Annotation]

@@ -1,6 +1,10 @@
-from kivy.uix.screenmanager import Screen
+from kivy.app import App
+from kivy.core.window import Window
+from kivy.uix.screenmanager import Screen, ScreenManager
 from kivy.lang import Builder
-from components.annotation_form import AnnotationForm
+from application.components.annotation_form import AnnotationForm
+from application.data_types import ProjectData, LabelData, Annotation, Sentence
+from application.ui_colors import BACKGROUND_COLOR
 
 kv_string = """
 <MainMenuScreen>:
@@ -29,11 +33,61 @@ Builder.load_string(kv_string)
 
 class MainMenuScreen(Screen):
     def __init__(self, **kwargs):
+        Window.clearcolor = BACKGROUND_COLOR
         shared_data = kwargs.pop('shared_data', None)
         super(MainMenuScreen, self).__init__(**kwargs)
         self.shared_data = shared_data
+        self.ids.annotation_form.labels = shared_data.labels
 
-    def on_enter(self):
-        super(MainMenuScreen, self).on_enter()
-        if self.shared_data:
-            self.ids.annotation_form.labels = self.shared_data.labels
+
+class MyApp(App):
+
+    def build(self):
+        label1 = LabelData(label="Cat", color=(1, 0, 0, 1))
+        label2 = LabelData(label="Dog", color=(0, 1, 0, 1))
+        label3 = LabelData(label="Bird", color=(0, 0, 1, 1))
+
+        shared_data = ProjectData(
+            name="Animal Recognition Project",
+            description="A project to recognize various animals",
+            dataset_path="/path/to/dataset",
+            labels=[label1, label2, label3]
+        )
+        screen_manager = ScreenManager()
+        main_menu_screen = MainMenuScreen(name='main_menu', shared_data=shared_data)
+        screen_manager.add_widget(main_menu_screen)
+        data = [
+            "Thousands",
+            "of",
+            "demonstrators",
+            "have",
+            "marched",
+            "through",
+            "London",
+            "to",
+            "protest",
+            "the",
+            "war",
+            "in",
+            "Iraq",
+            "and",
+            "demand",
+            "the",
+            "withdrawal",
+            "of",
+            "British",
+            "troops",
+            "from",
+            "that",
+            "country",
+            ".",
+        ]
+        annotations = [Annotation(words=[word], label=None) for word in data]
+        sentence = Sentence(tokens=annotations)
+
+        main_menu_screen.ids.annotation_form.sentence = sentence
+        return screen_manager
+
+
+if __name__ == '__main__':
+    MyApp().run()

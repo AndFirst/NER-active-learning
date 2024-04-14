@@ -3,6 +3,8 @@ from kivy.lang import Builder
 from kivy.uix.popup import Popup
 from kivy.uix.label import Label
 
+from application.data_types import ProjectData
+
 kv_string = """
 <CreateProjectScreen>:
     BoxLayout:
@@ -54,6 +56,9 @@ class CreateProjectScreen(Screen):
         self.ids.prev_next_buttons.on_next = self.save_and_go_to_data_set
 
     def go_to_welcome(self):
+        self.shared_data = ProjectData()
+        self.ids.name_input.text = ''
+        self.ids.description_input.text = ''
         self.manager.current = 'welcome'
 
     def save_and_go_to_data_set(self):

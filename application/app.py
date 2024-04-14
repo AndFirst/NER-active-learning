@@ -10,7 +10,6 @@ from pathlib import Path
 from kivy.modules import inspector
 
 
-# @TODO Translate all into English - ALL
 # @TODO Integrate both apps: - IREK
 #   1. Chosen labels and their colors should be visible in annotation screen.
 # @TODO Justfile/Makefile - RAFAŁ
@@ -18,7 +17,6 @@ from kivy.modules import inspector
 # @TODO Placeholder for stats - ZUZIA
 # @TODO Labels preview on main screen - ZUZIA
 # @TODO Dataset preview on main screen - ZUZIA
-# @TODO Empty shared data when exit from "create project path" - IREK
 
 class Application(App):
     def build(self):
