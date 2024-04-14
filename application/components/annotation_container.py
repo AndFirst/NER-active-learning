@@ -23,6 +23,9 @@ class AnnotationContainer(StackLayout):
     annotation_callback = ObjectProperty(None)
 
     def on_sentence(self, instance, value):
+        self.update_tokens()
+
+    def update_tokens(self):
         self.clear_widgets()
         for token in self.sentence.tokens:
             self.add_widget(Token(annotation=token, update_form_state=self.annotation_callback))

@@ -3,7 +3,7 @@ from kivy.core.window import Window
 from kivy.uix.screenmanager import Screen, ScreenManager
 from kivy.lang import Builder
 from application.components.annotation_form import AnnotationForm
-from application.data_types import ProjectData, LabelData, Annotation, Sentence
+from application.data_types import ProjectData, LabelData, Annotation, Sentence, Word
 from application.ui_colors import BACKGROUND_COLOR
 
 kv_string = """
@@ -82,7 +82,7 @@ class MyApp(App):
             "country",
             ".",
         ]
-        annotations = [Annotation(words=[word], label=None) for word in data]
+        annotations = [Annotation(words=[Word(word)], label=None) for word in data]
         sentence = Sentence(tokens=annotations)
 
         main_menu_screen.ids.annotation_form.sentence = sentence

@@ -53,12 +53,11 @@ class Token(BoxLayout):
     def __init__(self, **kwargs):
         super(Token, self).__init__(**kwargs)
         for word in self.annotation.words:
-            label = Word(text=word)
+            label = Word(word=word)
             self.ids.labels.add_widget(label)
         self.update_label()
 
     def update_label(self):
-        print(self.annotation.label)
         if self.annotation.label:
             self.ids.label_label.text = self.annotation.label.label
             self.show_border = True
@@ -68,7 +67,7 @@ class Token(BoxLayout):
             self.show_border = False
             self.border_color = [0, 0, 0, 0]
 
-    def on_touch_down(self, touch):
-        if self.collide_point(*touch.pos):
-            self.update_form_state(self, touch)
-        super().on_touch_down(touch)
+    # def on_touch_down(self, touch):
+    #     if self.collide_point(*touch.pos):
+    #         self.update_form_state(self, touch)
+    #     super().on_touch_down(touch)
