@@ -22,12 +22,15 @@ class LabelData:
         return {"label": self.label, "color": self.color}
 
 
-@dataclass
+@dataclass(order=True, frozen=True)
 class Word:
     word: str
 
     def __hash__(self):
-        return hash(self.word)
+        return hash(id(self))
+
+    def __eq__(self, other: Any) -> bool:
+        return id(self) == id(other)
 
 
 @dataclass
