@@ -1,3 +1,5 @@
+import copy
+
 from kivy.uix.screenmanager import Screen
 from kivy.lang import Builder
 from kivy.uix.label import Label
@@ -49,8 +51,20 @@ class SummaryScreen(Screen):
         self.shared_data = shared_data
 
     def on_enter(self):
-        field_label = Label(text="Field", font_size=20, bold=True, halign="left", color=(0, 0, 0, 1))
-        value_label = Label(text="Value", font_size=20, bold=True, halign="right", color=(0, 0, 0, 1))
+        field_label = Label(
+            text="Field",
+            font_size=20,
+            bold=True,
+            halign="left",
+            color=(0, 0, 0, 1),
+        )
+        value_label = Label(
+            text="Value",
+            font_size=20,
+            bold=True,
+            halign="right",
+            color=(0, 0, 0, 1),
+        )
 
         self.ids.field_value_grid.add_widget(field_label)
         self.ids.field_value_grid.add_widget(value_label)
@@ -69,21 +83,34 @@ class SummaryScreen(Screen):
         values = [
             self.shared_data.name,
             self.shared_data.description,
-            self.shared_data.save_path.split('/')[-3:],
-            self.shared_data.dataset_path.split('/')[-3:] 
+            self.shared_data.save_path.split("/")[-3:],
+            self.shared_data.dataset_path.split("/")[-3:],
         ]
 
         for field_label_text, value in zip(field_labels, values):
-            field_label = Label(text=field_label_text, halign="left", color=(0, 0, 0, 1))
-            if field_label_text == "Dataset Path" or field_label_text == "Save Path":
-                value_label = Label(text='.../'+str('/'.join(value)), halign="right", color=(0, 0, 0, 1))
+            field_label = Label(
+                text=field_label_text, halign="left", color=(0, 0, 0, 1)
+            )
+            if (
+                field_label_text == "Dataset Path"
+                or field_label_text == "Save Path"
+            ):
+                value_label = Label(
+                    text=".../" + str("/".join(value)),
+                    halign="right",
+                    color=(0, 0, 0, 1),
+                )
             elif field_label_text == "Description":
-                wrapped_text = ''
+                wrapped_text = ""
                 for i in range(0, len(value), 50):
-                    wrapped_text += value[i:i+50] + '\n'
-                value_label = Label(text=wrapped_text, halign="right", color=(0, 0, 0, 1))
+                    wrapped_text += value[i : i + 50] + "\n"
+                value_label = Label(
+                    text=wrapped_text, halign="right", color=(0, 0, 0, 1)
+                )
             else:
-                value_label = Label(text=str(value), halign="right", color=(0, 0, 0, 1))
+                value_label = Label(
+                    text=str(value), halign="right", color=(0, 0, 0, 1)
+                )
             grid_layout.add_widget(field_label)
             grid_layout.add_widget(value_label)
 
@@ -91,5 +118,6 @@ class SummaryScreen(Screen):
         self.manager.current = "add_labels"
 
     def go_to_main_menu(self):
-        save_project(self.shared_data, "saved_projects/")
+        data_copy = copy.copy(self.shared_data)
+        save_project(data_copy)
         self.manager.current = "main_menu"

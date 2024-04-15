@@ -1,0 +1,35 @@
+{
+  "name": "Project name",
+  "description": "project description",
+  "save_path": "/home/irek/PycharmProjects/zprp-ner-active_learning/app/saved_projects/prototype_showcase",
+  "dataset_path": "/home/irek/PycharmProjects/zprp-ner-active_learning/app/datasets/dataset.csv",
+  "labels": [
+    {
+      "label": "GEO",
+      "color": [
+        1,
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "label": "PER",
+      "color": [
+        0,
+        1,
+        0,
+        1
+      ]
+    },
+    {
+      "label": "ORG",
+      "color": [
+        0,
+        0,
+        1,
+        1
+      ]
+    }
+  ]
+}
