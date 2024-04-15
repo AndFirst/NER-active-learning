@@ -1,5 +1,4 @@
 import json
-
 from data_types import ProjectData
 import os
 import shutil
@@ -34,13 +33,9 @@ def save_project(project_data: ProjectData, directory: str):
     new_folder_path = os.path.join(directory, unique_folder_name)
     os.makedirs(new_folder_path)
 
-    # Extracting extension from the original file path
     _, extension = os.path.splitext(project_data.dataset_path)
-
-    # Copying the file to the new folder with the same extension and name "unlabelled"
     new_file_path = os.path.join(new_folder_path, "unlabeled" + extension)
     shutil.copy(project_data.dataset_path, new_file_path)
-    # Saving project data to JSON file
     with open(os.path.join(new_folder_path, "project.json"), "w") as json_file:
         json.dump(project_data.to_dict(), json_file)
     with open(os.path.join(new_folder_path, "labeled" + extension), "w"):
