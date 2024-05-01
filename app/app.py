@@ -2,7 +2,6 @@ from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager
 from data_types import ProjectData
 from components.add_label_form import AddLabelForm
-from components.add_label_scroll_view import AddLabelScrollView
 from components.annotation_container import AnnotationContainer
 from components.annotation_form import AnnotationForm
 from components.label_choose_container import LabelChooseContainer
@@ -67,7 +66,6 @@ class Application(App):
 
 def init_imports():
     AddLabelForm
-    AddLabelScrollView
     AnnotationContainer
     AnnotationForm
     LabelChooseContainer

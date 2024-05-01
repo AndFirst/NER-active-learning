@@ -23,7 +23,6 @@ kv_string = """
 Builder.load_string(kv_string)
 
 
-# @TODO Write adding labels logic - IREK
 class AddLabelsScreen(Screen):
 
     def __init__(self, **kwargs):

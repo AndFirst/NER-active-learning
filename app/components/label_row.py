@@ -56,6 +56,8 @@ Builder.load_string(
 
 
 class LabelRow(BoxLayout):
+    last_color = [0, 0, 0, 1]
+
     @staticmethod
     def random_color():
         return [random.random() for _ in range(3)] + [1]
@@ -79,7 +81,6 @@ class LabelRow(BoxLayout):
     def add_new_row(self):
         parent = self.parent
         if parent:
-            # Sprawdź, czy etykieta już istnieje
             new_label_text = self.ids.text_input.text.strip().lower()
             existing_labels = [
                 child.ids.text_input.text.strip().lower()
@@ -98,14 +99,12 @@ class LabelRow(BoxLayout):
                 )
                 popup.open()
                 return
-            # Sprawdź, czy istnieje pusty wiersz
             empty_row_exists = any(
                 child.ids.text_input.text == ""
                 for child in parent.children
                 if isinstance(child, LabelRow)
             )
             if empty_row_exists:
-                # Przenieś fokus na pusty wiersz
                 for child in parent.children:
                     if (
                         isinstance(child, LabelRow)
@@ -114,10 +113,22 @@ class LabelRow(BoxLayout):
                         child.ids.text_input.focus = True
                         break
             else:
-                # Utwórz nowy wiersz i przenieś fokus na niego
                 new_row = LabelRow()
-                parent.add_widget(new_row)
+                new_row.color = self.get_next_color()
+                self.parent.add_widget(new_row)
                 new_row.ids.text_input.focus = True
+
+    @staticmethod
+    def random_color():
+        return [random.random() for _ in range(3)] + [1]
+
+    @staticmethod
+    def get_next_color():
+        next_color = LabelRow.random_color()
+        while next_color == LabelRow.last_color:
+            next_color = LabelRow.random_color()
+        LabelRow.last_color = next_color
+        return next_color
 
     def show_color_picker(self):
         color_picker = ColorWheel(color=self.color)

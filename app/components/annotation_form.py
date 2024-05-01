@@ -1,7 +1,12 @@
 from collections import deque
 
 from kivy.lang import Builder
-from kivy.properties import ObjectProperty, ListProperty, BooleanProperty
+from kivy.properties import (
+    ObjectProperty,
+    ListProperty,
+    BooleanProperty,
+    StringProperty,
+)
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.label import Label
@@ -12,6 +17,8 @@ from components.label import ColorLabel
 from kivy.config import Config
 
 from data_types import Annotation, Sentence, Word
+
+from file_operations import remove_sentence_from_csv
 
 Config.set("input", "mouse", "mouse,multitouch_on_demand")
 
@@ -96,13 +103,23 @@ class AnnotationForm(BoxLayout):
     labels_to_merge = ObjectProperty(deque(), allownone=True)
     multiword_mode = BooleanProperty(False)
     last_added_annotation = ObjectProperty(None, allownone=True)
+    save_annotation_path = StringProperty("", allownone=False)
 
     def accept(self):
-        with open(
-            "app/saved_projects/prototype_showcase/labeled.csv", "a"
-        ) as file:
+        with open(self.save_annotation_path, "a") as file:
             self.sentence.to_csv(file)
+
         try:
+            words = [
+                word.word
+                for token in self.sentence.tokens
+                for word in token.words
+            ]
+            sentence = "\t".join(words)
+            remove_sentence_from_csv(
+                self.parent.parent.shared_data.save_path + "/unlabeled.csv",
+                sentence,
+            )
             self.sentence = next(self.parent.parent.gen_sentence())
         except StopIteration:
             self.sentence = None

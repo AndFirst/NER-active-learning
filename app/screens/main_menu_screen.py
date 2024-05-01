@@ -42,24 +42,26 @@ class MainMenuScreen(Screen):
         shared_data = kwargs.pop("shared_data", None)
         super(MainMenuScreen, self).__init__(**kwargs)
         self.shared_data = shared_data
-        sentences = self.read_sentences_from_csv(
-            "app/saved_projects/prototype_showcase/unlabeled.csv"
-        )
         self.sentences = deque()
-        for sentence in sentences:
-            annotations = [
-                Annotation(words=[Word(word)], label=None) for word in sentence
-            ]
-            self.sentences.append(Sentence(tokens=annotations))
-        self.ids.annotation_form.sentence = self.sentences.popleft()
 
     def gen_sentence(self):
         if len(self.sentences) > 0:
             yield self.sentences.popleft()
 
     def on_enter(self):
-        print(self.shared_data)
         self.ids.annotation_form.labels = self.shared_data.labels
+        self.ids.annotation_form.save_annotation_path = (
+            self.shared_data.save_path + "/labeled.csv"
+        )
+        sentences = self.read_sentences_from_csv(
+            self.shared_data.save_path + "/unlabeled.csv"
+        )
+        for sentence in sentences:
+            annotations = [
+                Annotation(words=[Word(word)], label=None) for word in sentence
+            ]
+            self.sentences.append(Sentence(tokens=annotations))
+        self.ids.annotation_form.sentence = self.sentences.popleft()
 
     def read_sentences_from_csv(self, csv_file_path):
         sentences = []
