@@ -89,6 +89,7 @@ class Sentence:
 @dataclass
 class ProjectData:
     name: str = ""
+    model: str = ""
     description: str = ""
     save_path: str = ""
     dataset_path: str = ""

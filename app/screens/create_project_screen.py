@@ -5,6 +5,7 @@ from kivy.uix.label import Label
 from kivy.uix.button import Button
 from kivy.uix.filechooser import FileChooserIconView
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.dropdown import DropDown
 
 from data_types import ProjectData
 
@@ -40,6 +41,11 @@ kv_string = """
                 id: description_input
                 hint_text: 'Description'
             Button:
+                id: model_button
+                text: 'Choose a model'
+                on_release: root.model_dropdown.open(self)
+                size_hint_y: 0.8
+            Button:
                 id: path_button
                 text: 'Save project path'
                 on_release: root.open_filechooser()
@@ -58,12 +64,28 @@ class CreateProjectScreen(Screen):
         super(CreateProjectScreen, self).__init__(**kwargs)
 
         self.shared_data = shared_data
+        self.model_dropdown = self.create_model_dropdown()
         self.ids.prev_next_buttons.on_back = self.go_to_welcome
         self.ids.prev_next_buttons.on_next = self.save_and_go_to_data_set
+
+    def create_model_dropdown(self):
+        dropdown = DropDown()
+        models = ["BiLSTM", "Model B", "Model C"]  # Example model names
+        for model in models:
+            btn = Button(text=model, size_hint_y=None, height=44)
+            btn.bind(on_release=lambda btn: dropdown.select(btn.text))
+            dropdown.add_widget(btn)
+        dropdown.bind(
+            on_select=lambda instance, x: setattr(
+                self.ids.model_button, "text", x
+            )
+        )
+        return dropdown
 
     def go_to_welcome(self):
         self.shared_data = ProjectData()
         self.ids.name_input.text = ""
+        self.ids.model_button.text = "Choose a model"
         self.ids.description_input.text = ""
         self.ids.path_button.text = "Save project path"
         self.manager.current = "welcome"
@@ -95,10 +117,12 @@ class CreateProjectScreen(Screen):
     def save_and_go_to_data_set(self):
         name = self.ids.name_input.text.strip()
         description = self.ids.description_input.text.strip()
+        model = self.ids.model_button.text.strip()
         path = self.ids.path_button.text.strip()
 
         if name and description and path != "Save project path":
             self.shared_data.name = name
+            self.shared_data.model = model
             self.shared_data.description = description
             self.shared_data.save_path = path
             self.manager.current = "data_set"

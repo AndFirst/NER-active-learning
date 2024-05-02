@@ -30,6 +30,17 @@ def create_unique_folder_name(path: str, project_name: str) -> str:
         return project_name
 
 
+def generateModel(path, model_type, num_cls):
+    import torch
+    match model_type:
+        case "BiLSTM":
+            from ..models import BiLSTM
+            model = BiLSTM(num_classes=num_cls)
+            torch.save(model, path)
+        case _:
+            pass
+
+
 def save_project(project_data: ProjectData):
     directory_path = project_data.save_path
     os.makedirs(directory_path)
@@ -40,6 +51,7 @@ def save_project(project_data: ProjectData):
     project_path = os.path.join(directory_path, "project.json")
     word_to_vec_path = os.path.join(directory_path, "word_to_vec.json")
     label_to_vec_path = os.path.join(directory_path, "label_to_vec.json")
+    model_path = os.path.join(directory_path, "model.pth")
 
     shutil.copy(project_data.dataset_path, unlabeled_path)
 
@@ -62,6 +74,8 @@ def save_project(project_data: ProjectData):
     with open(word_to_vec_path, "w") as file:
         word_to_vec = words_to_numbers(words)
         json.dump(word_to_vec, file)
+
+    generateModel(model_path, project_data.model, len(project_data.labels))
 
 
 def get_words_from_csv(fh: IO) -> List[Word]:
