@@ -6,8 +6,9 @@ from data_preparation import (
     labels_to_numbers,
     words_to_numbers,
     human_readable_to_model_labels,
+    get_unique_words_from_dataset,
 )
-from data_types import ProjectData, Word, LabelData
+from data_types import ProjectData, LabelData
 import os
 import shutil
 
@@ -52,6 +53,7 @@ def save_project(project_data: ProjectData):
 
     with open(unlabeled_path, "r") as file:
         words = get_words_from_csv(file)
+        words = get_unique_words_from_dataset(words)
 
     with open(label_to_vec_path, "w") as file:
         labels = [LabelData(**label) for label in project_data.labels]
@@ -64,32 +66,27 @@ def save_project(project_data: ProjectData):
         json.dump(word_to_vec, file)
 
 
-def get_words_from_csv(fh: IO) -> List[Word]:
-    reader = csv.reader(fh, delimiter="\t")
-    rows_list = [Word(item) for row in reader for item in row]
+def get_words_from_csv(fh: IO) -> List[str]:
+    reader = csv.reader(fh, delimiter="\t", quoting=csv.QUOTE_NONE)
+    rows_list = [item for row in reader for item in row]
     return rows_list
 
 
-def remove_sentence_from_csv(file_name, sentence_to_remove):
-    lines = []
-    words = sentence_to_remove.split("\t")
-    with open(file_name, "r") as file:
-        reader = csv.reader(file)
-        for row in reader:
-            if row:
-                text = row[0].split("\t")
-                print(text)
-                print(words)
-                print("======================")
-                if words != text:
-                    print("chuj")
-                    lines.append(row)
-                else:
-                    print("duppaaa")
-    print(len(lines))
-    with open(file_name, "w", newline="") as file:
-        writer = csv.writer(file)
-        writer.writerows(lines)
+def remove_sentence_from_csv(
+    sentence_idx: int, input_file: IO, output_file: IO
+):
+    csv_reader = csv.reader(input_file, delimiter="\t", quoting=csv.QUOTE_NONE)
+    rows = list(csv_reader)
+
+    if 0 <= sentence_idx < len(rows):
+        del rows[sentence_idx]
+    else:
+        raise ValueError(f"Index {sentence_idx} out of range")
+
+    input_file.seek(0)
+    output_file.truncate(0)
+    for row in rows:
+        output_file.write("\t".join(row) + "\n")
 
 
 def load_project_from_file(file_path: str) -> dict:
@@ -103,9 +100,6 @@ def save_to_json(data_to_save: Dict[Hashable, Any], file_path: str) -> None:
         json.dump(data_to_save, json_file)
 
 
-if __name__ == "__main__":
-    with open(
-        "/home/irek/PycharmProjects/zprp-ner-active_learning/data/processed/unlabeled.csv",
-        "r",
-    ) as csv_file:
-        get_words_from_csv(csv_file)
+def count_csv_rows(fh: IO) -> int:
+    reader = csv.reader(fh, delimiter="\t", quoting=csv.QUOTE_NONE)
+    return len(list(reader))

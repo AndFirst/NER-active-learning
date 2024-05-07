@@ -1,15 +1,11 @@
-import csv
-from collections import deque
-
 from kivy.core.window import Window
 from kivy.uix.screenmanager import Screen
 from kivy.lang import Builder
-from data_types import (
-    Annotation,
-    Sentence,
-    Word,
-)
 from ui_colors import BACKGROUND_COLOR
+
+from active_learning import ActiveLearningManager
+
+from models.lstm import BiLSTMClassifier
 
 kv_string = """
 <MainMenuScreen>:
@@ -42,31 +38,31 @@ class MainMenuScreen(Screen):
         shared_data = kwargs.pop("shared_data", None)
         super(MainMenuScreen, self).__init__(**kwargs)
         self.shared_data = shared_data
-        self.sentences = deque()
-
-    def gen_sentence(self):
-        if len(self.sentences) > 0:
-            yield self.sentences.popleft()
+        self.model = None
+        self.assistant = None
 
     def on_enter(self):
+        # self.model = self.shared_data.model
+        self.model = BiLSTMClassifier(num_words=35178, num_classes=7)
+        labeled_path = self.shared_data.save_path + "/labeled.csv"
+        unlabeled_path = self.shared_data.save_path + "/unlabeled.csv"
+        word_to_idx_path = self.shared_data.save_path + "/word_to_vec.json"
+        label_to_idx_path = self.shared_data.save_path + "/label_to_vec.json"
+
+        self.assistant = ActiveLearningManager(
+            labeled_path=labeled_path,
+            unlabeled_path=unlabeled_path,
+            word_to_idx_path=word_to_idx_path,
+            label_to_idx_path=label_to_idx_path,
+            label_mapping={
+                label_data.label: label_data.color
+                for label_data in self.shared_data.labels
+            },
+            model=self.model,
+        )
         self.ids.annotation_form.labels = self.shared_data.labels
         self.ids.annotation_form.save_annotation_path = (
             self.shared_data.save_path + "/labeled.csv"
         )
-        sentences = self.read_sentences_from_csv(
-            self.shared_data.save_path + "/unlabeled.csv"
-        )
-        for sentence in sentences:
-            annotations = [
-                Annotation(words=[Word(word)], label=None) for word in sentence
-            ]
-            self.sentences.append(Sentence(tokens=annotations))
-        self.ids.annotation_form.sentence = self.sentences.popleft()
 
-    def read_sentences_from_csv(self, csv_file_path):
-        sentences = []
-        with open(csv_file_path, "r") as file:
-            reader = csv.reader(file, delimiter="\t")
-            for row in reader:
-                sentences.append(row)
-        return sentences
+        self.ids.annotation_form.sentence = self.assistant.get_sentence()

@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from itertools import chain
 from typing import Tuple, Optional, Any, List, Dict, IO
 
 
@@ -38,6 +39,16 @@ class Annotation:
     words: List[Word]
     label: Optional[LabelData]
 
+    def get_label(self) -> List[str]:
+        if self.label is None:
+            return ["_"]
+        else:
+            label_text = self.label.label
+            labels = ["B-" + label_text] + ["I-" + label_text] * (
+                len(self.words) - 1
+            )
+            return labels
+
 
 @dataclass
 class Sentence:
@@ -47,7 +58,10 @@ class Sentence:
         if word == self.tokens[0].words[0]:
             return None
         word_parent = self.get_word_parent(word)
-        word_parent_index = self.tokens.index(word_parent)
+        try:
+            word_parent_index = self.tokens.index(word_parent)
+        except ValueError:
+            return None
         if word == word_parent.words[0]:
             left_token = self.tokens[word_parent_index - 1]
             return left_token.words[-1]
@@ -59,7 +73,10 @@ class Sentence:
         if word == self.tokens[-1].words[-1]:
             return None
         word_parent = self.get_word_parent(word)
-        word_parent_index = self.tokens.index(word_parent)
+        try:
+            word_parent_index = self.tokens.index(word_parent)
+        except ValueError:
+            return None
         if word == word_parent.words[-1]:
             right_token = self.tokens[word_parent_index + 1]
             return right_token.words[0]
@@ -73,16 +90,13 @@ class Sentence:
                 return token
 
     def to_csv(self, fh: IO[str]) -> None:
-        # @TODO Add B-label, I-label to recognize multilabel sentence
-        labels = [
-            token.label.label if token.label else "O"
-            for token in self.tokens
-            for word in token.words
-        ]
+        labels = list(
+            chain.from_iterable(token.get_label() for token in self.tokens)
+        )
         words = [word.word for token in self.tokens for word in token.words]
 
         merged = words + ["<END_SENTENCE>"] + labels
-        row = ",".join(merged)
+        row = "\t".join(merged)
         fh.write(row + "\n")
 
 
@@ -93,6 +107,7 @@ class ProjectData:
     save_path: str = ""
     dataset_path: str = ""
     labels: List[LabelData] = field(default_factory=list)
+    model: Optional["NERModel"] = None
 
     def to_dict(self):
         data = self.__dict__

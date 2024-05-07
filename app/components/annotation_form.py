@@ -1,5 +1,7 @@
 from collections import deque
 
+from kivy.app import App
+from kivy.clock import Clock
 from kivy.lang import Builder
 from kivy.properties import (
     ObjectProperty,
@@ -18,8 +20,6 @@ from kivy.config import Config
 
 from data_types import Annotation, Sentence, Word
 
-from file_operations import remove_sentence_from_csv
-
 Config.set("input", "mouse", "mouse,multitouch_on_demand")
 
 kv_string = """
@@ -37,7 +37,7 @@ kv_string = """
         BoxLayout:
             id: current_annotation
             orientation: 'horizontal'
-            size_hint_x: 0.7
+            size_hint_x: 0.5
             canvas.before:
                 Color:
                     rgba: 0, 0, 0, 1 
@@ -45,7 +45,15 @@ kv_string = """
                     rectangle: (self.x, self.y, self.width, self.height)
                     width: 1 
         BoxLayout:
-            size_hint_x: 0.3
+            size_hint_x: 0.25
+            Button:
+                id: ai_assistant_button
+                text: "AI Assistant"
+                font_size: '25sp'
+                background_color: [0, 1, 0, 1] if root.ai_assistant_enabled else [1, 0, 0, 1]
+                on_release: root.toggle_ai_assistant()
+        BoxLayout:
+            size_hint_x: 0.25
             Button:
                 text: '?'
                 font_size: '25sp'
@@ -94,7 +102,6 @@ kv_string = """
 Builder.load_string(kv_string)
 
 
-# @TODO Save on 'Akceptuj' click - IREK
 # @TODO Save on press exit button when there is unsaved progress. - IREK
 class AnnotationForm(BoxLayout):
     selected_label = ObjectProperty(None, allownone=True)
@@ -105,26 +112,26 @@ class AnnotationForm(BoxLayout):
     last_added_annotation = ObjectProperty(None, allownone=True)
     save_annotation_path = StringProperty("", allownone=False)
 
-    def accept(self):
-        with open(self.save_annotation_path, "a") as file:
-            self.sentence.to_csv(file)
+    ai_assistant_enabled = BooleanProperty(False)
 
-        try:
-            words = [
-                word.word
-                for token in self.sentence.tokens
-                for word in token.words
-            ]
-            sentence = "\t".join(words)
-            remove_sentence_from_csv(
-                self.parent.parent.shared_data.save_path + "/unlabeled.csv",
-                sentence,
-            )
-            self.sentence = next(self.parent.parent.gen_sentence())
-        except StopIteration:
+    def toggle_ai_assistant(self):
+        self.ai_assistant_enabled = not self.ai_assistant_enabled
+        self.ids.ai_assistant_button.background_color = (
+            [0, 1, 0, 1] if self.ai_assistant_enabled else [1, 0, 0, 1]
+        )
+
+    def accept(self):
+        self.parent.parent.assistant.give_feedback(self.sentence)
+        next_sentence = self.parent.parent.assistant.get_sentence(
+            annotated=self.ai_assistant_enabled
+        )
+        if next_sentence:
+            self.sentence = next_sentence
+        else:
+
             self.sentence = None
             content = Label(
-                text="All data has been annotated.\nYou're free now! Have a nice day!",
+                text="All data has been annotated.\nYou're free now! Have a nice day!\nApplication will close now.",
             )
             popup = Popup(
                 title="Annotation Complete",
@@ -132,7 +139,14 @@ class AnnotationForm(BoxLayout):
                 size_hint=(None, None),
                 size=(400, 200),
             )
+            popup.bind(on_dismiss=self.close_app)
             popup.open()
+
+    def close_app(self, instance):
+        def close(*args):
+            App.get_running_app().stop()
+
+        Clock.schedule_once(close, 0.5)
 
     def show_instruction_popup(self):
         instruction_text = (

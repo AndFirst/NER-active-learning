@@ -29,7 +29,7 @@ test:
 	pytest
 
 test-cov: format
-	pytest --cov-report term-missing --cov=src
+	pytest --cov-report term-missing --cov=app
 
 docs:
 	make -C docs html
