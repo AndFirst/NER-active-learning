@@ -1,15 +1,15 @@
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager
-from data_types import ProjectData
-from components.add_label_form import AddLabelForm
-from components.annotation_container import AnnotationContainer
-from components.annotation_form import AnnotationForm
-from components.label_choose_container import LabelChooseContainer
-from components.label_row import LabelRow
-from components.label import ColorLabel
-from components.prev_next_buttons import PrevNextButtons
-from components.token import Token
-from screens import (
+from app.data_types import ProjectData
+from app.components.add_label_form import AddLabelForm
+from app.components.annotation_container import AnnotationContainer
+from app.components.annotation_form import AnnotationForm
+from app.components.label_choose_container import LabelChooseContainer
+from app.components.label_row import LabelRow
+from app.components.label import ColorLabel
+from app.components.prev_next_buttons import PrevNextButtons
+from app.components.token import Token
+from app.screens import (
     WelcomeScreen,
     ExistingProjectScreen,
     CreateProjectScreen,
@@ -18,7 +18,7 @@ from screens import (
     AddLabelsScreen,
     SummaryScreen,
 )
-from ui_colors import BACKGROUND_COLOR
+from app.ui_colors import BACKGROUND_COLOR
 from kivy.core.window import Window
 from pathlib import Path
 from kivy.modules import inspector

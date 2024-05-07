@@ -7,9 +7,9 @@ from kivy.uix.filechooser import FileChooserIconView
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.dropdown import DropDown
 
-from data_types import ProjectData
+from app.data_types import ProjectData
 
-from file_operations import create_unique_folder_name
+from app.file_operations import create_unique_folder_name
 
 kv_string = """
 <CreateProjectScreen>:

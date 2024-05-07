@@ -3,7 +3,7 @@ from kivy.uix.popup import Popup
 from kivy.uix.screenmanager import Screen
 from kivy.lang import Builder
 
-from data_types import LabelData
+from app.data_types import LabelData
 
 kv_string = """
 <AddLabelsScreen>:

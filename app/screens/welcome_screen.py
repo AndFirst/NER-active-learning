@@ -2,7 +2,7 @@ from kivy.uix.screenmanager import Screen
 from kivy.uix.boxlayout import BoxLayout
 from kivy.lang import Builder
 
-from ui_colors import BACKGROUND_COLOR
+from app.ui_colors import BACKGROUND_COLOR
 
 kv_string = f"""
 <CenteredContainer>:

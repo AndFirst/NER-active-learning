@@ -4,12 +4,12 @@ from collections import deque
 from kivy.core.window import Window
 from kivy.uix.screenmanager import Screen
 from kivy.lang import Builder
-from data_types import (
+from app.data_types import (
     Annotation,
     Sentence,
     Word,
 )
-from ui_colors import BACKGROUND_COLOR
+from app.ui_colors import BACKGROUND_COLOR
 
 kv_string = """
 <MainMenuScreen>:
@@ -37,6 +37,7 @@ Builder.load_string(kv_string)
 import torch
 import os
 
+
 class MainMenuScreen(Screen):
     def __init__(self, **kwargs):
         Window.clearcolor = BACKGROUND_COLOR
@@ -50,7 +51,9 @@ class MainMenuScreen(Screen):
             yield self.sentences.popleft()
 
     def on_enter(self):
-        self.model = torch.load(os.path.join(self.shared_data["save_path"],"model.pth"))
+        self.model = torch.load(
+            os.path.join(self.shared_data["save_path"], "model.pth")
+        )
         self.model.eval()
         self.ids.annotation_form.labels = self.shared_data.labels
         self.ids.annotation_form.save_annotation_path = (
@@ -82,14 +85,19 @@ class MainMenuScreen(Screen):
     def model_predict(self, preprocessed_data):
         with torch.no_grad():
             return self.model(preprocessed_data)
-        
+
     def on_annotation_save(self, corrected_annotations):
         # Skonwertuj poprawione dane na odpowiedni format
         X_train, y_train = self.convert_to_features(corrected_annotations)
         # Aktualizuj model
         self.model.train()  # Przełącz model w tryb uczenia
-        self.model.partial_fit(X_train, y_train)  # Zakładając, że model obsługuje partial_fit
+        self.model.partial_fit(
+            X_train, y_train
+        )  # Zakładając, że model obsługuje partial_fit
         self.model.eval()  # Powrót do trybu ewaluacji
-    
+
     def on_exit(self):
-        torch.save(self.model.state_dict(), os.path.join(self.shared_data["save_path"], "model.pth"))
+        torch.save(
+            self.model.state_dict(),
+            os.path.join(self.shared_data["save_path"], "model.pth"),
+        )

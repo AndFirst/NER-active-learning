@@ -2,12 +2,12 @@ import csv
 import json
 from typing import Dict, Hashable, Any, List, IO
 
-from data_preparation import (
+from app.data_preparation import (
     labels_to_numbers,
     words_to_numbers,
     human_readable_to_model_labels,
 )
-from data_types import ProjectData, Word, LabelData
+from app.data_types import ProjectData, Word, LabelData
 import os
 import shutil
 
@@ -32,9 +32,11 @@ def create_unique_folder_name(path: str, project_name: str) -> str:
 
 def generateModel(path, model_type, num_cls):
     import torch
+
     match model_type:
         case "BiLSTM":
             from ..models import BiLSTM
+
             model = BiLSTM(num_classes=num_cls)
             torch.save(model, path)
         case _:

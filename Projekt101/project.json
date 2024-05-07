@@ -1,0 +1,1 @@
+{"name": "Projekt101", "model": "BiLSTM", "description": "aaa", "save_path": "C:\\Users\\rafal\\Desktop\\zprp-ner-active_learning/Projekt101", "dataset_path": "C:\\Users\\rafal\\Desktop\\zprp-ner-active_learning\\data\\processed\\unlabeled.csv", "labels": [{"label": "aaa", "color": [0.7707664885842405, 0.9364468751045688, 0.8604474457465285, 1]}]}

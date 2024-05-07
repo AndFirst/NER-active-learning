@@ -2,7 +2,7 @@ from kivy.lang import Builder
 from kivy.properties import ObjectProperty
 from kivy.uix.stacklayout import StackLayout
 
-from components.token import Token
+from app.components.token import Token
 
 kv_string = """
 <AnnotationContainer>:
