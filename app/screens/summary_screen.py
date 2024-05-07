@@ -3,7 +3,7 @@ import copy
 from kivy.uix.screenmanager import Screen
 from kivy.lang import Builder
 from kivy.uix.label import Label
-from app.file_operations import save_project
+from app.file_operations import save_project, create_model
 
 kv_string = """
 <SummaryScreen>:
@@ -119,5 +119,6 @@ class SummaryScreen(Screen):
 
     def go_to_main_menu(self):
         data_copy = copy.copy(self.shared_data)
+        create_model(data_copy)
         save_project(data_copy)
         self.manager.current = "main_menu"
