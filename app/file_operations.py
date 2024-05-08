@@ -2,13 +2,14 @@ import csv
 import json
 from typing import Dict, Hashable, Any, List, IO
 
+import torch
 from app.data_preparation import (
     labels_to_numbers,
     words_to_numbers,
     human_readable_to_model_labels,
     get_unique_words_from_dataset,
 )
-from app.data_types import ProjectData, LabelData
+from app.data_types import ProjectData, Word, LabelData
 import os
 import shutil
 
@@ -41,6 +42,7 @@ def save_project(project_data: ProjectData):
     project_path = os.path.join(directory_path, "project.json")
     word_to_vec_path = os.path.join(directory_path, "word_to_vec.json")
     label_to_vec_path = os.path.join(directory_path, "label_to_vec.json")
+    os.path.join(directory_path, "model.pth")
 
     shutil.copy(project_data.dataset_path, unlabeled_path)
 
@@ -69,6 +71,26 @@ def save_project(project_data: ProjectData):
 def get_words_from_csv(fh: IO) -> List[str]:
     reader = csv.reader(fh, delimiter="\t", quoting=csv.QUOTE_NONE)
     rows_list = [item for row in reader for item in row]
+def create_model(data):
+    print(data)
+    model_type = data["model"]
+    path = data[""]
+    match model_type:
+        case "BiLSTM":
+            from ..models import BiLSTM
+
+            model = BiLSTM(num_classes=1)
+            torch.save(model, path)
+        case "Your model":
+            data["user_model_path"]
+            # copy model to folder\model.pth
+        case _:
+            pass
+
+
+def get_words_from_csv(fh: IO) -> List[Word]:
+    reader = csv.reader(fh, delimiter="\t")
+    rows_list = [Word(item) for row in reader for item in row]
     return rows_list
 
 

@@ -9,9 +9,9 @@ import os
 from kivy.app import App
 from kivy.uix.label import Label
 
-from file_operations import load_project_from_file
+from app.file_operations import load_project_from_file
 
-from data_types import ProjectData
+from app.data_types import ProjectData
 
 kv_string = """
 <ExistingProjectScreen>:

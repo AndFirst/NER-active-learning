@@ -1,7 +1,7 @@
 from kivy.lang import Builder
 from kivy.properties import ListProperty, ObjectProperty
 from kivy.uix.stacklayout import StackLayout
-from components.label import ColorLabel
+from app.components.label import ColorLabel
 
 kv_string = """
 <LabelChooseContainer>:

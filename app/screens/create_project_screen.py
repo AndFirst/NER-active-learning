@@ -3,12 +3,11 @@ from kivy.lang import Builder
 from kivy.uix.popup import Popup
 from kivy.uix.label import Label
 from kivy.uix.button import Button
-from kivy.uix.filechooser import FileChooserIconView
-from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.dropdown import DropDown
 
-from data_types import ProjectData
-
-from file_operations import create_unique_folder_name
+from app.data_types import ProjectData
+from plyer import filechooser
+from app.file_operations import create_unique_folder_name
 
 kv_string = """
 <CreateProjectScreen>:
@@ -40,6 +39,11 @@ kv_string = """
                 id: description_input
                 hint_text: 'Description'
             Button:
+                id: model_button
+                text: 'Choose a model'
+                on_release: root.model_dropdown.open(self)
+                size_hint_y: 0.8
+            Button:
                 id: path_button
                 text: 'Save project path'
                 on_release: root.open_filechooser()
@@ -58,31 +62,82 @@ class CreateProjectScreen(Screen):
         super(CreateProjectScreen, self).__init__(**kwargs)
 
         self.shared_data = shared_data
+        self.model_dropdown = self.create_model_dropdown()
         self.ids.prev_next_buttons.on_back = self.go_to_welcome
         self.ids.prev_next_buttons.on_next = self.save_and_go_to_data_set
+
+    def create_model_dropdown(self):
+        dropdown = DropDown()
+        models = ["BiLSTM", "Your model"]  # Example model names
+        for model in models:
+            btn = Button(text=model, size_hint_y=None, height=44)
+            btn.bind(
+                on_release=lambda btn: self.handle_model_selection(
+                    btn.text, dropdown
+                )
+            )
+            dropdown.add_widget(btn)
+        return dropdown
+
+    def handle_model_selection(self, model_name, dropdown):
+        dropdown.select(model_name)
+        if model_name == "Your model":
+            self.open_model_filechooser()
+        else:
+            self.ids.model_button.text = model_name
+
+    def open_model_filechooser(self):
+        # Use plyer's filechooser to open the native file dialog
+        file_path = filechooser.open_file(
+            filters=["*.pth"], title="Select Model File", multiple=False
+        )
+        if file_path:
+            selected_path = file_path[
+                0
+            ]  # Since 'multiple=False', it returns a list with one item
+            self.ids.model_button.text = selected_path
+            self.shared_data["user_model_path"] = selected_path
+        else:
+            self.ids.model_button.text = (
+                "Choose a model"  # Reset if no file is selected
+            )
+
+    def select_model_path(self, filechooser, popup):
+        selection = filechooser.selection
+        if selection:
+            self.ids.model_button.text = selection[
+                0
+            ]  # Update the button text to show the selected path
+            popup.dismiss()
+        else:
+            self.ids.model_button.text = (
+                "Choose a model"  # Reset if no file is selected
+            )
+            popup.dismiss()
 
     def go_to_welcome(self):
         self.shared_data = ProjectData()
         self.ids.name_input.text = ""
+        self.ids.model_button.text = "Choose a model"
         self.ids.description_input.text = ""
         self.ids.path_button.text = "Save project path"
         self.manager.current = "welcome"
 
     def open_filechooser(self):
-        filechooser = FileChooserIconView(dirselect=True)
-        layout = BoxLayout(orientation="vertical")
-        layout.add_widget(filechooser)
-        button = Button(text="OK", size_hint=(1, 0.2))
-        layout.add_widget(button)
-        popup = Popup(
-            title="Choose folder", content=layout, size_hint=(0.9, 0.9)
-        )
-        button.bind(
-            on_release=lambda x: self.select_path(
-                filechooser, filechooser.selection, popup
+        # Use plyer's filechooser to open the native directory chooser
+        selected_path = filechooser.choose_dir(title="Select Project Folder")
+        if selected_path:
+            folder_path = selected_path[
+                0
+            ]  # Since 'choose_dir' returns a list with one item
+            unique_folder_path = create_unique_folder_name(
+                folder_path, self.ids.name_input.text
             )
-        )
-        popup.open()
+            self.ids.path_button.text = folder_path + "/" + unique_folder_path
+        else:
+            self.ids.path_button.text = (
+                "Save project path"  # Reset if no folder is selected
+            )
 
     def select_path(self, instance, selection, popup):
         if selection:
@@ -95,10 +150,12 @@ class CreateProjectScreen(Screen):
     def save_and_go_to_data_set(self):
         name = self.ids.name_input.text.strip()
         description = self.ids.description_input.text.strip()
+        model = self.ids.model_button.text.strip()
         path = self.ids.path_button.text.strip()
 
         if name and description and path != "Save project path":
             self.shared_data.name = name
+            self.shared_data.model = model
             self.shared_data.description = description
             self.shared_data.save_path = path
             self.manager.current = "data_set"

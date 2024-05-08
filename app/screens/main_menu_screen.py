@@ -1,11 +1,11 @@
 from kivy.core.window import Window
 from kivy.uix.screenmanager import Screen
 from kivy.lang import Builder
-from ui_colors import BACKGROUND_COLOR
+from app.ui_colors import BACKGROUND_COLOR
 
-from active_learning import ActiveLearningManager
+from app.active_learning import ActiveLearningManager
 
-from learning.models.lstm import BiLSTMClassifier
+from app.learning.models.lstm import BiLSTMClassifier
 
 kv_string = """
 <MainMenuScreen>:
@@ -30,6 +30,8 @@ kv_string = """
 """
 
 Builder.load_string(kv_string)
+import torch
+import os
 
 
 class MainMenuScreen(Screen):

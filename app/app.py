@@ -9,7 +9,7 @@ from app.components.label_row import LabelRow
 from app.components.label import ColorLabel
 from app.components.prev_next_buttons import PrevNextButtons
 from app.components.token import Token
-from screens import (
+from app.screens import (
     WelcomeScreen,
     ExistingProjectScreen,
     CreateProjectScreen,
