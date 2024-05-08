@@ -19,7 +19,7 @@ def create_unlabeled_dataset(
         csv_path (str, optional): Output csv path. Defaults to None.
     """
     assert (
-        json_path is not None and csv_path is not None
+        json_path is not None or csv_path is not None
     ), "Both paths cannot be None"
     data = pd.read_csv(path, encoding="latin1")
     data = data.fillna(method="ffill")

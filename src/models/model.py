@@ -6,10 +6,10 @@ class BiLSTM(nn.Module):
     def __init__(
         self,
         num_words,
+        num_classes,
         embedding_dim=100,
         lstm_units=100,
         dropout=0.1,
-        num_classes=17,
     ):
         super(BiLSTM, self).__init__()
 

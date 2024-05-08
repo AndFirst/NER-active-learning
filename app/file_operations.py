@@ -1,5 +1,14 @@
+import csv
 import json
-from data_types import ProjectData
+from typing import Dict, Hashable, Any, List, IO
+
+from app.data_preparation import (
+    labels_to_numbers,
+    words_to_numbers,
+    human_readable_to_model_labels,
+    get_unique_words_from_dataset,
+)
+from app.data_types import ProjectData, LabelData
 import os
 import shutil
 
@@ -23,22 +32,61 @@ def create_unique_folder_name(path: str, project_name: str) -> str:
 
 
 def save_project(project_data: ProjectData):
-    project_name = "_".join(project_data.name.split())
-    # if not os.path.exists(directory):
-    #     os.makedirs(directory)
-    # print(directory)
-    path = project_data.save_path
-    unique_folder_name = create_unique_folder_name(path, project_name)
-    new_folder_path = os.path.join(path, unique_folder_name)
-    os.makedirs(new_folder_path)
-    print(unique_folder_name)
+    directory_path = project_data.save_path
+    os.makedirs(directory_path)
     _, extension = os.path.splitext(project_data.dataset_path)
-    new_file_path = os.path.join(new_folder_path, "unlabeled" + extension)
-    shutil.copy(project_data.dataset_path, new_file_path)
-    with open(os.path.join(new_folder_path, "project.json"), "w") as json_file:
+
+    unlabeled_path = os.path.join(directory_path, "unlabeled" + extension)
+    labeled_path = os.path.join(directory_path, "labeled" + extension)
+    project_path = os.path.join(directory_path, "project.json")
+    word_to_vec_path = os.path.join(directory_path, "word_to_vec.json")
+    label_to_vec_path = os.path.join(directory_path, "label_to_vec.json")
+
+    shutil.copy(project_data.dataset_path, unlabeled_path)
+
+    with open(project_path, "w") as json_file:
         json.dump(project_data.to_dict(), json_file)
-    with open(os.path.join(new_folder_path, "labeled" + extension), "w"):
+
+    with open(labeled_path, "w"):
+        # create empty file
         pass
+
+    with open(unlabeled_path, "r") as file:
+        words = get_words_from_csv(file)
+        words = get_unique_words_from_dataset(words)
+
+    with open(label_to_vec_path, "w") as file:
+        labels = [LabelData(**label) for label in project_data.labels]
+        labels = human_readable_to_model_labels(labels)
+        label_to_vec = labels_to_numbers(labels)
+        json.dump(label_to_vec, file)
+
+    with open(word_to_vec_path, "w") as file:
+        word_to_vec = words_to_numbers(words)
+        json.dump(word_to_vec, file)
+
+
+def get_words_from_csv(fh: IO) -> List[str]:
+    reader = csv.reader(fh, delimiter="\t", quoting=csv.QUOTE_NONE)
+    rows_list = [item for row in reader for item in row]
+    return rows_list
+
+
+def remove_sentence_from_csv(
+    sentence_idx: int, input_file: IO, output_file: IO
+):
+    csv_reader = csv.reader(input_file, delimiter="\t", quoting=csv.QUOTE_NONE)
+    rows = list(csv_reader)
+
+    if 0 <= sentence_idx < len(rows):
+        del rows[sentence_idx]
+    else:
+        raise ValueError(f"Index {sentence_idx} out of range")
+
+    input_file.seek(0)
+    output_file.truncate(0)
+    for row in rows:
+        output_file.write("\t".join(row) + "\n")
 
 
 def load_project_from_file(file_path: str) -> dict:
@@ -47,11 +95,11 @@ def load_project_from_file(file_path: str) -> dict:
     return project_data
 
 
-if __name__ == "__main__":
-    project = ProjectData(
-        name="dupa",
-        description="dupa project",
-        save_path="/home/irek/PycharmProjects/zprp-ner-active_learning/app/saved_projects",
-        dataset_path="/home/irek/PycharmProjects/zprp-ner-active_learning/app/datasets/dataset.csv",
-    )
-    save_project(project)
+def save_to_json(data_to_save: Dict[Hashable, Any], file_path: str) -> None:
+    with open(file_path, "w") as json_file:
+        json.dump(data_to_save, json_file)
+
+
+def count_csv_rows(fh: IO) -> int:
+    reader = csv.reader(fh, delimiter="\t", quoting=csv.QUOTE_NONE)
+    return len(list(reader))

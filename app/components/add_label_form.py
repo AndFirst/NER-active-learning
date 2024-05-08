@@ -1,6 +1,6 @@
 from kivy.uix.boxlayout import BoxLayout
 from kivy.lang import Builder
-from components.label_row import LabelRow
+from app.components.label_row import LabelRow
 
 kv_string = """
 <AddLabelForm>:

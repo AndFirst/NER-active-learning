@@ -8,6 +8,8 @@ from kivy.uix.boxlayout import BoxLayout
 
 from data_types import ProjectData
 
+from file_operations import create_unique_folder_name
+
 kv_string = """
 <CreateProjectScreen>:
     BoxLayout:
@@ -84,7 +86,10 @@ class CreateProjectScreen(Screen):
 
     def select_path(self, instance, selection, popup):
         if selection:
-            self.ids.path_button.text = selection[0]
+            project_path = create_unique_folder_name(
+                selection[0], self.ids.name_input.text
+            )
+            self.ids.path_button.text = selection[0] + "/" + project_path
             popup.dismiss()
 
     def save_and_go_to_data_set(self):
@@ -96,7 +101,6 @@ class CreateProjectScreen(Screen):
             self.shared_data.name = name
             self.shared_data.description = description
             self.shared_data.save_path = path
-            print(self.shared_data)
             self.manager.current = "data_set"
         else:
             popup = Popup(
