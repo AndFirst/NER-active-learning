@@ -20,7 +20,6 @@ from kivy.config import Config
 
 from app.data_types import Annotation, Sentence, Word
 
-from app.file_operations import remove_sentence_from_csv
 
 Config.set("input", "mouse", "mouse,multitouch_on_demand")
 

@@ -12,10 +12,14 @@ def test_create_csv_unlabeled_wrapper():
 
 def test_create_csv_unlabeled_wrapper_invalid_file_type():
     with pytest.raises(ValueError):
-        wrapper = UnlabeledCsv("project/unlabeled.json")
+        UnlabeledCsv("project/unlabeled.json")
 
 
-@patch("builtins.open", new_callable=mock_open, read_data="Word1\tWord2\nWord3\tWord4\nWord5\tWord6")
+@patch(
+    "builtins.open",
+    new_callable=mock_open,
+    read_data="Word1\tWord2\nWord3\tWord4\nWord5\tWord6",
+)
 def test_count_sentences(mock_file_open):
     with patch("os.path") as mock_path:
         mock_path.isfile.return_value = True
@@ -23,7 +27,11 @@ def test_count_sentences(mock_file_open):
         assert wrapper.count_sentences() == 3
 
 
-@patch("builtins.open", new_callable=mock_open, read_data="Word1\tWord2\nWord3\tWord4\nWord5\tWord6")
+@patch(
+    "builtins.open",
+    new_callable=mock_open,
+    read_data="Word1\tWord2\nWord3\tWord4\nWord5\tWord6",
+)
 def test_get_sentence(mock_file_open):
     with patch("os.path") as mock_path:
         mock_path.isfile.return_value = True
@@ -33,7 +41,11 @@ def test_get_sentence(mock_file_open):
         assert wrapper.get_sentence(2) == ["Word5", "Word6"]
 
 
-@patch("builtins.open", new_callable=mock_open, read_data="Word1\tWord2\nWord3\tWord4\nWord5\tWord6")
+@patch(
+    "builtins.open",
+    new_callable=mock_open,
+    read_data="Word1\tWord2\nWord3\tWord4\nWord5\tWord6",
+)
 def test_get_sentence_with_invalid_index(mock_file_open):
     with patch("os.path") as mock_path:
         mock_path.isfile.return_value = True
@@ -42,7 +54,11 @@ def test_get_sentence_with_invalid_index(mock_file_open):
             wrapper.get_sentence(5)
 
 
-@patch("builtins.open", new_callable=mock_open, read_data="Word1\tWord2\nWord1\tWord2\nWord3\tWord1")
+@patch(
+    "builtins.open",
+    new_callable=mock_open,
+    read_data="Word1\tWord2\nWord1\tWord2\nWord3\tWord1",
+)
 def test_unique_words(mock_file_open):
     with patch("os.path") as mock_path:
         mock_path.isfile.return_value = True

@@ -1,6 +1,6 @@
 from typing import List, Dict
 
-from app.data_types import LabelData, Word
+from app.data_types import LabelData
 
 
 def human_readable_to_model_labels(labels: List[LabelData]) -> List[LabelData]:

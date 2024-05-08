@@ -30,8 +30,6 @@ kv_string = """
 """
 
 Builder.load_string(kv_string)
-import torch
-import os
 
 
 class MainMenuScreen(Screen):
