@@ -70,7 +70,7 @@ def save_project(project_data: ProjectData):
 
 def get_words_from_csv(fh: IO) -> List[str]:
     reader = csv.reader(fh, delimiter="\t", quoting=csv.QUOTE_NONE)
-    [item for row in reader for item in row]
+    return [item for row in reader for item in row]
 
 
 def create_model(data):
@@ -92,7 +92,7 @@ def create_model(data):
 
 def get_words_from_csv(fh: IO) -> List[Word]:
     reader = csv.reader(fh, delimiter="\t")
-    rows_list = [Word(item) for row in reader for item in row]
+    rows_list = [item for row in reader for item in row]
     return rows_list
 
 
