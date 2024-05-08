@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from models.ner_model import NERModel
+from .ner_model import NERModel
 from torch.utils.data import TensorDataset, DataLoader
 
 

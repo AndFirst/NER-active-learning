@@ -2,13 +2,13 @@ import csv
 import json
 from typing import Dict, Hashable, Any, List, IO
 
-from data_preparation import (
+from app.data_preparation import (
     labels_to_numbers,
     words_to_numbers,
     human_readable_to_model_labels,
     get_unique_words_from_dataset,
 )
-from data_types import ProjectData, LabelData
+from app.data_types import ProjectData, LabelData
 import os
 import shutil
 

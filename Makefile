@@ -8,7 +8,7 @@ PYTHON_INTERPRETER = python
 build: clean install format lint test
 
 app: format
-	$(PYTHON_INTERPRETER) app/app.py
+	$(PYTHON_INTERPRETER) -m app.app
 
 clean:
 	find . -type f -name "*.py[co]" -delete
@@ -29,7 +29,7 @@ test:
 	pytest
 
 test-cov: format
-	pytest --cov-report term-missing --cov=app
+	pytest --cov-report term-missing --cov=src
 
 docs:
 	make -C docs html

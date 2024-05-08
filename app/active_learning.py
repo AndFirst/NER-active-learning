@@ -3,10 +3,10 @@ import json
 import threading
 from typing import List, Tuple
 
-from data_preparation import get_longest_sentence_length_from_dataset
-from models.ner_model import NERModel
-from file_operations import remove_sentence_from_csv, count_csv_rows
-from data_types import Sentence, Annotation, Word, LabelData
+from app.data_preparation import get_longest_sentence_length_from_dataset
+from app.learning.models.ner_model import NERModel
+from app.file_operations import remove_sentence_from_csv, count_csv_rows
+from app.data_types import Sentence, Annotation, Word, LabelData
 
 
 class ActiveLearningManager:

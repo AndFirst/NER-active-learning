@@ -5,7 +5,7 @@ from ui_colors import BACKGROUND_COLOR
 
 from active_learning import ActiveLearningManager
 
-from models.lstm import BiLSTMClassifier
+from learning.models.lstm import BiLSTMClassifier
 
 kv_string = """
 <MainMenuScreen>:

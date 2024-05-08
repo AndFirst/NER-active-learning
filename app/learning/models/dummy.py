@@ -1,5 +1,5 @@
 from typing import List
-from models.ner_model import NERModel
+from .ner_model import NERModel
 
 
 class Dummy(NERModel):
