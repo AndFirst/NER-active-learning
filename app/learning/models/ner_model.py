@@ -20,6 +20,16 @@ class NERModel(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    async def train_async(
+        self,
+        features: List[List[int]],
+        targets: List[List[int]],
+        epochs: int,
+        batch_size: int,
+    ) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
     def predict(self, unlabeled_sentence: List[int]) -> List[int]:
         raise NotImplementedError
 

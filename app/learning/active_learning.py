@@ -73,7 +73,7 @@ class ActiveLearningManager:
 
         features, target = self._dataset.get_training_data()
 
-        self._model.train(
+        self._model.train_async(
             features, target, epochs=self._epochs, batch_size=self._batch_size
         )
 

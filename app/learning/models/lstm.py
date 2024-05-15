@@ -1,9 +1,13 @@
+import asyncio
+import copy
+import threading
 from typing import List
 
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch import optim
 
 from .ner_model import NERModel
 from torch.utils.data import TensorDataset, DataLoader
@@ -52,30 +56,66 @@ class BiLSTMClassifier(NERModel):
         self._optimizer = torch.optim.Adam(
             self._model.parameters(), lr=learning_rate
         )
+        self._new_model = None
+        self._lock = threading.Lock()
 
-    def train(
+    async def train(
         self,
         features: List[List[int]],
         targets: List[List[int]],
         epochs: int,
         batch_size: int,
     ) -> None:
+        # Copy the model and initialize the new model for training
+        with self._lock:
+            self._new_model = copy.deepcopy(self._model)
+        optimizer = optim.Adam(
+            self._new_model.parameters(),
+            lr=self._optimizer.param_groups[0]["lr"],
+        )
+
         features_tensor = torch.tensor(features, dtype=torch.long)
         targets_tensor = torch.tensor(targets, dtype=torch.long)
         dataset = TensorDataset(features_tensor, targets_tensor)
-
         dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
-        self._model.train()
+        self._new_model.train()
 
         for epoch in range(epochs):
             for batch_features, batch_targets in dataloader:
-                predictions = self._model(batch_features)
+                optimizer.zero_grad()
+                predictions = self._new_model(batch_features)
                 predictions = predictions.view(-1, predictions.size(2))
                 batch_targets = batch_targets.view(-1)
 
                 loss = self._loss(predictions, batch_targets)
                 loss.backward()
-                self._optimizer.step()
+                optimizer.step()
+
+        # Swap the new model with the old one
+        with self._lock:
+            self._model = self._new_model
+            self._new_model = None
+            print("swapped model")
+
+    def train_async(
+        self,
+        features: List[List[int]],
+        targets: List[List[int]],
+        epochs: int,
+        batch_size: int,
+    ) -> None:
+        asyncio.run(
+            self._train_async_helper(features, targets, epochs, batch_size)
+        )
+
+    async def _train_async_helper(
+        self,
+        features: List[List[int]],
+        targets: List[List[int]],
+        epochs: int,
+        batch_size: int,
+    ) -> None:
+        await self.train(features, targets, epochs, batch_size)
 
     def predict(self, unlabeled_sentence: List[int]) -> List[int]:
         features = torch.tensor(
