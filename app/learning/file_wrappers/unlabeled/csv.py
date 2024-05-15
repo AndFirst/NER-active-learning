@@ -1,5 +1,5 @@
 import csv
-from typing import List, Set
+from typing import List
 
 from .wrapper import UnlabeledWrapper
 
@@ -17,6 +17,9 @@ class UnlabeledCsv(UnlabeledWrapper):
         return sentences
 
     def save(self, file_path: str) -> None:
-        sentences = "\n".join("\t".join(sentence) for sentence in self._sentences) + "\n"
+        sentences = (
+            "\n".join("\t".join(sentence) for sentence in self._sentences)
+            + "\n"
+        )
         with open(self._file_path, "w") as file:
             file.write(sentences)
