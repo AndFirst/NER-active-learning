@@ -9,18 +9,13 @@ class LabeledCsv(LabeledWrapper):
         assert file_path.endswith(".csv")
         super().__init__(file_path)
 
-    def save_sentence(self, sentence: List[str]) -> None:
-        with open(self._file_path, "a") as file:
-            file.write("\t".join(sentence) + "\n")
-
-    def get_all_sentences(self) -> List[List[str]]:
+    def load(self, file_path: str) -> List[List[str]]:
         with open(self._file_path, "r") as file:
             reader = csv.reader(file, delimiter="\t", quoting=csv.QUOTE_NONE)
             sentences = list(reader)
         return sentences
 
-    def get_longest_sentence(self) -> List[str]:
-        with open(self._file_path, "r") as file:
-            reader = csv.reader(file, delimiter="\t", quoting=csv.QUOTE_NONE)
-            sentences = list(reader)
-        return max(sentences, key=len) if sentences else []
+    def save(self, file_path: str) -> None:
+        sentences = "\n".join("\t".join(sentence) for sentence in self._sentences) + "\n"
+        with open(self._file_path, "w") as file:
+            file.write(sentences)
