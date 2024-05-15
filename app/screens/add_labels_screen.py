@@ -26,9 +26,9 @@ Builder.load_string(kv_string)
 class AddLabelsScreen(Screen):
 
     def __init__(self, **kwargs):
-        shared_data = kwargs.pop("shared_data", None)
+        form_state = kwargs.pop("form_state", None)
         super(AddLabelsScreen, self).__init__(**kwargs)
-        self.shared_data = shared_data
+        self.form_state = form_state
         self.ids.prev_next_buttons.on_back = self.go_to_data_set
         self.ids.prev_next_buttons.on_next = self.go_to_summary
 
@@ -45,7 +45,7 @@ class AddLabelsScreen(Screen):
         elif len(set(labels)) != len(labels):
             self.show_error_popup("Labels must be unique")
         else:
-            self.shared_data.labels = labels
+            self.form_state.labels = labels
             self.manager.current = "summary"
 
     def show_error_popup(self, message):

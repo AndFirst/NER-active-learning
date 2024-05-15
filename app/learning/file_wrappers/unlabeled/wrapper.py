@@ -11,9 +11,17 @@ class UnlabeledWrapper(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def count_sentences(self) -> int:
+    def unique_words(self) -> Set[str]:
         raise NotImplementedError
 
     @abstractmethod
-    def unique_words(self) -> Set[str]:
-        raise NotImplementedError
+    def get_longest_sentence(self) -> List[str]:
+        pass
+
+    @abstractmethod
+    def get_sentence_idx(self, sentence: List[str]) -> int:
+        pass
+
+    @abstractmethod
+    def remove_sentence(self, idx: int) -> None:
+        pass

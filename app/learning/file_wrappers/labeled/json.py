@@ -1,4 +1,4 @@
-from wrapper import LabeledWrapper
+from .wrapper import LabeledWrapper
 
 
 class LabeledJson(LabeledWrapper):

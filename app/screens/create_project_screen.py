@@ -5,9 +5,9 @@ from kivy.uix.label import Label
 from kivy.uix.button import Button
 from kivy.uix.dropdown import DropDown
 
-from app.data_types import ProjectData
+from app.data_types import ProjectFormState
 from plyer import filechooser
-from app.file_operations import create_unique_folder_name
+from app.utils import create_unique_folder_name
 
 kv_string = """
 <CreateProjectScreen>:
@@ -58,10 +58,10 @@ Builder.load_string(kv_string)
 
 class CreateProjectScreen(Screen):
     def __init__(self, **kwargs):
-        shared_data = kwargs.pop("shared_data", None)
+        form_state = kwargs.pop("form_state", None)
         super(CreateProjectScreen, self).__init__(**kwargs)
 
-        self.shared_data = shared_data
+        self.form_state = form_state
         self.model_dropdown = self.create_model_dropdown()
         self.ids.prev_next_buttons.on_back = self.go_to_welcome
         self.ids.prev_next_buttons.on_next = self.save_and_go_to_data_set
@@ -96,7 +96,7 @@ class CreateProjectScreen(Screen):
                 0
             ]  # Since 'multiple=False', it returns a list with one item
             self.ids.model_button.text = selected_path
-            self.shared_data["user_model_path"] = selected_path
+            self.form_state["user_model_path"] = selected_path
         else:
             self.ids.model_button.text = (
                 "Choose a model"  # Reset if no file is selected
@@ -116,11 +116,11 @@ class CreateProjectScreen(Screen):
             popup.dismiss()
 
     def go_to_welcome(self):
-        self.shared_data = ProjectData()
+        self.form_state = ProjectFormState()
         self.ids.name_input.text = ""
         self.ids.model_button.text = "Choose a model"
         self.ids.description_input.text = ""
-        self.ids.path_button.text = "Save project path"
+        self.ids.path_button.text = "Save  project path"
         self.manager.current = "welcome"
 
     def open_filechooser(self):
@@ -154,10 +154,10 @@ class CreateProjectScreen(Screen):
         path = self.ids.path_button.text.strip()
 
         if name and description and path != "Save project path":
-            self.shared_data.name = name
-            self.shared_data.model = model
-            self.shared_data.description = description
-            self.shared_data.save_path = path
+            self.form_state.name = name
+            self.form_state.model = model
+            self.form_state.description = description
+            self.form_state.save_path = path
             self.manager.current = "data_set"
         else:
             popup = Popup(

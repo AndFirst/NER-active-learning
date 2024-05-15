@@ -9,9 +9,7 @@ import os
 from kivy.app import App
 from kivy.uix.label import Label
 
-from app.file_operations import load_project_from_file
-
-from app.data_types import ProjectData
+from app.project import Project
 
 kv_string = """
 <ExistingProjectScreen>:
@@ -50,9 +48,7 @@ class ExistingProjectScreen(Screen):
     popup = None
 
     def __init__(self, **kwargs):
-        shared_data = kwargs.pop("shared_data", None)
         super(ExistingProjectScreen, self).__init__(**kwargs)
-        self.shared_data = shared_data
         self.ids.prev_next_buttons.on_back = self.go_to_welcome
         self.ids.prev_next_buttons.on_next = self.check_files
 
@@ -138,12 +134,9 @@ class ExistingProjectScreen(Screen):
                     size=(400, 200),
                 ).open()
             else:
-                project_dict = load_project_from_file(
-                    os.path.join(self.selected_path, setup_path)
-                )
-                self.shared_data = ProjectData.from_dict(project_dict)
-                self.manager.get_screen("main_menu").shared_data = (
-                    self.shared_data
+
+                self.manager.get_screen("main_menu").project = Project.load(
+                    self.selected_path
                 )
                 self.manager.current = "main_menu"
         else:

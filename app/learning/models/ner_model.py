@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from abc import ABC
+from abc import ABC, abstractmethod
 from typing import List
 
 
@@ -9,6 +9,7 @@ class NERModel(ABC):
     def from_torch(cls, file_path: str) -> NERModel:
         raise NotImplementedError
 
+    @abstractmethod
     def train(
         self,
         features: List[List[int]],
@@ -18,8 +19,15 @@ class NERModel(ABC):
     ) -> None:
         raise NotImplementedError
 
+    @abstractmethod
     def predict(self, unlabeled_sentence: List[int]) -> List[int]:
         raise NotImplementedError
 
-    def reset(self) -> None:
+    @abstractmethod
+    def save(self, path: str) -> None:
+        raise NotImplementedError
+
+    @classmethod
+    @abstractmethod
+    def load(cls, file_path: str) -> NERModel:
         raise NotImplementedError

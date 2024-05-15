@@ -1,11 +1,7 @@
-from kivy.core.window import Window
 from kivy.uix.screenmanager import Screen
 from kivy.lang import Builder
-from app.ui_colors import BACKGROUND_COLOR
 
-from app.active_learning import ActiveLearningManager
-
-from app.learning.models.lstm import BiLSTMClassifier
+from app.data_types import LabelData
 
 kv_string = """
 <MainMenuScreen>:
@@ -34,35 +30,20 @@ Builder.load_string(kv_string)
 
 class MainMenuScreen(Screen):
     def __init__(self, **kwargs):
-        Window.clearcolor = BACKGROUND_COLOR
-        shared_data = kwargs.pop("shared_data", None)
         super(MainMenuScreen, self).__init__(**kwargs)
-        self.shared_data = shared_data
         self.model = None
+        self.project = None
         self.assistant = None
 
     def on_enter(self):
-        # self.model = self.shared_data.model
-        self.model = BiLSTMClassifier(num_words=35178, num_classes=7)
-        labeled_path = self.shared_data.save_path + "/labeled.csv"
-        unlabeled_path = self.shared_data.save_path + "/unlabeled.csv"
-        word_to_idx_path = self.shared_data.save_path + "/word_to_vec.json"
-        label_to_idx_path = self.shared_data.save_path + "/label_to_vec.json"
+        self.assistant = self.project.get_assistant()
+        self.model = self.project.get_model()
+        labels = self.project.get_labels()
+        self.ids.annotation_form.labels = self._init_ui_labels(labels)
 
-        self.assistant = ActiveLearningManager(
-            labeled_path=labeled_path,
-            unlabeled_path=unlabeled_path,
-            word_to_idx_path=word_to_idx_path,
-            label_to_idx_path=label_to_idx_path,
-            label_mapping={
-                label_data.label: label_data.color
-                for label_data in self.shared_data.labels
-            },
-            model=self.model,
-        )
-        self.ids.annotation_form.labels = self.shared_data.labels
-        self.ids.annotation_form.save_annotation_path = (
-            self.shared_data.save_path + "/labeled.csv"
+        self.ids.annotation_form.sentence = self.assistant.get_sentence(
+            annotated=True
         )
 
-        self.ids.annotation_form.sentence = self.assistant.get_sentence()
+    def _init_ui_labels(self, label_data: dict) -> list:
+        return [LabelData(label, color) for label, color in label_data.items()]
