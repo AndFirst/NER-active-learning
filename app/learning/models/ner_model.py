@@ -37,7 +37,6 @@ class NERModel(ABC):
     def save(self, path: str) -> None:
         raise NotImplementedError
 
-    @classmethod
     @abstractmethod
-    def load(cls, file_path: str) -> NERModel:
+    def load_weights(self, file_path: str) -> None:
         raise NotImplementedError

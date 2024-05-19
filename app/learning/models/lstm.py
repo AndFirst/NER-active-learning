@@ -136,8 +136,8 @@ class BiLSTMClassifier(NERModel):
         raise NotImplementedError
 
     def save(self, path: str) -> None:
-        pass
+        torch.save(self._model.state_dict(), path)
 
-    @classmethod
-    def load(cls, file_path: str) -> NERModel:
-        pass
+    def load_weights(self, file_path: str):
+        state_dict = torch.load(file_path)
+        self._model.load_state_dict(state_dict)

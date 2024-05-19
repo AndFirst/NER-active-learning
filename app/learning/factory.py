@@ -65,8 +65,8 @@ class Factory:
 
     @staticmethod
     def create_model(config: dict) -> NERModel:
-        model_type = config.pop("model_type")
-        model_path = config.pop("model_path")
+        model_type = config.get("model_type")
+        model_path = config.get("model_path")
         common_params = {
             "num_words": config["num_words"],
             "num_classes": config["num_classes"],
@@ -74,7 +74,10 @@ class Factory:
         }
         match model_type:
             case "LSTM":
-                return BiLSTMClassifier(**common_params)
+                model = BiLSTMClassifier(**common_params)
+                if os.path.exists(model_path):
+                    model.load_weights(model_path)
+                return model
             case "custom":
                 model = CustomModel(**common_params)
                 model.load(model_path)

@@ -15,7 +15,7 @@ class LabeledCsv(LabeledWrapper):
             sentences = list(reader)
         return sentences
 
-    def save(self, file_path: str) -> None:
+    def save(self) -> None:
         sentences = (
             "\n".join("\t".join(sentence) for sentence in self._sentences)
             + "\n"

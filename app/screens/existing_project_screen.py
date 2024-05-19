@@ -138,6 +138,9 @@ class ExistingProjectScreen(Screen):
                 self.manager.get_screen("main_menu").project = Project.load(
                     self.selected_path
                 )
+                self.manager.get_screen("main_menu").save_path = (
+                    self.selected_path
+                )
                 self.manager.current = "main_menu"
         else:
             Popup(

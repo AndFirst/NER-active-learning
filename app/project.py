@@ -25,18 +25,6 @@ from app.learning.factory import Factory
 from app.learning.models.ner_model import NERModel
 
 
-class ModelCreationError(Exception):
-    pass
-
-
-class DatasetCreationError(Exception):
-    pass
-
-
-class AssistantCreationError(Exception):
-    pass
-
-
 class Project:
     def __init__(
         self,
@@ -163,6 +151,9 @@ class Project:
             f"{directory_path}/project.json", "w"
         ) as project_config_file:
             json.dump(project_conf, project_config_file)
+
+        model = Factory.create_model(model_conf)
+        model.save(model_conf["model_path"])
 
     @staticmethod
     def create_word_to_idx(words: Set[str]) -> Dict[str, int]:

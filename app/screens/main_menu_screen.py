@@ -1,6 +1,9 @@
 from kivy.uix.screenmanager import Screen
 from kivy.lang import Builder
 
+from app.components.popups.popups import (
+    SaveConfirmationPopup,
+)
 from app.data_types import LabelData
 
 kv_string = """
@@ -34,6 +37,7 @@ class MainMenuScreen(Screen):
         self.model = None
         self.project = None
         self.assistant = None
+        self.save_path = None
 
     def on_enter(self):
         self.assistant = self.project.get_assistant()
@@ -47,3 +51,13 @@ class MainMenuScreen(Screen):
 
     def _init_ui_labels(self, label_data: dict) -> list:
         return [LabelData(label, color) for label, color in label_data.items()]
+
+    def confirm_exit(self):
+        exit_confirmation_popup = SaveConfirmationPopup(
+            save_function=self._save
+        )
+        exit_confirmation_popup.open()
+        return True
+
+    def _save(self):
+        self.project.save(self.save_path)

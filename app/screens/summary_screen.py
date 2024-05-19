@@ -129,4 +129,7 @@ class SummaryScreen(Screen):
         self.manager.get_screen("main_menu").project = Project.load(
             self.form_state.save_path
         )
+        self.manager.get_screen("main_menu").save_path = (
+            self.form_state.save_path
+        )
         self.manager.current = "main_menu"

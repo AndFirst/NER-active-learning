@@ -21,5 +21,5 @@ class LabeledWrapper(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def save(self, file_path: str) -> None:
+    def save(self) -> None:
         raise NotImplementedError

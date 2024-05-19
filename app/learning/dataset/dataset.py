@@ -87,4 +87,6 @@ class Dataset:
         labels = [self._apply_padding(label) for label in labels]
         return features, labels
 
-    def save(self): ...
+    def save(self):
+        self._labeled_file.save()
+        self._unlabeled_file.save()

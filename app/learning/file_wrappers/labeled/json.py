@@ -22,6 +22,6 @@ class LabeledJson(LabeledWrapper):
                     "JSON format is incorrect. Expected a list of lists."
                 )
 
-    def save(self, file_path: str) -> None:
-        with open(file_path, "w", encoding="utf-8") as file:
+    def save(self) -> None:
+        with open(self._file_path, "w", encoding="utf-8") as file:
             json.dump(self._sentences, file, ensure_ascii=False, indent=4)
