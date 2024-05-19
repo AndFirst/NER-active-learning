@@ -72,15 +72,23 @@ class Factory:
             "num_classes": config["num_classes"],
             "learning_rate": config["learning_rate"],
         }
+
         match model_type:
             case "LSTM":
                 model = BiLSTMClassifier(**common_params)
                 if os.path.exists(model_path):
                     model.load_weights(model_path)
+                model.validate_torch_model(
+                    config["num_words"], config["num_classes"]
+                )
                 return model
             case "custom":
                 model = CustomModel(**common_params)
-                model.load(model_path)
+                if os.path.exists(model_path):
+                    model.load_weights(model_path)
+                model.validate_torch_model(
+                    config["num_words"], config["num_classes"]
+                )
             case _:
                 ...
 
