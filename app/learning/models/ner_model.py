@@ -32,7 +32,7 @@ class NERModel(ABC):
             targets: List[List[int]],
             epochs: int,
             batch_size: int,
-            class_weights: List[List[float]] = None,
+            class_weights: List[float] = None,
     ) -> None:
         # Copy the model and initialize the new model for training
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -50,13 +50,12 @@ class NERModel(ABC):
         self._new_model.train()
 
         if class_weights is None:
-            class_weights_tensor = torch.ones(targets_tensor.size(1)).to(
-                device
-            )
+            self._loss = CrossEntropyLoss()
         else:
             class_weights_tensor = torch.tensor(
                 class_weights, dtype=torch.float
             ).to(device)
+            self._loss = CrossEntropyLoss(weight=class_weights_tensor)
 
         for epoch in range(epochs):
             for batch_features, batch_targets in dataloader:
@@ -65,9 +64,7 @@ class NERModel(ABC):
                 predictions = predictions.view(-1, predictions.size(2))
                 batch_targets = batch_targets.view(-1)
 
-                loss = self._loss(
-                    predictions, batch_targets, class_weights_tensor
-                )
+                loss = self._loss(predictions, batch_targets)
                 loss.backward()
                 optimizer.step()
 
@@ -83,7 +80,7 @@ class NERModel(ABC):
             targets: List[List[int]],
             epochs: int,
             batch_size: int,
-            class_weights: List[List[float]] = None,
+            class_weights: List[float] = None,
     ) -> None:
         self._training_queue.put(
             (features, targets, epochs, batch_size, class_weights)
