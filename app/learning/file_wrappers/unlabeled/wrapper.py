@@ -22,6 +22,9 @@ class UnlabeledWrapper(ABC):
     def remove_sentence(self, idx: int) -> None:
         self._sentences.pop(idx)
 
+    def get_all_sentences(self) -> List[List[str]]:
+        return self._sentences
+
     @abstractmethod
     def load(self) -> List[List[str]]:
         raise NotImplementedError

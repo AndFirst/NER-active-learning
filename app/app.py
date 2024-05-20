@@ -21,6 +21,7 @@ from app.screens import (
     DatasetScreen,
     AddLabelsScreen,
     SummaryScreen,
+    StatsScreen,
 )
 from app.ui_colors import BACKGROUND_COLOR
 from kivy.core.window import Window
@@ -55,6 +56,7 @@ class Application(App):
             SummaryScreen(name="summary", form_state=project_form_state)
         )
         self._sm.add_widget(MainMenuScreen(name="main_menu"))
+        self._sm.add_widget(StatsScreen(name="stats"))
         return self._sm
 
     def on_start(self):

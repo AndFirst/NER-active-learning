@@ -111,3 +111,11 @@ class Dataset:
     def save(self):
         self._labeled_file.save()
         self._unlabeled_file.save()
+
+    @property
+    def labeled_sentences_count(self):
+        return len(self._labeled_file.get_all_sentences())
+
+    @property
+    def unlabeled_sentences_count(self):
+        return len(self._unlabeled_file.get_all_sentences())

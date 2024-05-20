@@ -22,7 +22,8 @@ kv_string = """
             Button:
                 text: 'Labels'
             Button:
-                text: 'Stats'
+                text: 'Stats' 
+                on_release: app.root.current = 'stats'
         AnnotationForm:
             id: annotation_form        
             size_hint_x: 0.8
@@ -48,16 +49,17 @@ class MainMenuScreen(Screen):
         self.ids.annotation_form.sentence = self.assistant.get_sentence(
             annotated=True
         )
+        self.manager.get_screen("stats").stats = self.assistant.stats
 
     def _init_ui_labels(self, label_data: dict) -> list:
         return [LabelData(label, color) for label, color in label_data.items()]
 
     def confirm_exit(self):
         exit_confirmation_popup = SaveConfirmationPopup(
-            save_function=self._save
+            save_function=self.save
         )
         exit_confirmation_popup.open()
         return True
 
-    def _save(self):
+    def save(self):
         self.project.save(self.save_path)

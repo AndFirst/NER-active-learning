@@ -1,4 +1,4 @@
-from typing import Dict, Tuple
+from typing import Dict, Tuple, Any
 
 from app.constants import DEFAULT_UNLABELED_LABEL
 from app.learning.dataset.dataset import Dataset
@@ -85,3 +85,10 @@ class ActiveLearningManager:
     @property
     def label_mapping(self):
         return self._label_mapping
+
+    @property
+    def stats(self) -> Dict[str, Any]:
+        return {
+            "labeled_sentences_count": self._dataset.labeled_sentences_count,
+            "unlabeled_sentences_count": self._dataset.unlabeled_sentences_count,
+        }
