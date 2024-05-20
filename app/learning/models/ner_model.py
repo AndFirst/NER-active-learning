@@ -27,12 +27,12 @@ class NERModel(ABC):
         self._worker_thread.start()
 
     def _train_model(
-        self,
-        features: List[List[int]],
-        targets: List[List[int]],
-        epochs: int,
-        batch_size: int,
-        class_weights: List[float] = None,
+            self,
+            features: List[List[int]],
+            targets: List[List[int]],
+            epochs: int,
+            batch_size: int,
+            class_weights: List[List[float]] = None,
     ) -> None:
         # Copy the model and initialize the new model for training
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -78,12 +78,12 @@ class NERModel(ABC):
             print("swapped model")
 
     def train_async(
-        self,
-        features: List[List[int]],
-        targets: List[List[int]],
-        epochs: int,
-        batch_size: int,
-        class_weights: List[float] = None,
+            self,
+            features: List[List[int]],
+            targets: List[List[int]],
+            epochs: int,
+            batch_size: int,
+            class_weights: List[List[float]] = None,
     ) -> None:
         self._training_queue.put(
             (features, targets, epochs, batch_size, class_weights)
@@ -150,8 +150,8 @@ class NERModel(ABC):
 
         # Load or initialize optimizer
         if (
-            "optimizer_state_dict" in state_dict
-            and "optimizer_name" in state_dict
+                "optimizer_state_dict" in state_dict
+                and "optimizer_name" in state_dict
         ):
             optimizer_class = getattr(optim, state_dict["optimizer_name"])
             self._optimizer = optimizer_class(self._model.parameters())
