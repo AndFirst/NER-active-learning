@@ -5,7 +5,7 @@ from typing import List, Set
 class UnlabeledWrapper(ABC):
     def __init__(self, file_path: str) -> None:
         self._file_path = file_path
-        self._sentences = self.load(file_path)
+        self._sentences = self.load()
 
     def get_sentence(self, idx: int) -> List[str]:
         return self._sentences[idx]
@@ -23,7 +23,7 @@ class UnlabeledWrapper(ABC):
         self._sentences.pop(idx)
 
     @abstractmethod
-    def load(self, file_path: str) -> List[List[str]]:
+    def load(self) -> List[List[str]]:
         raise NotImplementedError
 
     @abstractmethod

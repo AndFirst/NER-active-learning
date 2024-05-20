@@ -63,7 +63,7 @@ class Project:
 
         with open(config_file, "r") as config_file:
             config = json.load(config_file)
-            model_path = config["model"]["model_path"]
+            model_path = config["model"]["model_state_path"]
 
         self._model.save(model_path)
         self._dataset.save()
@@ -98,7 +98,6 @@ class Project:
             "unlabeled_label": DEFAULT_UNLABELED_LABEL,
             "unlabeled_idx": DEFAULT_UNLABELED_IDX,
         }
-
         # copy dataset to our directory
         shutil.copy(
             project_state["dataset_path"], dataset_conf["unlabeled_path"]
@@ -129,8 +128,8 @@ class Project:
             json.dump(label_to_idx, label_to_idx_file)
 
         model_conf = {
-            "model_type": project_state.get("model_type", "LSTM"),
-            "model_path": f"{directory_path}/model.pth",
+            "model_type": project_state.get("model_type"),
+            "model_state_path": f"{directory_path}/model.pth",
             "dropout": project_state.get("dropout", DEFAULT_DROPOUT),
             "learning_rate": project_state.get(
                 "learning_rate", DEFAULT_LEARNING_RATE
@@ -138,6 +137,23 @@ class Project:
             "num_words": len(unique_words),
             "num_classes": len(labels) * 2 + 1,
         }
+        print(model_conf)
+        if model_conf["model_type"] == "custom":
+            model_conf["model_implementation_path"] = (
+                f"app/learning/models/custom_model_{project_state['name']}.py"
+            )
+            source_model_implementation = project_state.get(
+                "model_implementation_path"
+            )
+            shutil.copy(
+                source_model_implementation,
+                model_conf["model_implementation_path"],
+            )
+
+        source_model_state = project_state.get("model_state_path")
+        if source_model_state:
+            shutil.copy(source_model_state, model_conf["model_state_path"])
+
         project_conf = {
             "name": project_state["name"],
             "description": project_state["description"],
@@ -153,7 +169,7 @@ class Project:
             json.dump(project_conf, project_config_file)
 
         model = Factory.create_model(model_conf)
-        model.save(model_conf["model_path"])
+        model.save(model_conf["model_state_path"])
 
     @staticmethod
     def create_word_to_idx(words: Set[str]) -> Dict[str, int]:

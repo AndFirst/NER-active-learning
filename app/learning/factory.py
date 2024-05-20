@@ -66,7 +66,8 @@ class Factory:
     @staticmethod
     def create_model(config: dict) -> NERModel:
         model_type = config.get("model_type")
-        model_path = config.get("model_path")
+        model_state_path = config.get("model_state_path")
+        model_implementation_path = config.get("model_implementation_path")
         common_params = {
             "num_words": config["num_words"],
             "num_classes": config["num_classes"],
@@ -74,21 +75,25 @@ class Factory:
         }
 
         match model_type:
-            case "LSTM":
+            case "BiLSTM":
                 model = BiLSTMClassifier(**common_params)
-                if os.path.exists(model_path):
-                    model.load_weights(model_path)
+                if os.path.exists(model_state_path):
+                    model.load_weights(model_state_path)
                 model.validate_torch_model(
                     config["num_words"], config["num_classes"]
                 )
                 return model
             case "custom":
-                model = CustomModel(**common_params)
-                if os.path.exists(model_path):
-                    model.load_weights(model_path)
+
+                model = CustomModel(model_implementation_path)
+
+                if os.path.exists(model_state_path):
+                    model.load_weights(model_state_path)
                 model.validate_torch_model(
                     config["num_words"], config["num_classes"]
                 )
+                return model
+
             case _:
                 ...
 

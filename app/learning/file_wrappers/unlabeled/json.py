@@ -11,18 +11,21 @@ class UnlabeledJson(UnlabeledWrapper):
             raise ValueError("File type must be .json")
         super().__init__(file_path)
 
-    def load(self, file_path: str) -> List[List[str]]:
-        with open(file_path, "r", encoding="utf-8") as file:
-            data = json.load(file)
-            if isinstance(data, list) and all(
-                isinstance(sentence, list) for sentence in data
-            ):
-                self._sentences = data
-                return data
-            else:
-                raise ValueError(
-                    "JSON format is incorrect. Expected a list of lists."
-                )
+    def load(self) -> List[List[str]]:
+        try:
+            with open(self._file_path, "r", encoding="utf-8") as file:
+                data = json.load(file)
+                if isinstance(data, list) and all(
+                    isinstance(sentence, list) for sentence in data
+                ):
+                    self._sentences = data
+                    return data
+                else:
+                    raise ValueError(
+                        "JSON format is incorrect. Expected a list of lists."
+                    )
+        except json.JSONDecodeError:
+            return []
 
     def save(self) -> None:
         with open(self._file_path, "w", encoding="utf-8") as file:

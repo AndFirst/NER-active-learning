@@ -72,9 +72,17 @@ class ActiveLearningManager:
         self._dataset.move_sentence_to_labeled(converted_sentence)
 
         features, target = self._dataset.get_training_data()
+        weights = self._dataset.get_weights()
+        target_weights = [
+            [weights[idx] for idx in sentence] for sentence in target
+        ]
 
         self._model.train_async(
-            features, target, epochs=self._epochs, batch_size=self._batch_size
+            features,
+            target,
+            epochs=self._epochs,
+            batch_size=self._batch_size,
+            class_weights=target_weights,
         )
 
     @property

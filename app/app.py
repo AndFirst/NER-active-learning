@@ -1,6 +1,6 @@
+from kivy.config import Config
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager
-
 from app.components.popups.popups import ExitConfirmationPopup
 from app.data_types import ProjectFormState
 from app.components.add_labels.add_label_form import AddLabelForm
@@ -33,6 +33,7 @@ class Application(App):
         self._sm = ScreenManager()
 
     def build(self):
+        Config.set("input", "mouse", "mouse,multitouch_on_demand")
         Window.clearcolor = BACKGROUND_COLOR
         Window.bind(on_request_close=self.on_request_close)
 

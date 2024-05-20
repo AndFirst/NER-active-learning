@@ -15,11 +15,8 @@ from kivy.uix.popup import Popup
 from kivy.uix.textinput import TextInput
 
 from app.components.annotating.label import ColorLabel
-from kivy.config import Config
 
 from app.data_types import Annotation, Sentence, Word
-
-Config.set("input", "mouse", "mouse,multitouch_on_demand")
 
 kv_string = """
 <AnnotationForm>:

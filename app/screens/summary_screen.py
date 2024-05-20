@@ -117,14 +117,7 @@ class SummaryScreen(Screen):
         self.manager.current = "add_labels"
 
     def go_to_main_menu(self):
-        state = {
-            "name": self.form_state.name,
-            "description": self.form_state.description,
-            "labels": [label.to_dict() for label in self.form_state.labels],
-            "dataset_path": self.form_state.dataset_path,
-            "input_extension": ".csv",
-            "output_extension": ".csv",
-        }
+        state = self.form_state.to_dict()
         Project.create(self.form_state.save_path, state)
         self.manager.get_screen("main_menu").project = Project.load(
             self.form_state.save_path

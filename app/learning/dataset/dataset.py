@@ -40,6 +40,26 @@ class Dataset:
             len(self._unlabeled_file.get_longest_sentence()),
         )
 
+    def count_labels(self) -> Dict[str, int]:
+        label_counts = {label: 1 for label in self._labels_to_idx.keys()}
+        label_counts.update(self._labeled_file.count_labels())
+        return label_counts
+
+    def get_weights(self) -> List[float]:
+        label_counts = self.count_labels()
+        total_count = sum(label_counts.values())
+
+        sorted_labels = sorted(
+            self._labels_to_idx.items(), key=lambda item: item[1]
+        )
+
+        weights = [
+            1.0 / (label_counts[label] / total_count)
+            for label, _ in sorted_labels
+        ]
+
+        return weights
+
     def get_unlabeled_sentence(self, idx: int) -> List[str]:
         return self._unlabeled_file.get_sentence(idx)
 
@@ -59,6 +79,7 @@ class Dataset:
         return [self._words_to_idx[word] for word in sentence]
 
     def map_indices_to_labels(self, indices: List[int]) -> List[str]:
+        print(indices)
         return [self._idx_to_labels[idx] for idx in indices]
 
     def move_sentence_to_labeled(self, sentence: List[str]) -> None:

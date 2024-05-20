@@ -1,3 +1,4 @@
+import os
 from dataclasses import dataclass, field
 from itertools import chain
 from typing import Tuple, Optional, Any, List, Dict
@@ -102,9 +103,29 @@ class Sentence:
 @dataclass
 class ProjectFormState:
     name: str = ""
-    model: str = ""
     description: str = ""
     save_path: str = ""
+    output_extension: str = None
     dataset_path: str = ""
     labels: List[LabelData] = field(default_factory=list)
-    user_model_path: str = None
+    model_type: str = ""
+    model_state_path: str = None
+    model_implementation_path: str = None
+
+    @property
+    def input_extension(self) -> str:
+        return os.path.splitext(self.dataset_path)[1]
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "name": self.name,
+            "model_type": self.model_type,
+            "description": self.description,
+            "save_path": self.save_path,
+            "dataset_path": self.dataset_path,
+            "labels": [label.to_dict() for label in self.labels],
+            "model_state_path": self.model_state_path,
+            "model_implementation_path": self.model_implementation_path,
+            "input_extension": self.input_extension,
+            "output_extension": self.output_extension,
+        }

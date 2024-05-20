@@ -1,70 +1,64 @@
+from importlib.util import spec_from_file_location, module_from_spec
+import os
+import sys
 import threading
-from typing import List
 
 import torch
-import torch.optim as optim
-import torch.nn as nn
 
 from app.learning.models.ner_model import NERModel
 
+import inspect
+import torch.nn as nn
+
 
 class CustomModel(NERModel):
-    def __init__(
-        self, num_words: int, num_classes: int, learning_rate: float
-    ) -> None:
+    def __init__(self, model_implementation_path: str) -> None:
+        super().__init__()
         self._model = None
         self._new_model = None
         self._optimizer = None
         self._loss = None
         self._lock = threading.Lock()
 
-    def train(
-        self,
-        features: List[List[int]],
-        targets: List[List[int]],
-        epochs: int,
-        batch_size: int,
-    ) -> None:
-        pass
+        # Add the directory containing the model implementation to the Python path
+        sys.path.append(os.path.dirname(model_implementation_path))
 
-    async def train_async(
-        self,
-        features: List[List[int]],
-        targets: List[List[int]],
-        epochs: int,
-        batch_size: int,
-    ) -> None:
-        pass
+        # Import the module containing the model
+        spec = spec_from_file_location(
+            "model_module", model_implementation_path
+        )
+        model_module = module_from_spec(spec)
+        spec.loader.exec_module(model_module)
 
-    def predict(self, unlabeled_sentence: List[int]) -> List[int]:
-        pass
+        # Get all classes in the module that inherit from torch.nn.Module
+        model_classes = [
+            obj
+            for name, obj in inspect.getmembers(model_module)
+            if inspect.isclass(obj) and issubclass(obj, nn.Module)
+        ]
+
+        # If there are multiple or no such classes, raise an error
+        if len(model_classes) > 1:
+            raise ValueError(
+                "The module contains multiple classes that inherit from torch.nn.Module. Please ensure there is only one such class."
+            )
+        elif not model_classes:
+            raise ValueError(
+                "The module does not contain a class that inherits from torch.nn.Module."
+            )
+
+        # Get the model class from the module
+        self._model = model_classes[0]()
 
     def save(self, path: str) -> None:
-        checkpoint = {
-            "model": self._model,
-            "optimizer_state_dict": self._optimizer.state_dict(),
-            "optimizer_class": self._optimizer.__class__.__name__,
-            "optimizer_params": self._optimizer.defaults,
-            "loss_function": self._loss.__class__.__name__,
-        }
-        torch.save(checkpoint, path)
+        if self._model is None:
+            raise ValueError("Model has not been instantiated yet.")
+        torch.save(self._model.state_dict(), path)
 
     def load_weights(self, path: str) -> None:
-        checkpoint = torch.load(path)
-
-        self._model = checkpoint["model"]
-        try:
-            optimizer_class = getattr(optim, checkpoint["optimizer_class"])
-            self._optimizer = optimizer_class(
-                self._model.parameters(),
-                **checkpoint["optimizer_params"],
-            )
-            self._optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
-        except (AttributeError, KeyError):
-            self._optimizer = optim.Adam(self._model.parameters())
-
-        try:
-            loss_function_class = getattr(nn, checkpoint["loss_function"])
-            self._loss = loss_function_class()
-        except (AttributeError, KeyError):
-            self._loss = nn.CrossEntropyLoss()
+        if self._model is None:
+            raise ValueError("Model has not been instantiated yet.")
+        state_dict = torch.load(path)
+        self._model.load_state_dict(state_dict)
+        self._model.eval()
+        print(self._model)

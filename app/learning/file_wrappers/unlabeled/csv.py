@@ -10,7 +10,7 @@ class UnlabeledCsv(UnlabeledWrapper):
             raise ValueError("File type must be .csv")
         super().__init__(file_path)
 
-    def load(self, file_path: str) -> List[List[str]]:
+    def load(self) -> List[List[str]]:
         with open(self._file_path, "r") as file:
             reader = csv.reader(file, delimiter="\t", quoting=csv.QUOTE_NONE)
             sentences = list(reader)

@@ -1,16 +1,11 @@
-import copy
 import threading
-from typing import List
 from queue import Queue
 
-import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch import optim
 
 from .ner_model import NERModel
-from torch.utils.data import TensorDataset, DataLoader
 
 
 class BiLSTM(nn.Module):
@@ -64,82 +59,3 @@ class BiLSTMClassifier(NERModel):
             target=self._worker, daemon=True
         )
         self._worker_thread.start()
-
-    def _train_model(
-        self,
-        features: List[List[int]],
-        targets: List[List[int]],
-        epochs: int,
-        batch_size: int,
-    ) -> None:
-        # Copy the model and initialize the new model for training
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        with self._lock:
-            self._new_model = copy.deepcopy(self._model).to(device)
-        optimizer = optim.Adam(
-            self._new_model.parameters(),
-            lr=self._optimizer.param_groups[0]["lr"],
-        )
-
-        features_tensor = torch.tensor(features, dtype=torch.long).to(device)
-        targets_tensor = torch.tensor(targets, dtype=torch.long).to(device)
-        dataset = TensorDataset(features_tensor, targets_tensor)
-        dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
-        self._new_model.train()
-
-        for epoch in range(epochs):
-            for batch_features, batch_targets in dataloader:
-                optimizer.zero_grad()
-                predictions = self._new_model(batch_features)
-                predictions = predictions.view(-1, predictions.size(2))
-                batch_targets = batch_targets.view(-1)
-
-                loss = self._loss(predictions, batch_targets)
-                loss.backward()
-                optimizer.step()
-
-        # Swap the new model with the old one
-        with self._lock:
-            self._model = self._new_model.to("cpu")
-            self._new_model = None
-            print("swapped model")
-
-    def train_async(
-        self,
-        features: List[List[int]],
-        targets: List[List[int]],
-        epochs: int,
-        batch_size: int,
-    ) -> None:
-        self._training_queue.put((features, targets, epochs, batch_size))
-
-    def _worker(self) -> None:
-        while True:
-            features, targets, epochs, batch_size = self._training_queue.get()
-            self._train_model(features, targets, epochs, batch_size)
-            self._training_queue.task_done()
-
-    def predict(self, unlabeled_sentence: List[int]) -> List[int]:
-        features = torch.tensor(
-            [
-                unlabeled_sentence,
-            ],
-            dtype=torch.long,
-        )
-
-        self._model.eval()
-
-        with torch.no_grad():
-            predictions = np.argmax(self._model(features).cpu(), axis=-1)
-
-        return predictions[0].tolist()
-
-    def reset(self) -> None:
-        raise NotImplementedError
-
-    def save(self, path: str) -> None:
-        torch.save(self._model.state_dict(), path)
-
-    def load_weights(self, file_path: str):
-        state_dict = torch.load(file_path)
-        self._model.load_state_dict(state_dict)
