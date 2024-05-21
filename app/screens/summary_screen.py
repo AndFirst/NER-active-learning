@@ -1,8 +1,8 @@
 from kivy.uix.screenmanager import Screen
 from kivy.lang import Builder
 from kivy.uix.label import Label
-
 from app.project import Project
+from app.data_types import LabelData
 
 kv_string = """
 <SummaryScreen>:
@@ -21,26 +21,31 @@ kv_string = """
         GridLayout: 
             id: field_value_grid
             cols: 2
-            Label:
-                text: "Field"
-                font_size: 20
-                bold: True
-                halign: 'left'
-                color: (0, 0, 0, 1)
-            Label:
-                text: "Value"
-                font_size: 20
-                bold: True
-                halign: 'right'
-                color: (0, 0, 0, 1)
+            spacing: [5, 5]  # Add spacing between cells
+            row_default_height: 40
+            row_force_default: True
+            size_hint_y: None
+            height: self.minimum_height
 
         PrevNextButtons:
             id: prev_next_buttons
             size_hint_y: None
             valign: 'bottom'
 
+<CustomLabel>:
+    canvas.before:
+        Color:
+            rgba: 0, 0, 0, 1
+        Line:
+            width: 1
+            rectangle: self.x, self.y, self.width, self.height
 """
+
 Builder.load_string(kv_string)
+
+
+class CustomLabel(Label):
+    pass
 
 
 class SummaryScreen(Screen):
@@ -50,23 +55,6 @@ class SummaryScreen(Screen):
         self.form_state = form_state
 
     def on_enter(self):
-        field_label = Label(
-            text="Field",
-            font_size=20,
-            bold=True,
-            halign="left",
-            color=(0, 0, 0, 1),
-        )
-        value_label = Label(
-            text="Value",
-            font_size=20,
-            bold=True,
-            halign="right",
-            color=(0, 0, 0, 1),
-        )
-
-        self.ids.field_value_grid.add_widget(field_label)
-        self.ids.field_value_grid.add_widget(value_label)
         data_labels = self.ids.field_value_grid.children[2:]
         for label in data_labels:
             self.ids.field_value_grid.remove_widget(label)
@@ -78,37 +66,56 @@ class SummaryScreen(Screen):
     def populate_field_values(self):
         """Populates the field-value grid layout."""
         grid_layout = self.ids.field_value_grid
-        field_labels = ["Name", "Description", "Save Path", "Dataset Path"]
+        field_labels = ["Name", "Description", "Save Path", "Dataset Path", "Labels"]
         values = [
             self.form_state.name,
             self.form_state.description,
             self.form_state.save_path.split("/")[-3:],
             self.form_state.dataset_path.split("/")[-3:],
+            self.form_state.labels
         ]
 
         for field_label_text, value in zip(field_labels, values):
-            field_label = Label(
-                text=field_label_text, halign="left", color=(0, 0, 0, 1)
+            field_label = CustomLabel(
+                text=field_label_text, halign="left", color=(0, 0, 0, 1),
+                size_hint_x=0.25
             )
-            if (
-                field_label_text == "Dataset Path"
-                or field_label_text == "Save Path"
-            ):
-                value_label = Label(
-                    text=".../" + str("/".join(value)),
+            if field_label_text in ["Dataset Path", "Save Path"]:
+                value_label = CustomLabel(
+                    text=".../" + str("/").join(value),
                     halign="right",
                     color=(0, 0, 0, 1),
+                    size_hint_x=0.75  
                 )
             elif field_label_text == "Description":
                 wrapped_text = ""
                 for i in range(0, len(value), 50):
-                    wrapped_text += value[i : i + 50] + "\n"
-                value_label = Label(
-                    text=wrapped_text, halign="right", color=(0, 0, 0, 1)
+                    wrapped_text += value[i: i + 50] + "\n"
+                value_label = CustomLabel(
+                    text=wrapped_text, halign="right", color=(0, 0, 0, 1),
+                    size_hint_x=0.75  
                 )
+            elif field_label_text == "Labels":
+                labels_text = ", ".join(f"{label_data.label} ({label_data.color})" for label_data in value)
+                value_label = CustomLabel(
+                    text=labels_text, halign="right", color=(0, 0, 0, 1),
+                    size_hint_x=0.75  
+                )
+            # elif field_label_text == "Labels":
+            #     for label_data in value:
+            #         label_text = f"{label_data.label}"
+            #         label_color = label_data.color
+            #         label_widget = CustomLabel(
+            #             text=label_text, halign="right", color=label_color,
+            #             size_hint_x=0.75  
+            #         )
+            #         grid_layout.add_widget(CustomLabel(text="", size_hint_x=0.25))
+            #         grid_layout.add_widget(label_widget)
+            #     continue
             else:
-                value_label = Label(
-                    text=str(value), halign="right", color=(0, 0, 0, 1)
+                value_label = CustomLabel(
+                    text=str(value), halign="right", color=(0, 0, 0, 1),
+                    size_hint_x=0.75
                 )
             grid_layout.add_widget(field_label)
             grid_layout.add_widget(value_label)
