@@ -46,9 +46,9 @@ class DatasetScreen(Screen):
     popup = None
 
     def __init__(self, **kwargs):
-        shared_data = kwargs.pop("shared_data", None)
+        form_state = kwargs.pop("form_state", None)
         super(DatasetScreen, self).__init__(**kwargs)
-        self.shared_data = shared_data
+        self.form_state = form_state
 
         self.ids.prev_next_buttons.on_back = self.go_to_create_project
         self.ids.prev_next_buttons.on_next = self.check_file
@@ -99,7 +99,7 @@ class DatasetScreen(Screen):
     def check_file(self):
         if self.selected_file:
             if os.path.exists(self.selected_file):
-                self.shared_data.dataset_path = self.selected_file
+                self.form_state.dataset_path = self.selected_file
                 self.manager.current = "add_labels"
             else:
                 Popup(

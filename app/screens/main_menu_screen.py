@@ -1,11 +1,10 @@
-from kivy.core.window import Window
 from kivy.uix.screenmanager import Screen
 from kivy.lang import Builder
-from app.ui_colors import BACKGROUND_COLOR
 
-from app.active_learning import ActiveLearningManager
-
-from app.learning.models.lstm import BiLSTMClassifier
+from app.components.popups.popups import (
+    SaveConfirmationPopup,
+)
+from app.data_types import LabelData
 
 kv_string = """
 <MainMenuScreen>:
@@ -23,7 +22,8 @@ kv_string = """
             Button:
                 text: 'Labels'
             Button:
-                text: 'Stats'
+                text: 'Stats' 
+                on_release: app.root.current = 'stats'
         AnnotationForm:
             id: annotation_form        
             size_hint_x: 0.8
@@ -34,35 +34,32 @@ Builder.load_string(kv_string)
 
 class MainMenuScreen(Screen):
     def __init__(self, **kwargs):
-        Window.clearcolor = BACKGROUND_COLOR
-        shared_data = kwargs.pop("shared_data", None)
         super(MainMenuScreen, self).__init__(**kwargs)
-        self.shared_data = shared_data
         self.model = None
+        self.project = None
         self.assistant = None
+        self.save_path = None
 
     def on_enter(self):
-        # self.model = self.shared_data.model
-        self.model = BiLSTMClassifier(num_words=35178, num_classes=7)
-        labeled_path = self.shared_data.save_path + "/labeled.csv"
-        unlabeled_path = self.shared_data.save_path + "/unlabeled.csv"
-        word_to_idx_path = self.shared_data.save_path + "/word_to_vec.json"
-        label_to_idx_path = self.shared_data.save_path + "/label_to_vec.json"
+        self.assistant = self.project.get_assistant()
+        self.model = self.project.get_model()
+        labels = self.project.get_labels()
+        self.ids.annotation_form.labels = self._init_ui_labels(labels)
 
-        self.assistant = ActiveLearningManager(
-            labeled_path=labeled_path,
-            unlabeled_path=unlabeled_path,
-            word_to_idx_path=word_to_idx_path,
-            label_to_idx_path=label_to_idx_path,
-            label_mapping={
-                label_data.label: label_data.color
-                for label_data in self.shared_data.labels
-            },
-            model=self.model,
+        self.ids.annotation_form.sentence = self.assistant.get_sentence(
+            annotated=True
         )
-        self.ids.annotation_form.labels = self.shared_data.labels
-        self.ids.annotation_form.save_annotation_path = (
-            self.shared_data.save_path + "/labeled.csv"
-        )
+        self.manager.get_screen("stats").stats = self.assistant.stats
 
-        self.ids.annotation_form.sentence = self.assistant.get_sentence()
+    def _init_ui_labels(self, label_data: dict) -> list:
+        return [LabelData(label, color) for label, color in label_data.items()]
+
+    def confirm_exit(self):
+        exit_confirmation_popup = SaveConfirmationPopup(
+            save_function=self.save
+        )
+        exit_confirmation_popup.open()
+        return True
+
+    def save(self):
+        self.project.save(self.save_path)

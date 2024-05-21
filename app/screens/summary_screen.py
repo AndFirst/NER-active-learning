@@ -1,9 +1,8 @@
-import copy
-
 from kivy.uix.screenmanager import Screen
 from kivy.lang import Builder
 from kivy.uix.label import Label
-from app.file_operations import save_project
+
+from app.project import Project
 
 kv_string = """
 <SummaryScreen>:
@@ -46,9 +45,9 @@ Builder.load_string(kv_string)
 
 class SummaryScreen(Screen):
     def __init__(self, **kwargs):
-        shared_data = kwargs.pop("shared_data", None)
+        form_state = kwargs.pop("form_state", None)
         super(SummaryScreen, self).__init__(**kwargs)
-        self.shared_data = shared_data
+        self.form_state = form_state
 
     def on_enter(self):
         field_label = Label(
@@ -81,10 +80,10 @@ class SummaryScreen(Screen):
         grid_layout = self.ids.field_value_grid
         field_labels = ["Name", "Description", "Save Path", "Dataset Path"]
         values = [
-            self.shared_data.name,
-            self.shared_data.description,
-            self.shared_data.save_path.split("/")[-3:],
-            self.shared_data.dataset_path.split("/")[-3:],
+            self.form_state.name,
+            self.form_state.description,
+            self.form_state.save_path.split("/")[-3:],
+            self.form_state.dataset_path.split("/")[-3:],
         ]
 
         for field_label_text, value in zip(field_labels, values):
@@ -118,7 +117,12 @@ class SummaryScreen(Screen):
         self.manager.current = "add_labels"
 
     def go_to_main_menu(self):
-        data_copy = copy.copy(self.shared_data)
-        # create_model(data_copy)
-        save_project(data_copy)
+        state = self.form_state.to_dict()
+        Project.create(self.form_state.save_path, state)
+        self.manager.get_screen("main_menu").project = Project.load(
+            self.form_state.save_path
+        )
+        self.manager.get_screen("main_menu").save_path = (
+            self.form_state.save_path
+        )
         self.manager.current = "main_menu"

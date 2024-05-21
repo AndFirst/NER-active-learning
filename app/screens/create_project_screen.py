@@ -5,9 +5,9 @@ from kivy.uix.label import Label
 from kivy.uix.button import Button
 from kivy.uix.dropdown import DropDown
 
-from app.data_types import ProjectData
+from app.data_types import ProjectFormState
 from plyer import filechooser
-from app.file_operations import create_unique_folder_name
+from app.utils import create_unique_folder_name
 
 kv_string = """
 <CreateProjectScreen>:
@@ -44,9 +44,19 @@ kv_string = """
                 on_release: root.model_dropdown.open(self)
                 size_hint_y: 0.8
             Button:
+                id: state_button
+                text: 'Load model state'
+                on_release: root.open_state_filechooser()
+                size_hint_y: 0.8
+            Button:
                 id: path_button
                 text: 'Save project path'
                 on_release: root.open_filechooser()
+                size_hint_y: 0.8
+            Button:
+                id: output_type_button
+                text: 'Choose output file type'
+                on_release: root.output_type_dropdown.open(self)
                 size_hint_y: 0.8
         PrevNextButtons:
             size_hint_y: 0.2
@@ -58,106 +68,106 @@ Builder.load_string(kv_string)
 
 class CreateProjectScreen(Screen):
     def __init__(self, **kwargs):
-        shared_data = kwargs.pop("shared_data", None)
+        form_state = kwargs.pop("form_state", None)
         super(CreateProjectScreen, self).__init__(**kwargs)
 
-        self.shared_data = shared_data
-        self.model_dropdown = self.create_model_dropdown()
+        self.form_state = form_state
+        self.model_dropdown = self.create_dropdown(
+            ["BiLSTM", "Your model"], self.handle_model_selection
+        )
+        self.output_type_dropdown = self.create_dropdown(
+            [".csv", ".json"], self.handle_output_type_selection
+        )
         self.ids.prev_next_buttons.on_back = self.go_to_welcome
         self.ids.prev_next_buttons.on_next = self.save_and_go_to_data_set
 
-    def create_model_dropdown(self):
+    def create_dropdown(self, options, on_select):
         dropdown = DropDown()
-        models = ["BiLSTM", "Your model"]  # Example model names
-        for model in models:
-            btn = Button(text=model, size_hint_y=None, height=44)
-            btn.bind(
-                on_release=lambda btn: self.handle_model_selection(
-                    btn.text, dropdown
-                )
-            )
+        for option in options:
+            btn = Button(text=option, size_hint_y=None, height=44)
+            btn.bind(on_release=lambda btn: on_select(btn.text, dropdown))
             dropdown.add_widget(btn)
         return dropdown
 
+    def handle_output_type_selection(self, output_type, dropdown):
+        dropdown.select(output_type)
+        self.ids.output_type_button.text = output_type
+        self.form_state.output_extension = output_type
+
     def handle_model_selection(self, model_name, dropdown):
         dropdown.select(model_name)
-        if model_name == "Your model":
-            self.open_model_filechooser()
-        else:
-            self.ids.model_button.text = model_name
+        actions = {
+            "Your model": lambda _: self.open_model_filechooser(),
+            "BiLSTM": lambda _: self.set_model_button_text(model_name),
+        }
+        actions.get(model_name, self.set_model_button_text)(model_name)
+
+    def set_model_button_text(self, text):
+        self.ids.model_button.text = text
+        self.form_state.model_type = text
 
     def open_model_filechooser(self):
-        # Use plyer's filechooser to open the native file dialog
         file_path = filechooser.open_file(
-            filters=["*.pth"], title="Select Model File", multiple=False
+            filters=["*.py"],
+            title="Select Model Implementation File",
+            multiple=False,
         )
         if file_path:
-            selected_path = file_path[
-                0
-            ]  # Since 'multiple=False', it returns a list with one item
+            selected_path = file_path[0]
+            self.form_state.model_implementation_path = selected_path
             self.ids.model_button.text = selected_path
-            self.shared_data["user_model_path"] = selected_path
-        else:
-            self.ids.model_button.text = (
-                "Choose a model"  # Reset if no file is selected
-            )
 
-    def select_model_path(self, filechooser, popup):
-        selection = filechooser.selection
-        if selection:
-            self.ids.model_button.text = selection[
-                0
-            ]  # Update the button text to show the selected path
-            popup.dismiss()
         else:
-            self.ids.model_button.text = (
-                "Choose a model"  # Reset if no file is selected
-            )
-            popup.dismiss()
+            self.ids.model_button.text = "Choose a model"
+
+    def open_state_filechooser(self):
+        file_path = filechooser.open_file(
+            filters=["*.pth", "*.pt"],
+            title="Select Model State File",
+            multiple=False,
+        )
+        if file_path:
+            selected_path = file_path[0]
+            self.form_state.model_state_path = selected_path
+            self.ids.state_button.text = selected_path
+        else:
+            self.ids.state_button.text = "Load model state"
 
     def go_to_welcome(self):
-        self.shared_data = ProjectData()
+        self.form_state = ProjectFormState()
         self.ids.name_input.text = ""
         self.ids.model_button.text = "Choose a model"
         self.ids.description_input.text = ""
-        self.ids.path_button.text = "Save project path"
+        self.ids.path_button.text = "Save  project path"
         self.manager.current = "welcome"
 
     def open_filechooser(self):
-        # Use plyer's filechooser to open the native directory chooser
         selected_path = filechooser.choose_dir(title="Select Project Folder")
         if selected_path:
-            folder_path = selected_path[
-                0
-            ]  # Since 'choose_dir' returns a list with one item
+            folder_path = selected_path[0]
             unique_folder_path = create_unique_folder_name(
                 folder_path, self.ids.name_input.text
             )
             self.ids.path_button.text = folder_path + "/" + unique_folder_path
         else:
-            self.ids.path_button.text = (
-                "Save project path"  # Reset if no folder is selected
-            )
-
-    def select_path(self, instance, selection, popup):
-        if selection:
-            project_path = create_unique_folder_name(
-                selection[0], self.ids.name_input.text
-            )
-            self.ids.path_button.text = selection[0] + "/" + project_path
-            popup.dismiss()
+            self.ids.path_button.text = "Save project path"
 
     def save_and_go_to_data_set(self):
         name = self.ids.name_input.text.strip()
         description = self.ids.description_input.text.strip()
-        model = self.ids.model_button.text.strip()
         path = self.ids.path_button.text.strip()
 
-        if name and description and path != "Save project path":
-            self.shared_data.name = name
-            self.shared_data.model = model
-            self.shared_data.description = description
-            self.shared_data.save_path = path
+        if (
+            name
+            and description
+            and path != "Save project path"
+            and self.form_state.output_extension
+            and self.form_state.model_type
+        ):
+            self.form_state.name = name
+            self.form_state.description = description
+            self.form_state.save_path = path
+            print(self.form_state)
             self.manager.current = "data_set"
         else:
             popup = Popup(

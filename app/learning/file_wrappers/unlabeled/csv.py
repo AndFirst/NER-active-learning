@@ -1,4 +1,5 @@
-from typing import List, Set
+import csv
+from typing import List
 
 from .wrapper import UnlabeledWrapper
 
@@ -9,29 +10,16 @@ class UnlabeledCsv(UnlabeledWrapper):
             raise ValueError("File type must be .csv")
         super().__init__(file_path)
 
-    def count_sentences(self) -> int:
+    def load(self) -> List[List[str]]:
         with open(self._file_path, "r") as file:
-            sentence_count = 0
-            for line in file:
-                if line.strip():
-                    sentence_count += 1
-            return sentence_count
-
-    def unique_words(self) -> Set[str]:
-        unique_words = set()
-        with open(self._file_path, "r") as file:
-            for line in file:
-                words = line.strip().split("\t")
-                unique_words.update(words)
-        return unique_words
-
-    def get_sentence(self, idx: int) -> List[str]:
-        sentences = []
-        with open(self._file_path, "r") as file:
-            for i, line in enumerate(file):
-                if i == idx:
-                    sentences = line.strip().split("\t")
-                    break
-        if not sentences:
-            raise IndexError("Index out of range")
+            reader = csv.reader(file, delimiter="\t", quoting=csv.QUOTE_NONE)
+            sentences = list(reader)
         return sentences
+
+    def save(self) -> None:
+        sentences = (
+            "\n".join("\t".join(sentence) for sentence in self._sentences)
+            + "\n"
+        )
+        with open(self._file_path, "w") as file:
+            file.write(sentences)

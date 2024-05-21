@@ -1,6 +1,9 @@
+import os
 from dataclasses import dataclass, field
 from itertools import chain
-from typing import Tuple, Optional, Any, List, Dict, IO
+from typing import Tuple, Optional, Any, List, Dict
+
+from app.constants import DEFAULT_UNLABELED_LABEL
 
 
 @dataclass
@@ -41,7 +44,7 @@ class Annotation:
 
     def get_label(self) -> List[str]:
         if self.label is None:
-            return ["_"]
+            return [DEFAULT_UNLABELED_LABEL]
         else:
             label_text = self.label.label
             labels = ["B-" + label_text] + ["I-" + label_text] * (
@@ -89,34 +92,40 @@ class Sentence:
             if word in token.words:
                 return token
 
-    def to_csv(self, fh: IO[str]) -> None:
+    def to_list(self) -> List[str]:
         labels = list(
             chain.from_iterable(token.get_label() for token in self.tokens)
         )
         words = [word.word for token in self.tokens for word in token.words]
-
-        merged = words + ["<END_SENTENCE>"] + labels
-        row = "\t".join(merged)
-        fh.write(row + "\n")
+        return words + labels
 
 
 @dataclass
-class ProjectData:
+class ProjectFormState:
     name: str = ""
-    model: str = ""
     description: str = ""
     save_path: str = ""
+    output_extension: str = None
     dataset_path: str = ""
     labels: List[LabelData] = field(default_factory=list)
-    model: Optional["NERModel"] = None
+    model_type: str = ""
+    model_state_path: str = None
+    model_implementation_path: str = None
 
-    def to_dict(self):
-        data = self.__dict__
-        data["labels"] = [label.to_dict() for label in data["labels"]]
-        return data
+    @property
+    def input_extension(self) -> str:
+        return os.path.splitext(self.dataset_path)[1]
 
-    @classmethod
-    def from_dict(cls, data_dict):
-        label_dicts = data_dict.pop("labels", [])
-        labels = [LabelData(**label_dict) for label_dict in label_dicts]
-        return cls(labels=labels, **data_dict)
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "name": self.name,
+            "model_type": self.model_type,
+            "description": self.description,
+            "save_path": self.save_path,
+            "dataset_path": self.dataset_path,
+            "labels": [label.to_dict() for label in self.labels],
+            "model_state_path": self.model_state_path,
+            "model_implementation_path": self.model_implementation_path,
+            "input_extension": self.input_extension,
+            "output_extension": self.output_extension,
+        }
