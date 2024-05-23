@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 import itertools
-from dataclasses import dataclass, field
 import os
-from typing import Tuple, Optional, Any, List, Dict
+from typing import Dict
 from app.data_types import (
     ProjectFormState,
     DatasetConf,
@@ -12,18 +11,12 @@ from app.data_types import (
     ProjectConf)
 import json
 import shutil
-from typing import Dict, Set
+from typing import Set
 from app.constants import (
-    DEFAULT_BATCH_SIZE,
-    DEFAULT_EPOCHS,
-    DEFAULT_DROPOUT,
-    DEFAULT_INPUT_EXTENSION,
-    DEFAULT_OUTPUT_EXTENSION,
     DEFAULT_PADDING_LABEL,
     DEFAULT_PADDING_IDX,
     DEFAULT_UNLABELED_LABEL,
     DEFAULT_UNLABELED_IDX,
-    DEFAULT_LEARNING_RATE,
 )
 from app.learning.active_learning import ActiveLearningManager
 from app.learning.dataset.dataset import Dataset
@@ -43,8 +36,8 @@ class Project:
         self._model = model
 
     @classmethod
-    def load(cls, directory_path: str) -> Project:
-        config_file = f"{directory_path}/project.json"
+    def load(cls, dir_path: str) -> Project:
+        config_file = f"{dir_path}/project.json"
         if not os.path.isfile(config_file):
             raise FileNotFoundError("Project configuration file not found.")
 
@@ -79,10 +72,10 @@ class Project:
         os.makedirs(project_form_state.save_path)
 
         # Create Assistant Config object
-        assistant_conf = AssistantConf.create_from_state(project_form_state)
+        assistant_conf = AssistantConf.from_state(project_form_state)
 
         # Create Dataset Config object
-        dataset_conf = DatasetConf.create_from_state(project_form_state)
+        dataset_conf = DatasetConf.from_state(project_form_state)
 
         # Copy dataset to project's path
         shutil.copy(
@@ -101,9 +94,9 @@ class Project:
             json.dump(label_to_idx, label_to_idx_file)
 
         # Create Model Config object
-        model_conf = ModelConf.create_from_state(project_form_state,
-                                                 unlabeled_file.unique_words(),
-                                                 len(AssistantConf.get_labelset)*2 + 1)
+        model_conf = ModelConf.from_state(project_form_state,
+                                          unlabeled_file.unique_words(),
+                                          len(AssistantConf.get_labelset)*2 + 1)
 
         # Copy implementation of model if it is custom
         if model_conf.is_custom_model_type():
@@ -115,11 +108,11 @@ class Project:
 
         # Copy model state if it exists
         if project_form_state.model_state_path:
-            shutil.copy(project_form_state.model_state_path, model_conf.model_state_path)
+            shutil.copy(project_form_state.model_state_path, model_conf.state_path)
 
         # Create and save model
         model = Factory.create_model(model_conf)
-        model.save(model_conf.model_state_path)
+        model.save(model_conf.state_path)
 
         # Create Project Config object
         project_conf = ProjectConf.create_from_state(project_form_state,

@@ -155,7 +155,7 @@ class DatasetConf:
     unlabeled_idx: int
 
     @classmethod
-    def create_from_state(cls, project_form_state):
+    def from_state(cls, project_form_state):
         input_extension = project_form_state.get(
             "input_extension", DEFAULT_INPUT_EXTENSION
         )
@@ -173,6 +173,31 @@ class DatasetConf:
             DEFAULT_UNLABELED_IDX
         )
 
+    @classmethod
+    def from_dict(cls, dict):
+        return DatasetConf(
+            dict["unlabeled_path"],
+            dict["labeled_path"],
+            dict["words_to_idx_path"],
+            dict["labels_to_idx_path"],
+            dict["padding_label"],
+            dict["padding_idx"],
+            dict["unlabeled_label"],
+            dict["unlabeled_idx"]
+        )
+
+    def to_dict(self):
+        return {
+            "unlabeled_path": self.unlabeled_path,
+            "labeled_path": self.labeled_path,
+            "words_to_idx_path": self.words_to_idx_path,
+            "labels_to_idx_path": self.labels_to_idx_path,
+            "padding_label": self.padding_label,
+            "padding_idx": self.padding_idx,
+            "unlabeled_label": self.unlabeled_label,
+            "unlabeled_idx": self.unlabeled_idx
+        }
+
 
 @dataclass
 class AssistantConf:
@@ -181,12 +206,27 @@ class AssistantConf:
     labels: List[LabelData] = field(default_factory=list)
 
     @classmethod
-    def create_from_state(cls, project_form_state: ProjectFormState):
+    def from_state(cls, project_form_state: ProjectFormState):
         return AssistantConf(
             project_form_state.get("batch_size", DEFAULT_BATCH_SIZE),
             project_form_state.get("epochs", DEFAULT_EPOCHS),
             project_form_state.labels
         )
+
+    @classmethod
+    def from_dict(cls, dict):
+        return AssistantConf(
+            dict["batch_size"],
+            dict["epochs"],
+            dict["labels"]
+        )
+
+    def to_dict(self):
+        return {
+            "batch_size": self.batch_size,
+            "epochs": self.epochs,
+            "labels": self.labels
+        }
 
     def get_label(self, label_name):
         for label in self.labels:
@@ -200,8 +240,8 @@ class AssistantConf:
 
 @dataclass
 class ModelConf:
-    model_type: str
-    model_state_path: str
+    type: str
+    state_path: str
     dropout: float
     learning_rate: float
     num_words: int
@@ -210,10 +250,10 @@ class ModelConf:
     implementation_path: str = ""
 
     @classmethod
-    def create_from_state(cls, 
-                          project_form_state: ProjectFormState,
-                          n_words: int,
-                          n_labels: int):
+    def from_state(cls, 
+                   project_form_state: ProjectFormState,
+                   n_words: int,
+                   n_labels: int):
         impl_path = ""
         if project_form_state.model_type == "custom":
             impl_path = f"app/learning/models/custom_model_{project_form_state.name}.py"
@@ -227,9 +267,34 @@ class ModelConf:
             0,
             impl_path
         )
-    
+
+    @classmethod
+    def from_dict(cls, dict):
+        return ModelConf(
+            dict["type"],
+            dict["state_path"],
+            dict["dropout"],
+            dict["learning_rate"],
+            dict["num_words"],
+            dict["num_labels"],
+            dict["num_classes"],
+            dict["implementation_path"]
+        )
+
+    def to_dict(self):
+        return {
+            "type": self.type,
+            "state_path": self.state_path,
+            "dropout": self.dropout,
+            "learning_rate": self.learning_rate,
+            "num_words": self.num_words,
+            "num_labels": self.num_labels,
+            "num_classes": self.num_classes,
+            "implementation_path": self.implementation_path
+        }
+
     def is_custom_model_type(self):
-        return self.model_type == "custom"
+        return self.type == "custom"
 
 
 @dataclass
@@ -241,11 +306,11 @@ class ProjectConf:
     dataset_conf: DatasetConf
 
     @classmethod
-    def create_from_state(cls,
-                          project_form_state: ProjectFormState,
-                          m_conf: ModelConf,
-                          a_conf: AssistantConf,
-                          d_conf: DatasetConf):
+    def from_state(cls,
+                   project_form_state: ProjectFormState,
+                   m_conf: ModelConf,
+                   a_conf: AssistantConf,
+                   d_conf: DatasetConf):
         return ProjectConf(project_form_state.name,
                            project_form_state.description,
                            m_conf,
@@ -258,9 +323,28 @@ class ProjectConf:
             "description": self.description,
             "model": self.model_conf.to_dict(),
             "assistant": self.assistant_conf.to_dict(),
-            "dataset_conf": self.dataset_conf.to_dict()
+            "dataset": self.dataset_conf.to_dict()
         }
-    
+
     def save_config(self, path):
         with open(f"{path}/project.json", "w") as project_cfg_file:
             json.dump(self.to_dict(), project_cfg_file)
+
+    @classmethod
+    def from_dict(self, dict):
+        m_conf = ModelConf.from_dict(dict["model"])
+        a_conf = AssistantConf.from_dict(dict["assistant"])
+        d_conf = DatasetConf.from_dict(dict["dataset"])
+        return ProjectConf(
+            dict["name"],
+            dict["description"],
+            m_conf,
+            a_conf,
+            d_conf
+        )
+
+    @classmethod
+    def from_file(cls, path):
+        with open(path, "r") as cfg_file:
+            cfg = json.load(cfg_file)
+        return ProjectConf.from_dict(cfg)

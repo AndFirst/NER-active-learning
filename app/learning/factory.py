@@ -25,27 +25,8 @@ class Factory:
         with open(cfg.words_to_idx_path, "r") as fh:
             words_to_idx = json.load(fh)
 
-        unlabeled_extension = os.path.splitext(cfg.unlabeled_path)[1]
-        labeled_extension = os.path.splitext(cfg.labeled_path)[1]
-
-        match unlabeled_extension:
-            case ".csv":
-                unlabeled_file = UnlabeledCsv(cfg.unlabeled_path)
-            case ".json":
-                unlabeled_file = UnlabeledJson(cfg.unlabeled_path)
-            case _:
-                raise ValueError(
-                    f"Unsupported extension for unlabeled file: {unlabeled_extension}"
-                )
-        match labeled_extension:
-            case ".csv":
-                labeled_file = LabeledCsv(cfg.labeled_path)
-            case ".json":
-                labeled_file = LabeledJson(cfg.labeled_path)
-            case _:
-                raise ValueError(
-                    f"Unsupported extension for labeled file: {labeled_extension}"
-                )
+        unlabeled_file = Factory.create_unlabeled_file(cfg.unlabeled_path)
+        labeled_file = Factory.create_labeled_file(cfg.labeled_path)
 
         return Dataset(
             unlabeled_file=unlabeled_file,
@@ -60,28 +41,26 @@ class Factory:
 
     @staticmethod
     def create_model(cfg: ModelConf) -> NERModel:
-        model_implementation_path = cfg.implementation_path
         common_params = {
             "num_words": cfg.num_words,
             "num_classes": cfg.num_classes,
             "learning_rate": cfg.learning_rate
         }
 
-        match cfg.model_type:
+        match cfg.type:
             case "BiLSTM":
                 model = BiLSTMClassifier(**common_params)
-                if os.path.exists(cfg.model_state_path):
-                    model.load_weights(cfg.model_state_path)
+                if os.path.exists(cfg.state_path):
+                    model.load_weights(cfg.state_path)
                 model.validate_torch_model(
                     cfg.num_words, cfg.num_classes
                 )
                 return model
+
             case "custom":
-
-                model = CustomModel(model_implementation_path)
-
-                if os.path.exists(cfg.model_state_path):
-                    model.load_weights(cfg.model_state_path)
+                model = CustomModel(cfg.implementation_path)
+                if os.path.exists(cfg.state_path):
+                    model.load_weights(cfg.state_path)
                 model.validate_torch_model(
                     cfg.num_words, cfg.num_classes
                 )
@@ -91,9 +70,8 @@ class Factory:
                 ...
 
     @staticmethod
-    def create_assistant(
-        model, dataset, config: dict
-    ) -> ActiveLearningManager:
+    def create_assistant(model, dataset,
+                         config: dict) -> ActiveLearningManager:
         return ActiveLearningManager(model, dataset, **config)
 
     @staticmethod
