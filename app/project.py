@@ -8,7 +8,8 @@ from app.data_types import (
     ProjectFormState,
     DatasetConf,
     AssistantConf,
-    ModelConf)
+    ModelConf,
+    ProjectConf)
 import json
 import shutil
 from typing import Dict, Set
@@ -112,26 +113,22 @@ class Project:
                 model_conf.implementation_path,
             )
 
-        source_model_state = project_state.get("model_state_path")
-        if source_model_state:
-            shutil.copy(source_model_state, model_conf["model_state_path"])
+        # Copy model state if it exists
+        if project_form_state.model_state_path:
+            shutil.copy(project_form_state.model_state_path, model_conf.model_state_path)
 
-        project_conf = {
-            "name": project_state["name"],
-            "description": project_state["description"],
-            "model": model_conf,
-            "assistant": assistant_conf,
-            "dataset": dataset_conf,
-        }
+        # Create and save model
+        model = Factory.create_model(model_conf)
+        model.save(model_conf.model_state_path)
+
+        # Create Project Config object
+        project_conf = ProjectConf.create_from_state(project_form_state,
+                                                     model_conf,
+                                                     assistant_conf,
+                                                     dataset_conf)
 
         # save config
-        with open(
-            f"{directory_path}/project.json", "w"
-        ) as project_config_file:
-            json.dump(project_conf, project_config_file)
-
-        model = Factory.create_model(model_conf)
-        model.save(model_conf["model_state_path"])
+        project_conf.save_config(project_form_state.save_path)
 
     @staticmethod
     def create_word_to_idx(words: Set[str]) -> Dict[str, int]:
@@ -158,7 +155,3 @@ class Project:
 
     def get_labels(self) -> dict:
         return self._assistant.label_mapping
-
-class ProjectState():
-    def __init__(self) -> None:
-        

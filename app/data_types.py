@@ -2,8 +2,8 @@ import os
 from dataclasses import dataclass, field
 from itertools import chain
 from typing import Tuple, Optional, Any, List, Dict
+import json
 from app.exceptions import NoLabelFoundError
-from app.constants import DEFAULT_UNLABELED_LABEL
 from app.constants import (
     DEFAULT_BATCH_SIZE,
     DEFAULT_EPOCHS,
@@ -16,6 +16,7 @@ from app.constants import (
     DEFAULT_UNLABELED_IDX,
     DEFAULT_LEARNING_RATE,
 )
+
 
 @dataclass
 class LabelData:
@@ -231,3 +232,35 @@ class ModelConf:
         return self.model_type == "custom"
 
 
+@dataclass
+class ProjectConf:
+    name: str
+    description: str
+    model_conf: ModelConf
+    assistant_conf: AssistantConf
+    dataset_conf: DatasetConf
+
+    @classmethod
+    def create_from_state(cls,
+                          project_form_state: ProjectFormState,
+                          m_conf: ModelConf,
+                          a_conf: AssistantConf,
+                          d_conf: DatasetConf):
+        return ProjectConf(project_form_state.name,
+                           project_form_state.description,
+                           m_conf,
+                           a_conf,
+                           d_conf)
+
+    def to_dict(self):
+        return {
+            "name": self.name,
+            "description": self.description,
+            "model": self.model_conf.to_dict(),
+            "assistant": self.assistant_conf.to_dict(),
+            "dataset_conf": self.dataset_conf.to_dict()
+        }
+    
+    def save_config(self, path):
+        with open(f"{path}/project.json", "w") as project_cfg_file:
+            json.dump(self.to_dict(), project_cfg_file)
