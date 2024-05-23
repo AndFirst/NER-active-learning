@@ -2,9 +2,20 @@ import os
 from dataclasses import dataclass, field
 from itertools import chain
 from typing import Tuple, Optional, Any, List, Dict
-
+from app.exceptions import NoLabelFoundError
 from app.constants import DEFAULT_UNLABELED_LABEL
-
+from app.constants import (
+    DEFAULT_BATCH_SIZE,
+    DEFAULT_EPOCHS,
+    DEFAULT_DROPOUT,
+    DEFAULT_INPUT_EXTENSION,
+    DEFAULT_OUTPUT_EXTENSION,
+    DEFAULT_PADDING_LABEL,
+    DEFAULT_PADDING_IDX,
+    DEFAULT_UNLABELED_LABEL,
+    DEFAULT_UNLABELED_IDX,
+    DEFAULT_LEARNING_RATE,
+)
 
 @dataclass
 class LabelData:
@@ -129,3 +140,94 @@ class ProjectFormState:
             "input_extension": self.input_extension,
             "output_extension": self.output_extension,
         }
+
+
+@dataclass
+class DatasetConf:
+    unlabeled_path: str
+    labeled_path: str
+    words_to_idx_path: str
+    labels_to_idx_path: str
+    padding_label: str
+    padding_idx: int
+    unlabeled_label: str
+    unlabeled_idx: int
+
+    @classmethod
+    def create_from_state(cls, project_form_state):
+        input_extension = project_form_state.get(
+            "input_extension", DEFAULT_INPUT_EXTENSION
+        )
+        output_extension = project_form_state.get(
+            "output_extension", DEFAULT_OUTPUT_EXTENSION
+        )
+        return DatasetConf(
+            f"{project_form_state.save_path}/unlabeled{input_extension}",
+            f"{project_form_state.save_path}/labeled{output_extension}",
+            f"{project_form_state.save_path}/words_to_idx.json",
+            f"{project_form_state.save_path}/labels_to_idx.json",
+            DEFAULT_PADDING_LABEL,
+            DEFAULT_PADDING_IDX,
+            DEFAULT_UNLABELED_LABEL,
+            DEFAULT_UNLABELED_IDX
+        )
+
+
+@dataclass
+class AssistantConf:
+    batch_size: str
+    epochs: str
+    labels: List[LabelData] = field(default_factory=list)
+
+    @classmethod
+    def create_from_state(cls, project_form_state: ProjectFormState):
+        return AssistantConf(
+            project_form_state.get("batch_size", DEFAULT_BATCH_SIZE),
+            project_form_state.get("epochs", DEFAULT_EPOCHS),
+            project_form_state.labels
+        )
+
+    def get_label(self, label_name):
+        for label in self.labels:
+            if label.label == label_name:
+                return label
+        raise NoLabelFoundError
+
+    def get_labelset(self):
+        return {label["label"] for label in self.labels}
+
+
+@dataclass
+class ModelConf:
+    model_type: str
+    model_state_path: str
+    dropout: float
+    learning_rate: float
+    num_words: int
+    num_labels: int
+    num_classes: int = 0
+    implementation_path: str = ""
+
+    @classmethod
+    def create_from_state(cls, 
+                          project_form_state: ProjectFormState,
+                          n_words: int,
+                          n_labels: int):
+        impl_path = ""
+        if project_form_state.model_type == "custom":
+            impl_path = f"app/learning/models/custom_model_{project_form_state.name}.py"
+        return ModelConf(
+            project_form_state.model_type,
+            f"{project_form_state.save_path}/model.pth",
+            project_form_state.get("dropout", DEFAULT_DROPOUT),
+            project_form_state.get("learning_rate", DEFAULT_LEARNING_RATE),
+            n_words,
+            n_labels,
+            0,
+            impl_path
+        )
+    
+    def is_custom_model_type(self):
+        return self.model_type == "custom"
+
+

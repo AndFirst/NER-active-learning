@@ -1,0 +1,2 @@
+class NoLabelFoundError(Exception):
+    pass

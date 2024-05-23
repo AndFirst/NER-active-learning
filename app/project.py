@@ -1,13 +1,17 @@
 from __future__ import annotations
 
 import itertools
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import os
-from app.data_types import ProjectFormState
+from typing import Tuple, Optional, Any, List, Dict
+from app.data_types import (
+    ProjectFormState,
+    DatasetConf,
+    AssistantConf,
+    ModelConf)
 import json
 import shutil
 from typing import Dict, Set
-
 from app.constants import (
     DEFAULT_BATCH_SIZE,
     DEFAULT_EPOCHS,
@@ -25,35 +29,6 @@ from app.learning.dataset.dataset import Dataset
 from app.learning.factory import Factory
 from app.learning.models.ner_model import NERModel
 
-@dataclass
-class DatasetConf:
-    unlabeled_path: str
-    labeled_path: str
-    words_to_idx_path: str
-    labels_to_idx_path: str
-    padding_label: str
-    padding_idx: int
-    unlabeled_label: str
-    unlabeled_idx: int
-
-    @classmethod
-    def create_from_state(cls, project_form_state):
-        input_extension = project_form_state.get(
-            "input_extension", DEFAULT_INPUT_EXTENSION
-        )
-        output_extension = project_form_state.get(
-            "output_extension", DEFAULT_OUTPUT_EXTENSION
-        )
-        return DatasetConf(
-            f"{project_form_state.save_path}/unlabeled{input_extension}",
-            f"{project_form_state.save_path}/labeled{output_extension}",
-            f"{project_form_state.save_path}/words_to_idx.json",
-            f"{project_form_state.save_path}/labels_to_idx.json",
-            DEFAULT_PADDING_LABEL,
-            DEFAULT_PADDING_IDX,
-            DEFAULT_UNLABELED_LABEL,
-            DEFAULT_UNLABELED_IDX
-        )
 
 class Project:
     def __init__(
@@ -102,67 +77,39 @@ class Project:
     def create(cls, project_form_state: ProjectFormState) -> None:
         os.makedirs(project_form_state.save_path)
 
-        assistant_conf = {
-            "batch_size": project_state.get("batch_size", DEFAULT_BATCH_SIZE),
-            "epochs": project_state.get("epochs", DEFAULT_EPOCHS),
-            "labels": {
-                label["label"]: label["color"]
-                for label in project_state["labels"]
-            },
-        }
-        # create dataset config object
+        # Create Assistant Config object
+        assistant_conf = AssistantConf.create_from_state(project_form_state)
+
+        # Create Dataset Config object
         dataset_conf = DatasetConf.create_from_state(project_form_state)
 
-        # copy dataset to our directory
+        # Copy dataset to project's path
         shutil.copy(
             project_form_state.dataset_path, dataset_conf.unlabeled_path
         )
 
-        with open(dataset_conf["labeled_path"], "w"):
-            pass
-
-        unlabeled_file = Factory.create_unlabeled_file(
-            dataset_conf["unlabeled_path"]
-        )
-        labeled_file = Factory.create_labeled_file(
-            dataset_conf["labeled_path"]
-        )
-
-        unique_words = unlabeled_file.unique_words()
-
-        word_to_idx = Project.create_word_to_idx(unique_words)
-        with open(dataset_conf["words_to_idx_path"], "w") as word_to_idx_file:
+        # Save word to indexes
+        unlabeled_file = Factory.create_unlabeled_file(dataset_conf.unlabeled_path)
+        word_to_idx = Project.create_word_to_idx(unlabeled_file.unique_words())
+        with open(dataset_conf.words_to_idx_path, "w") as word_to_idx_file:
             json.dump(word_to_idx, word_to_idx_file)
 
-        labels = {label["label"] for label in project_state["labels"]}
-        label_to_idx = Project.create_label_to_idx(labels)
-
-        with open(
-            dataset_conf["labels_to_idx_path"], "w"
-        ) as label_to_idx_file:
+        # Save label to indexes
+        label_to_idx = Project.create_label_to_idx(AssistantConf.get_labelset())
+        with open(dataset_conf.labels_to_idx_path, "w") as label_to_idx_file:
             json.dump(label_to_idx, label_to_idx_file)
 
-        model_conf = {
-            "model_type": project_state.get("model_type"),
-            "model_state_path": f"{directory_path}/model.pth",
-            "dropout": project_state.get("dropout", DEFAULT_DROPOUT),
-            "learning_rate": project_state.get(
-                "learning_rate", DEFAULT_LEARNING_RATE
-            ),
-            "num_words": len(unique_words),
-            "num_classes": len(labels) * 2 + 1,
-        }
-        print(model_conf)
-        if model_conf["model_type"] == "custom":
-            model_conf["model_implementation_path"] = (
-                f"app/learning/models/custom_model_{project_state['name']}.py"
-            )
-            source_model_implementation = project_state.get(
-                "model_implementation_path"
-            )
+        # Create Model Config object
+        model_conf = ModelConf.create_from_state(project_form_state,
+                                                 unlabeled_file.unique_words(),
+                                                 len(AssistantConf.get_labelset)*2 + 1)
+
+        # Copy implementation of model if it is custom
+        if model_conf.is_custom_model_type():
+            src_model_implementation = project_form_state.model_implementation_path
             shutil.copy(
-                source_model_implementation,
-                model_conf["model_implementation_path"],
+                src_model_implementation,
+                model_conf.implementation_path,
             )
 
         source_model_state = project_state.get("model_state_path")
@@ -185,24 +132,6 @@ class Project:
 
         model = Factory.create_model(model_conf)
         model.save(model_conf["model_state_path"])
-    
-    def _get_config(self, project_from_state):
-        input_extension = project_form_state.get(
-            "input_extension", DEFAULT_INPUT_EXTENSION
-        )
-        output_extension = project_form_state.get(
-            "output_extension", DEFAULT_OUTPUT_EXTENSION
-        )
-        dataset_conf = DatasetConf(
-            f"{project_form_state.save_path}/unlabeled{input_extension}",
-            f"{project_form_state.save_path}/labeled{output_extension}",
-            f"{project_form_state.save_path}/words_to_idx.json",
-            f"{project_form_state.save_path}/labels_to_idx.json",
-            DEFAULT_PADDING_LABEL,
-            DEFAULT_PADDING_IDX,
-            DEFAULT_UNLABELED_LABEL,
-            DEFAULT_UNLABELED_IDX
-        )
 
     @staticmethod
     def create_word_to_idx(words: Set[str]) -> Dict[str, int]:
