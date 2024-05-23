@@ -246,7 +246,7 @@ class ModelConf:
     learning_rate: float
     num_words: int
     num_labels: int
-    num_classes: int = 0
+    num_classes: int
     implementation_path: str = ""
 
     @classmethod
@@ -264,7 +264,7 @@ class ModelConf:
             project_form_state.get("learning_rate", DEFAULT_LEARNING_RATE),
             n_words,
             n_labels,
-            0,
+            n_labels*2 + 1,
             impl_path
         )
 

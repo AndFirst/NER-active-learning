@@ -73,7 +73,7 @@ class Project:
         # Create Model Config object
         model_conf = ModelConf.from_state(project_form_state,
                                           unlabeled_file.unique_words(),
-                                          len(AssistantConf.get_labelset)*2 + 1)
+                                          len(AssistantConf.get_labelset))
 
         # Copy implementation of model if it is custom
         if model_conf.is_custom_model_type():
