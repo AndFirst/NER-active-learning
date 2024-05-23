@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import itertools
+from dataclasses import dataclass
 import os
-
+from app.data_types import ProjectFormState
 import json
 import shutil
 from typing import Dict, Set
@@ -24,6 +25,35 @@ from app.learning.dataset.dataset import Dataset
 from app.learning.factory import Factory
 from app.learning.models.ner_model import NERModel
 
+@dataclass
+class DatasetConf:
+    unlabeled_path: str
+    labeled_path: str
+    words_to_idx_path: str
+    labels_to_idx_path: str
+    padding_label: str
+    padding_idx: int
+    unlabeled_label: str
+    unlabeled_idx: int
+
+    @classmethod
+    def create_from_state(cls, project_form_state):
+        input_extension = project_form_state.get(
+            "input_extension", DEFAULT_INPUT_EXTENSION
+        )
+        output_extension = project_form_state.get(
+            "output_extension", DEFAULT_OUTPUT_EXTENSION
+        )
+        return DatasetConf(
+            f"{project_form_state.save_path}/unlabeled{input_extension}",
+            f"{project_form_state.save_path}/labeled{output_extension}",
+            f"{project_form_state.save_path}/words_to_idx.json",
+            f"{project_form_state.save_path}/labels_to_idx.json",
+            DEFAULT_PADDING_LABEL,
+            DEFAULT_PADDING_IDX,
+            DEFAULT_UNLABELED_LABEL,
+            DEFAULT_UNLABELED_IDX
+        )
 
 class Project:
     def __init__(
@@ -69,8 +99,8 @@ class Project:
         self._dataset.save()
 
     @classmethod
-    def create(cls, directory_path: str, project_state: dict) -> None:
-        os.makedirs(directory_path)
+    def create(cls, project_form_state: ProjectFormState) -> None:
+        os.makedirs(project_form_state.save_path)
 
         assistant_conf = {
             "batch_size": project_state.get("batch_size", DEFAULT_BATCH_SIZE),
@@ -80,27 +110,12 @@ class Project:
                 for label in project_state["labels"]
             },
         }
+        # create dataset config object
+        dataset_conf = DatasetConf.create_from_state(project_form_state)
 
-        input_extension = project_state.get(
-            "input_extension", DEFAULT_INPUT_EXTENSION
-        )
-        output_extension = project_state.get(
-            "output_extension", DEFAULT_OUTPUT_EXTENSION
-        )
-
-        dataset_conf = {
-            "unlabeled_path": f"{directory_path}/unlabeled{input_extension}",
-            "labeled_path": f"{directory_path}/labeled{output_extension}",
-            "words_to_idx_path": f"{directory_path}/words_to_idx.json",
-            "labels_to_idx_path": f"{directory_path}/labels_to_idx.json",
-            "padding_label": DEFAULT_PADDING_LABEL,
-            "padding_idx": DEFAULT_PADDING_IDX,
-            "unlabeled_label": DEFAULT_UNLABELED_LABEL,
-            "unlabeled_idx": DEFAULT_UNLABELED_IDX,
-        }
         # copy dataset to our directory
         shutil.copy(
-            project_state["dataset_path"], dataset_conf["unlabeled_path"]
+            project_form_state.dataset_path, dataset_conf.unlabeled_path
         )
 
         with open(dataset_conf["labeled_path"], "w"):
@@ -170,6 +185,24 @@ class Project:
 
         model = Factory.create_model(model_conf)
         model.save(model_conf["model_state_path"])
+    
+    def _get_config(self, project_from_state):
+        input_extension = project_form_state.get(
+            "input_extension", DEFAULT_INPUT_EXTENSION
+        )
+        output_extension = project_form_state.get(
+            "output_extension", DEFAULT_OUTPUT_EXTENSION
+        )
+        dataset_conf = DatasetConf(
+            f"{project_form_state.save_path}/unlabeled{input_extension}",
+            f"{project_form_state.save_path}/labeled{output_extension}",
+            f"{project_form_state.save_path}/words_to_idx.json",
+            f"{project_form_state.save_path}/labels_to_idx.json",
+            DEFAULT_PADDING_LABEL,
+            DEFAULT_PADDING_IDX,
+            DEFAULT_UNLABELED_LABEL,
+            DEFAULT_UNLABELED_IDX
+        )
 
     @staticmethod
     def create_word_to_idx(words: Set[str]) -> Dict[str, int]:
@@ -196,3 +229,7 @@ class Project:
 
     def get_labels(self) -> dict:
         return self._assistant.label_mapping
+
+class ProjectState():
+    def __init__(self) -> None:
+        

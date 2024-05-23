@@ -5,6 +5,7 @@ from kivy.uix.popup import Popup
 from kivy.uix.filechooser import FileChooserIconView
 from kivy.properties import StringProperty
 from kivy.utils import platform
+from plyer import filechooser
 import os
 from kivy.app import App
 from kivy.uix.label import Label
@@ -57,6 +58,20 @@ class ExistingProjectScreen(Screen):
 
     def go_to_main_menu(self):
         self.manager.current = "main_menu"
+
+    def open_model_filechooser(self):
+        file_path = filechooser.open_file(
+            filters=["*.py"],
+            title="Select Model Implementation File",
+            multiple=False,
+        )
+        if file_path:
+            selected_path = file_path[0]
+            self.form_state.model_implementation_path = selected_path
+            self.ids.model_button.text = selected_path
+
+        else:
+            self.ids.model_button.text = "Choose a model"
 
     def open_file_chooser(self):
         app_path = App.get_running_app().home_dir
