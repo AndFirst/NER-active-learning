@@ -19,7 +19,6 @@ from app.constants import (
     DEFAULT_UNLABELED_IDX,
 )
 from app.learning.active_learning import ActiveLearningManager
-from app.learning.dataset.dataset import Dataset
 from app.learning.factory import Factory
 from app.learning.models.ner_model import NERModel
 
@@ -27,44 +26,22 @@ from app.learning.models.ner_model import NERModel
 class Project:
     def __init__(
         self,
-        assistant: ActiveLearningManager,
-        dataset: Dataset,
-        model: NERModel,
+        config: ProjectConf
     ):
-        self._assistant = assistant
-        self._dataset = dataset
-        self._model = model
+        self.config = config
+        self._dataset = Factory.create_dataset(config.dataset_conf)
+        self._model = Factory.create_model(config.model_conf)
+        self._assistant = Factory.create_assistant(
+            self._model, self._dataset, config.assistant_conf)
 
     @classmethod
     def load(cls, dir_path: str) -> Project:
-        config_file = f"{dir_path}/project.json"
-        if not os.path.isfile(config_file):
-            raise FileNotFoundError("Project configuration file not found.")
+        config = ProjectConf.from_file(f"{dir_path}/project.json")
+        return Project(config)
 
-        with open(config_file, "r") as config_file:
-            config = json.load(config_file)
-
-        dataset_conf = config["dataset"]
-        dataset = Factory.create_dataset(dataset_conf)
-
-        model_conf = config["model"]
-        model = Factory.create_model(model_conf)
-
-        assistant_conf = config["assistant"]
-        assistant = Factory.create_assistant(model, dataset, assistant_conf)
-
-        return Project(assistant, dataset, model)
-
-    def save(self, directory_path: str) -> None:
-        config_file = f"{directory_path}/project.json"
-        if not os.path.isfile(config_file):
-            raise FileNotFoundError("Project configuration file not found.")
-
-        with open(config_file, "r") as config_file:
-            config = json.load(config_file)
-            model_path = config["model"]["model_state_path"]
-
-        self._model.save(model_path)
+    def save(self) -> None:
+        self.config.save_config()
+        self._model.save(self.config.model_conf.state_path)
         self._dataset.save()
 
     @classmethod

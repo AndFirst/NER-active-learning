@@ -327,6 +327,8 @@ class ProjectConf:
         }
 
     def save_config(self, path):
+        if not os.path.isfile(path):
+            raise FileNotFoundError("Project configuration file not found.")
         with open(f"{path}/project.json", "w") as project_cfg_file:
             json.dump(self.to_dict(), project_cfg_file)
 
@@ -345,6 +347,8 @@ class ProjectConf:
 
     @classmethod
     def from_file(cls, path):
+        if not os.path.isfile(path):
+            raise FileNotFoundError("Project configuration file not found.")
         with open(path, "r") as cfg_file:
             cfg = json.load(cfg_file)
         return ProjectConf.from_dict(cfg)
