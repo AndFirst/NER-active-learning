@@ -13,7 +13,7 @@ from app.learning.models.custom import CustomModel
 from app.learning.models.lstm import BiLSTMClassifier
 from app.learning.models.ner_model import NERModel
 from app.data_types import DatasetConf
-from app.data_types import ModelConf
+from app.data_types import ModelConf, AssistantConf
 
 
 class Factory:
@@ -44,7 +44,7 @@ class Factory:
         common_params = {
             "num_words": cfg.num_words,
             "num_classes": cfg.num_classes,
-            "learning_rate": cfg.learning_rate
+            "learning_rate": cfg.learning_rate,
         }
 
         match cfg.type:
@@ -52,27 +52,24 @@ class Factory:
                 model = BiLSTMClassifier(**common_params)
                 if os.path.exists(cfg.state_path):
                     model.load_weights(cfg.state_path)
-                model.validate_torch_model(
-                    cfg.num_words, cfg.num_classes
-                )
+                model.validate_torch_model(cfg.num_words, cfg.num_classes)
                 return model
 
             case "custom":
                 model = CustomModel(cfg.implementation_path)
                 if os.path.exists(cfg.state_path):
                     model.load_weights(cfg.state_path)
-                model.validate_torch_model(
-                    cfg.num_words, cfg.num_classes
-                )
+                model.validate_torch_model(cfg.num_words, cfg.num_classes)
                 return model
 
             case _:
                 ...
 
     @staticmethod
-    def create_assistant(model, dataset,
-                         config: dict) -> ActiveLearningManager:
-        return ActiveLearningManager(model, dataset, **config)
+    def create_assistant(
+        model, dataset, config: AssistantConf
+    ) -> ActiveLearningManager:
+        return ActiveLearningManager(model, dataset, **(config.to_dict()))
 
     @staticmethod
     def create_labeled_file(labeled_path: str) -> LabeledWrapper:

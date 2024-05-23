@@ -117,8 +117,7 @@ class SummaryScreen(Screen):
         self.manager.current = "add_labels"
 
     def go_to_main_menu(self):
-        state = self.form_state.to_dict()
-        Project.create(self.form_state.save_path, state)
+        Project.create(self.form_state)
         self.manager.get_screen("main_menu").project = Project.load(
             self.form_state.save_path
         )

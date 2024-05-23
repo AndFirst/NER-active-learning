@@ -8,7 +8,8 @@ from app.data_types import (
     DatasetConf,
     AssistantConf,
     ModelConf,
-    ProjectConf)
+    ProjectConf,
+)
 import json
 import shutil
 from typing import Set
@@ -24,15 +25,13 @@ from app.learning.models.ner_model import NERModel
 
 
 class Project:
-    def __init__(
-        self,
-        config: ProjectConf
-    ):
+    def __init__(self, config: ProjectConf):
         self.config = config
         self._dataset = Factory.create_dataset(config.dataset_conf)
         self._model = Factory.create_model(config.model_conf)
         self._assistant = Factory.create_assistant(
-            self._model, self._dataset, config.assistant_conf)
+            self._model, self._dataset, config.assistant_conf
+        )
 
     @classmethod
     def load(cls, dir_path: str) -> Project:
@@ -60,24 +59,33 @@ class Project:
         )
 
         # Save word to indexes
-        unlabeled_file = Factory.create_unlabeled_file(dataset_conf.unlabeled_path)
+        unlabeled_file = Factory.create_unlabeled_file(
+            dataset_conf.unlabeled_path
+        )
         word_to_idx = Project.create_word_to_idx(unlabeled_file.unique_words())
         with open(dataset_conf.words_to_idx_path, "w") as word_to_idx_file:
             json.dump(word_to_idx, word_to_idx_file)
 
         # Save label to indexes
-        label_to_idx = Project.create_label_to_idx(AssistantConf.get_labelset())
+        Factory.create_labeled_file(dataset_conf.labeled_path)
+        label_to_idx = Project.create_label_to_idx(
+            assistant_conf.get_labelset()
+        )
         with open(dataset_conf.labels_to_idx_path, "w") as label_to_idx_file:
             json.dump(label_to_idx, label_to_idx_file)
 
         # Create Model Config object
-        model_conf = ModelConf.from_state(project_form_state,
-                                          unlabeled_file.unique_words(),
-                                          len(AssistantConf.get_labelset))
+        model_conf = ModelConf.from_state(
+            project_form_state,
+            len(unlabeled_file.unique_words()),
+            len(assistant_conf.get_labelset()),
+        )
 
         # Copy implementation of model if it is custom
         if model_conf.is_custom_model_type():
-            src_model_implementation = project_form_state.model_implementation_path
+            src_model_implementation = (
+                project_form_state.model_implementation_path
+            )
             shutil.copy(
                 src_model_implementation,
                 model_conf.implementation_path,
@@ -85,19 +93,20 @@ class Project:
 
         # Copy model state if it exists
         if project_form_state.model_state_path:
-            shutil.copy(project_form_state.model_state_path, model_conf.state_path)
+            shutil.copy(
+                project_form_state.model_state_path, model_conf.state_path
+            )
 
         # Create and save model
         model = Factory.create_model(model_conf)
         model.save(model_conf.state_path)
 
         # Create Project Config object
-        project_conf = ProjectConf.create_from_state(project_form_state,
-                                                     model_conf,
-                                                     assistant_conf,
-                                                     dataset_conf)
+        project_conf = ProjectConf.from_state(
+            project_form_state, model_conf, assistant_conf, dataset_conf
+        )
 
-        # save config
+        # Save config
         project_conf.save_config(project_form_state.save_path)
 
     @staticmethod

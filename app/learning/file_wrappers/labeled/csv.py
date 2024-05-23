@@ -1,6 +1,6 @@
 import csv
 from typing import List
-
+import os.path
 from .wrapper import LabeledWrapper
 
 
@@ -10,6 +10,9 @@ class LabeledCsv(LabeledWrapper):
         super().__init__(file_path)
 
     def load(self) -> List[List[str]]:
+        if not os.path.isfile(self._file_path):
+            with open(self._file_path, "w") as file:
+                pass
         with open(self._file_path, "r") as file:
             reader = csv.reader(file, delimiter="\t", quoting=csv.QUOTE_NONE)
             sentences = list(reader)

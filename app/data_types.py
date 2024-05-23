@@ -142,6 +142,12 @@ class ProjectFormState:
             "output_extension": self.output_extension,
         }
 
+    def get(self, prop, default):
+        if prop in self.to_dict():
+            return self.to_dict()[prop]
+        else:
+            return default
+
 
 @dataclass
 class DatasetConf:
@@ -170,7 +176,7 @@ class DatasetConf:
             DEFAULT_PADDING_LABEL,
             DEFAULT_PADDING_IDX,
             DEFAULT_UNLABELED_LABEL,
-            DEFAULT_UNLABELED_IDX
+            DEFAULT_UNLABELED_IDX,
         )
 
     @classmethod
@@ -183,7 +189,7 @@ class DatasetConf:
             dict["padding_label"],
             dict["padding_idx"],
             dict["unlabeled_label"],
-            dict["unlabeled_idx"]
+            dict["unlabeled_idx"],
         )
 
     def to_dict(self):
@@ -195,8 +201,14 @@ class DatasetConf:
             "padding_label": self.padding_label,
             "padding_idx": self.padding_idx,
             "unlabeled_label": self.unlabeled_label,
-            "unlabeled_idx": self.unlabeled_idx
+            "unlabeled_idx": self.unlabeled_idx,
         }
+
+    def get(self, prop, default):
+        if prop in self.to_dict():
+            return self.to_dict()[prop]
+        else:
+            return default
 
 
 @dataclass
@@ -210,7 +222,7 @@ class AssistantConf:
         return AssistantConf(
             project_form_state.get("batch_size", DEFAULT_BATCH_SIZE),
             project_form_state.get("epochs", DEFAULT_EPOCHS),
-            project_form_state.labels
+            project_form_state.labels,
         )
 
     @classmethod
@@ -218,14 +230,18 @@ class AssistantConf:
         return AssistantConf(
             dict["batch_size"],
             dict["epochs"],
-            dict["labels"]
+            [
+                LabelData(label["label"], label["color"])
+                for label in dict["labels"]
+            ],
         )
 
     def to_dict(self):
+        print("SELF LABELS:", self.labels)
         return {
             "batch_size": self.batch_size,
             "epochs": self.epochs,
-            "labels": self.labels
+            "labels": [label.to_dict() for label in self.labels],
         }
 
     def get_label(self, label_name):
@@ -235,7 +251,13 @@ class AssistantConf:
         raise NoLabelFoundError
 
     def get_labelset(self):
-        return {label["label"] for label in self.labels}
+        return {label.to_dict()["label"] for label in self.labels}
+
+    def get(self, prop, default):
+        if prop in self.to_dict():
+            return self.to_dict()[prop]
+        else:
+            return default
 
 
 @dataclass
@@ -250,10 +272,9 @@ class ModelConf:
     implementation_path: str = ""
 
     @classmethod
-    def from_state(cls, 
-                   project_form_state: ProjectFormState,
-                   n_words: int,
-                   n_labels: int):
+    def from_state(
+        cls, project_form_state: ProjectFormState, n_words: int, n_labels: int
+    ):
         impl_path = ""
         if project_form_state.model_type == "custom":
             impl_path = f"app/learning/models/custom_model_{project_form_state.name}.py"
@@ -264,8 +285,8 @@ class ModelConf:
             project_form_state.get("learning_rate", DEFAULT_LEARNING_RATE),
             n_words,
             n_labels,
-            n_labels*2 + 1,
-            impl_path
+            n_labels * 2 + 1,
+            impl_path,
         )
 
     @classmethod
@@ -278,7 +299,7 @@ class ModelConf:
             dict["num_words"],
             dict["num_labels"],
             dict["num_classes"],
-            dict["implementation_path"]
+            dict["implementation_path"],
         )
 
     def to_dict(self):
@@ -290,11 +311,17 @@ class ModelConf:
             "num_words": self.num_words,
             "num_labels": self.num_labels,
             "num_classes": self.num_classes,
-            "implementation_path": self.implementation_path
+            "implementation_path": self.implementation_path,
         }
 
     def is_custom_model_type(self):
         return self.type == "custom"
+
+    def get(self, prop, default):
+        if prop in self.to_dict():
+            return self.to_dict()[prop]
+        else:
+            return default
 
 
 @dataclass
@@ -306,16 +333,20 @@ class ProjectConf:
     dataset_conf: DatasetConf
 
     @classmethod
-    def from_state(cls,
-                   project_form_state: ProjectFormState,
-                   m_conf: ModelConf,
-                   a_conf: AssistantConf,
-                   d_conf: DatasetConf):
-        return ProjectConf(project_form_state.name,
-                           project_form_state.description,
-                           m_conf,
-                           a_conf,
-                           d_conf)
+    def from_state(
+        cls,
+        project_form_state: ProjectFormState,
+        m_conf: ModelConf,
+        a_conf: AssistantConf,
+        d_conf: DatasetConf,
+    ):
+        return ProjectConf(
+            project_form_state.name,
+            project_form_state.description,
+            m_conf,
+            a_conf,
+            d_conf,
+        )
 
     def to_dict(self):
         return {
@@ -323,12 +354,10 @@ class ProjectConf:
             "description": self.description,
             "model": self.model_conf.to_dict(),
             "assistant": self.assistant_conf.to_dict(),
-            "dataset": self.dataset_conf.to_dict()
+            "dataset": self.dataset_conf.to_dict(),
         }
 
     def save_config(self, path):
-        if not os.path.isfile(path):
-            raise FileNotFoundError("Project configuration file not found.")
         with open(f"{path}/project.json", "w") as project_cfg_file:
             json.dump(self.to_dict(), project_cfg_file)
 
@@ -338,11 +367,7 @@ class ProjectConf:
         a_conf = AssistantConf.from_dict(dict["assistant"])
         d_conf = DatasetConf.from_dict(dict["dataset"])
         return ProjectConf(
-            dict["name"],
-            dict["description"],
-            m_conf,
-            a_conf,
-            d_conf
+            dict["name"], dict["description"], m_conf, a_conf, d_conf
         )
 
     @classmethod
@@ -352,3 +377,9 @@ class ProjectConf:
         with open(path, "r") as cfg_file:
             cfg = json.load(cfg_file)
         return ProjectConf.from_dict(cfg)
+
+    def get(self, prop, default):
+        if prop in self.to_dict():
+            return self.to_dict()[prop]
+        else:
+            return default
