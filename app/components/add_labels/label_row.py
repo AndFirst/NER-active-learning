@@ -88,7 +88,9 @@ class LabelRow(BoxLayout):
                 if isinstance(child, LabelRow) and child is not self
             ]
             if new_label_text.lower() in existing_labels:
-                content = Label(text="This label already exists.", halign="center")
+                content = Label(
+                    text="This label already exists.", halign="center"
+                )
                 popup = Popup(
                     title="Error",
                     content=content,
@@ -104,7 +106,10 @@ class LabelRow(BoxLayout):
             )
             if empty_row_exists:
                 for child in parent.children:
-                    if isinstance(child, LabelRow) and child.ids.text_input.text == "":
+                    if (
+                        isinstance(child, LabelRow)
+                        and child.ids.text_input.text == ""
+                    ):
                         child.ids.text_input.focus = True
                         break
             else:

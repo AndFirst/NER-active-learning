@@ -90,7 +90,10 @@ class SummaryScreen(Screen):
             field_label = Label(
                 text=field_label_text, halign="left", color=(0, 0, 0, 1)
             )
-            if field_label_text == "Dataset Path" or field_label_text == "Save Path":
+            if (
+                field_label_text == "Dataset Path"
+                or field_label_text == "Save Path"
+            ):
                 value_label = Label(
                     text=".../" + str("/".join(value)),
                     halign="right",
@@ -104,7 +107,9 @@ class SummaryScreen(Screen):
                     text=wrapped_text, halign="right", color=(0, 0, 0, 1)
                 )
             else:
-                value_label = Label(text=str(value), halign="right", color=(0, 0, 0, 1))
+                value_label = Label(
+                    text=str(value), halign="right", color=(0, 0, 0, 1)
+                )
             grid_layout.add_widget(field_label)
             grid_layout.add_widget(value_label)
 
@@ -117,5 +122,7 @@ class SummaryScreen(Screen):
         self.manager.get_screen("main_menu").project = Project.load(
             self.form_state.save_path
         )
-        self.manager.get_screen("main_menu").save_path = self.form_state.save_path
+        self.manager.get_screen("main_menu").save_path = (
+            self.form_state.save_path
+        )
         self.manager.current = "main_menu"

@@ -21,7 +21,9 @@ class NERModel(ABC):
         self._new_model = None
         self._lock = None
         self._training_queue = Queue()
-        self._worker_thread = threading.Thread(target=self._worker, daemon=True)
+        self._worker_thread = threading.Thread(
+            target=self._worker, daemon=True
+        )
         self._worker_thread.start()
 
     def _train_model(
@@ -50,9 +52,9 @@ class NERModel(ABC):
         if class_weights is None:
             self._loss = CrossEntropyLoss()
         else:
-            class_weights_tensor = torch.tensor(class_weights, dtype=torch.float).to(
-                device
-            )
+            class_weights_tensor = torch.tensor(
+                class_weights, dtype=torch.float
+            ).to(device)
             self._loss = CrossEntropyLoss(weight=class_weights_tensor)
 
         for epoch in range(epochs):
@@ -80,14 +82,18 @@ class NERModel(ABC):
         batch_size: int,
         class_weights: List[float] = None,
     ) -> None:
-        self._training_queue.put((features, targets, epochs, batch_size, class_weights))
+        self._training_queue.put(
+            (features, targets, epochs, batch_size, class_weights)
+        )
 
     def _worker(self) -> None:
         while True:
             features, targets, epochs, batch_size, class_weights = (
                 self._training_queue.get()
             )
-            self._train_model(features, targets, epochs, batch_size, class_weights)
+            self._train_model(
+                features, targets, epochs, batch_size, class_weights
+            )
             self._training_queue.task_done()
 
     def predict(self, unlabeled_sentence: List[int]) -> List[int]:
@@ -111,7 +117,9 @@ class NERModel(ABC):
         if self._optimizer is None:
             raise ValueError("Optimizer must be initialized before saving.")
         if self._loss is None:
-            raise ValueError("Loss function must be initialized before saving.")
+            raise ValueError(
+                "Loss function must be initialized before saving."
+            )
 
         model_state = {
             "model_state_dict": self._model.state_dict(),
@@ -119,14 +127,18 @@ class NERModel(ABC):
             "optimizer_state_dict": self._optimizer.state_dict(),
             "loss_name": type(self._loss).__name__,
             "loss_state_dict": (
-                self._loss.state_dict() if hasattr(self._loss, "state_dict") else None
+                self._loss.state_dict()
+                if hasattr(self._loss, "state_dict")
+                else None
             ),
         }
         torch.save(model_state, path)
 
     def load_weights(self, file_path: str) -> None:
         if self._model is None:
-            raise ValueError("Model must be initialized before loading weights.")
+            raise ValueError(
+                "Model must be initialized before loading weights."
+            )
 
         state_dict = torch.load(file_path)
         print(state_dict)
@@ -134,7 +146,10 @@ class NERModel(ABC):
         self._model.load_state_dict(state_dict["model_state_dict"])
 
         # Load or initialize optimizer
-        if "optimizer_state_dict" in state_dict and "optimizer_name" in state_dict:
+        if (
+            "optimizer_state_dict" in state_dict
+            and "optimizer_name" in state_dict
+        ):
             optimizer_class = getattr(optim, state_dict["optimizer_name"])
             self._optimizer = optimizer_class(self._model.parameters())
             self._optimizer.load_state_dict(state_dict["optimizer_state_dict"])

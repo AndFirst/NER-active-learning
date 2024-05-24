@@ -56,17 +56,23 @@ class Project:
         dataset_conf = DatasetConf.from_state(project_form_state)
 
         # Copy dataset to project's path
-        shutil.copy(project_form_state.dataset_path, dataset_conf.unlabeled_path)
+        shutil.copy(
+            project_form_state.dataset_path, dataset_conf.unlabeled_path
+        )
 
         # Save word to indexes
-        unlabeled_file = Factory.create_unlabeled_file(dataset_conf.unlabeled_path)
+        unlabeled_file = Factory.create_unlabeled_file(
+            dataset_conf.unlabeled_path
+        )
         word_to_idx = Project.create_word_to_idx(unlabeled_file.unique_words())
         with open(dataset_conf.words_to_idx_path, "w") as word_to_idx_file:
             json.dump(word_to_idx, word_to_idx_file)
 
         # Save label to indexes
         Factory.create_labeled_file(dataset_conf.labeled_path)
-        label_to_idx = Project.create_label_to_idx(assistant_conf.get_labelset())
+        label_to_idx = Project.create_label_to_idx(
+            assistant_conf.get_labelset()
+        )
         with open(dataset_conf.labels_to_idx_path, "w") as label_to_idx_file:
             json.dump(label_to_idx, label_to_idx_file)
 
@@ -79,7 +85,9 @@ class Project:
 
         # Copy implementation of model if it is custom
         if model_conf.is_custom_model_type():
-            src_model_implementation = project_form_state.model_implementation_path
+            src_model_implementation = (
+                project_form_state.model_implementation_path
+            )
             shutil.copy(
                 src_model_implementation,
                 model_conf.implementation_path,
@@ -87,7 +95,9 @@ class Project:
 
         # Copy model state if it exists
         if project_form_state.model_state_path:
-            shutil.copy(project_form_state.model_state_path, model_conf.state_path)
+            shutil.copy(
+                project_form_state.model_state_path, model_conf.state_path
+            )
 
         # Create Project Config object
         project_conf = ProjectConf.from_state(

@@ -56,7 +56,9 @@ class ExistingProjectScreen(Screen):
         self.manager.current = "main_menu"
 
     def open_filechooser(self):
-        self.selected_path = filechooser.choose_dir(title="Select Project Folder")[0]
+        self.selected_path = filechooser.choose_dir(
+            title="Select Project Folder"
+        )[0]
 
     def check_files(self):
         if self.selected_path:
@@ -74,7 +76,9 @@ class ExistingProjectScreen(Screen):
                 if os.path.exists(os.path.join(self.selected_path, f))
             ]
 
-            if not os.path.exists(os.path.join(self.selected_path, setup_path)):
+            if not os.path.exists(
+                os.path.join(self.selected_path, setup_path)
+            ):
                 Popup(
                     title="Error",
                     content=Label(
@@ -97,7 +101,9 @@ class ExistingProjectScreen(Screen):
                 self.manager.get_screen("main_menu").project = Project.load(
                     self.selected_path
                 )
-                self.manager.get_screen("main_menu").save_path = self.selected_path
+                self.manager.get_screen("main_menu").save_path = (
+                    self.selected_path
+                )
                 self.manager.current = "main_menu"
         else:
             Popup(

@@ -42,7 +42,9 @@ class Application(App):
         self._sm.add_widget(WelcomeScreen(name="welcome"))
         self._sm.add_widget(ExistingProjectScreen(name="existing_project"))
         self._sm.add_widget(
-            CreateProjectScreen(name="create_project", form_state=project_form_state)
+            CreateProjectScreen(
+                name="create_project", form_state=project_form_state
+            )
         )
         self._sm.add_widget(
             DatasetScreen(name="data_set", form_state=project_form_state)

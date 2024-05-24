@@ -27,7 +27,9 @@ class ActiveLearningManager:
             ]
             return Sentence(annotations)
         else:
-            word_indices = self._dataset.map_unlabeled_sentence_to_indices(sentence)
+            word_indices = self._dataset.map_unlabeled_sentence_to_indices(
+                sentence
+            )
 
             labels_indices = self._model.predict(word_indices)
 

@@ -59,7 +59,9 @@ class Annotation:
             return [DEFAULT_UNLABELED_LABEL]
         else:
             label_text = self.label.label
-            labels = ["B-" + label_text] + ["I-" + label_text] * (len(self.words) - 1)
+            labels = ["B-" + label_text] + ["I-" + label_text] * (
+                len(self.words) - 1
+            )
             return labels
 
 
@@ -103,7 +105,9 @@ class Sentence:
                 return token
 
     def to_list(self) -> List[str]:
-        labels = list(chain.from_iterable(token.get_label() for token in self.tokens))
+        labels = list(
+            chain.from_iterable(token.get_label() for token in self.tokens)
+        )
         words = [word.word for token in self.tokens for word in token.words]
         return words + labels
 
@@ -228,7 +232,10 @@ class AssistantConf:
         return AssistantConf(
             dict["batch_size"],
             dict["epochs"],
-            [LabelData(label["label"], label["color"]) for label in dict["labels"]],
+            [
+                LabelData(label["label"], label["color"])
+                for label in dict["labels"]
+            ],
         )
 
     def to_dict(self):
@@ -361,7 +368,9 @@ class ProjectConf:
         m_conf = ModelConf.from_dict(dict["model"])
         a_conf = AssistantConf.from_dict(dict["assistant"])
         d_conf = DatasetConf.from_dict(dict["dataset"])
-        return ProjectConf(dict["name"], dict["description"], m_conf, a_conf, d_conf)
+        return ProjectConf(
+            dict["name"], dict["description"], m_conf, a_conf, d_conf
+        )
 
     @classmethod
     def from_file(cls, path):

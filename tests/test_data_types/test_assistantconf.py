@@ -38,12 +38,16 @@ def test_from_dict():
 
     assert assistant_conf.batch_size == data["batch_size"]
     assert assistant_conf.epochs == data["epochs"]
-    assert assistant_conf.labels == [LabelData(label="Label1", color=(255, 0, 0, 255))]
+    assert assistant_conf.labels == [
+        LabelData(label="Label1", color=(255, 0, 0, 255))
+    ]
 
 
 def test_to_dict():
     label1 = LabelData(label="Label1", color=(255, 0, 0, 255))
-    assistant_conf = AssistantConf(batch_size="32", epochs="10", labels=[label1])
+    assistant_conf = AssistantConf(
+        batch_size="32", epochs="10", labels=[label1]
+    )
 
     expected_dict = {
         "batch_size": "32",
@@ -56,7 +60,9 @@ def test_to_dict():
 
 def test_get_label():
     label1 = LabelData(label="Label1", color=(255, 0, 0, 255))
-    assistant_conf = AssistantConf(batch_size="32", epochs="10", labels=[label1])
+    assistant_conf = AssistantConf(
+        batch_size="32", epochs="10", labels=[label1]
+    )
 
     assert assistant_conf.get_label("Label1") == label1
 
