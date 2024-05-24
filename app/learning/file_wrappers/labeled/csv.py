@@ -20,8 +20,7 @@ class LabeledCsv(LabeledWrapper):
 
     def save(self) -> None:
         sentences = (
-            "\n".join("\t".join(sentence) for sentence in self._sentences)
-            + "\n"
+            "\n".join("\t".join(sentence) for sentence in self._sentences) + "\n"
         )
         with open(self._file_path, "w") as file:
             file.write(sentences)

@@ -24,9 +24,7 @@ class CustomModel(NERModel):
         sys.path.append(os.path.dirname(model_implementation_path))
 
         # Import the module containing the model
-        spec = spec_from_file_location(
-            "model_module", model_implementation_path
-        )
+        spec = spec_from_file_location("model_module", model_implementation_path)
         model_module = module_from_spec(spec)
         spec.loader.exec_module(model_module)
 

@@ -22,12 +22,8 @@ class Dataset:
         self._labels_to_idx: Dict[str, int] = labels_to_idx
         self._words_to_idx: Dict[str, int] = words_to_idx
 
-        self._idx_to_words: Dict[int, str] = {
-            v: k for k, v in words_to_idx.items()
-        }
-        self._idx_to_labels: Dict[int, str] = {
-            v: k for k, v in labels_to_idx.items()
-        }
+        self._idx_to_words: Dict[int, str] = {v: k for k, v in words_to_idx.items()}
+        self._idx_to_labels: Dict[int, str] = {v: k for k, v in labels_to_idx.items()}
 
         self._padding_label: str = padding_label
         self._padding_idx: int = padding_idx
@@ -49,13 +45,10 @@ class Dataset:
         label_counts = self.count_labels()
         total_count = sum(label_counts.values())
 
-        sorted_labels = sorted(
-            self._labels_to_idx.items(), key=lambda item: item[1]
-        )
+        sorted_labels = sorted(self._labels_to_idx.items(), key=lambda item: item[1])
 
         weights = [
-            1.0 / (label_counts[label] / total_count)
-            for label, _ in sorted_labels
+            1.0 / (label_counts[label] / total_count) for label, _ in sorted_labels
         ]
 
         return weights
@@ -73,9 +66,7 @@ class Dataset:
             self._labels_to_idx[label] for label in labels
         ]
 
-    def map_unlabeled_sentence_to_indices(
-        self, sentence: List[str]
-    ) -> List[int]:
+    def map_unlabeled_sentence_to_indices(self, sentence: List[str]) -> List[int]:
         return [self._words_to_idx[word] for word in sentence]
 
     def map_indices_to_labels(self, indices: List[int]) -> List[str]:
@@ -91,18 +82,15 @@ class Dataset:
         self._unlabeled_file.remove_sentence(idx)
 
     def _apply_padding(self, vector: List[int]) -> List[int]:
-        return vector[: self._longest_sentence_length] + [
-            self._padding_idx
-        ] * (self._longest_sentence_length - len(vector))
+        return vector[: self._longest_sentence_length] + [self._padding_idx] * (
+            self._longest_sentence_length - len(vector)
+        )
 
     def get_training_data(self) -> Tuple[List[List[int]], List[List[int]]]:
         sentences = self._labeled_file.get_all_sentences()
 
         features, labels = zip(
-            *[
-                self._extract_features_and_labels(sentence)
-                for sentence in sentences
-            ]
+            *[self._extract_features_and_labels(sentence) for sentence in sentences]
         )
         features = [self._apply_padding(feature) for feature in features]
         labels = [self._apply_padding(label) for label in labels]

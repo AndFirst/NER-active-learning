@@ -48,8 +48,6 @@ class AddLabelForm(BoxLayout):
     @property
     def label_rows(self):
         label_rows = [
-            child
-            for child in self.ids.layout.children
-            if isinstance(child, LabelRow)
+            child for child in self.ids.layout.children if isinstance(child, LabelRow)
         ]
         return label_rows
