@@ -69,7 +69,7 @@ class Factory:
     def create_assistant(
         model, dataset, config: AssistantConf
     ) -> ActiveLearningManager:
-        return ActiveLearningManager(model, dataset, **(config.to_dict()))
+        return ActiveLearningManager(model, dataset, config)
 
     @staticmethod
     def create_labeled_file(labeled_path: str) -> LabeledWrapper:

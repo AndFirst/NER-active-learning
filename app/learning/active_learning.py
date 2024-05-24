@@ -1,26 +1,18 @@
-from typing import Dict, Tuple, Any
+from typing import Dict, Any
 
 from app.constants import DEFAULT_UNLABELED_LABEL
 from app.learning.dataset.dataset import Dataset
 from app.learning.models.ner_model import NERModel
-from app.data_types import Sentence, Annotation, Word, LabelData
+from app.data_types import Sentence, Annotation, Word, AssistantConf
 
 
 class ActiveLearningManager:
     def __init__(
-        self,
-        model: NERModel,
-        dataset: Dataset,
-        labels: Dict[str, Tuple[int, int, int, int]],
-        batch_size: int = 1,
-        epochs: int = 20,
+        self, model: NERModel, dataset: Dataset, config: AssistantConf
     ) -> None:
-        self._dataset = dataset
-        self._batch_size: int = batch_size
-        self._epochs: int = epochs
+        self._dataset: Dataset = dataset
+        self._config: AssistantConf = config
         self._model: NERModel = model
-
-        self._label_mapping = labels
 
     def _get_sentence_idx(self) -> int:
         return 0
@@ -58,10 +50,10 @@ class ActiveLearningManager:
                     annotations[-1].words.append(Word(sentence[i]))
                 else:
                     label_name = label[2:]
-                    label_data = LabelData(
-                        label=label_name,
-                        color=self._label_mapping[label_name],
-                    )
+                    for label_ in self._config.labels:
+                        if label_.label == label_name:
+                            label_data = label_
+                            break
                     annotations.append(
                         Annotation(words=[Word(sentence[i])], label=label_data)
                     )
@@ -77,14 +69,14 @@ class ActiveLearningManager:
         self._model.train_async(
             features,
             target,
-            epochs=self._epochs,
-            batch_size=self._batch_size,
+            epochs=self._config.epochs,
+            batch_size=self._config.batch_size,
             class_weights=weights,
         )
 
     @property
-    def label_mapping(self):
-        return self._label_mapping
+    def labels(self):
+        return self._config.labels
 
     @property
     def stats(self) -> Dict[str, Any]:

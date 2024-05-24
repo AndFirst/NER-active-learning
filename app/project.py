@@ -9,6 +9,7 @@ from app.data_types import (
     AssistantConf,
     ModelConf,
     ProjectConf,
+    LabelData,
 )
 import json
 import shutil
@@ -25,8 +26,9 @@ from app.learning.models.ner_model import NERModel
 
 
 class Project:
-    def __init__(self, config: ProjectConf):
+    def __init__(self, config: ProjectConf, dir: str):
         self.config = config
+        self.dir = dir
         self._dataset = Factory.create_dataset(config.dataset_conf)
         self._model = Factory.create_model(config.model_conf)
         self._assistant = Factory.create_assistant(
@@ -36,10 +38,10 @@ class Project:
     @classmethod
     def load(cls, dir_path: str) -> Project:
         config = ProjectConf.from_file(f"{dir_path}/project.json")
-        return Project(config)
+        return Project(config, dir_path)
 
     def save(self) -> None:
-        self.config.save_config()
+        self.config.save_config(self.dir)
         self._model.save(self.config.model_conf.state_path)
         self._dataset.save()
 
@@ -97,17 +99,12 @@ class Project:
                 project_form_state.model_state_path, model_conf.state_path
             )
 
-        # Create and save model
-        model = Factory.create_model(model_conf)
-        model.save(model_conf.state_path)
-
         # Create Project Config object
         project_conf = ProjectConf.from_state(
             project_form_state, model_conf, assistant_conf, dataset_conf
         )
 
-        # Save config
-        project_conf.save_config(project_form_state.save_path)
+        return Project(project_conf, project_form_state.save_path)
 
     @staticmethod
     def create_word_to_idx(words: Set[str]) -> Dict[str, int]:
@@ -132,5 +129,5 @@ class Project:
     def get_model(self) -> NERModel:
         return self._model
 
-    def get_labels(self) -> dict:
-        return self._assistant.label_mapping
+    def get_labels(self) -> list[LabelData]:
+        return self._assistant.labels

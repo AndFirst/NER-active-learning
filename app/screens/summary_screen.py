@@ -1,7 +1,7 @@
 from kivy.uix.screenmanager import Screen
 from kivy.lang import Builder
 from kivy.uix.label import Label
-
+from app.data_types import ProjectFormState
 from app.project import Project
 
 kv_string = """
@@ -47,7 +47,7 @@ class SummaryScreen(Screen):
     def __init__(self, **kwargs):
         form_state = kwargs.pop("form_state", None)
         super(SummaryScreen, self).__init__(**kwargs)
-        self.form_state = form_state
+        self.form_state: ProjectFormState = form_state
 
     def on_enter(self):
         field_label = Label(
@@ -117,7 +117,8 @@ class SummaryScreen(Screen):
         self.manager.current = "add_labels"
 
     def go_to_main_menu(self):
-        Project.create(self.form_state)
+        project = Project.create(self.form_state)
+        project.save()
         self.manager.get_screen("main_menu").project = Project.load(
             self.form_state.save_path
         )

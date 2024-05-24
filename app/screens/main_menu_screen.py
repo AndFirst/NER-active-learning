@@ -4,7 +4,6 @@ from kivy.lang import Builder
 from app.components.popups.popups import (
     SaveConfirmationPopup,
 )
-from app.data_types import LabelData
 
 kv_string = """
 <MainMenuScreen>:
@@ -43,16 +42,12 @@ class MainMenuScreen(Screen):
     def on_enter(self):
         self.assistant = self.project.get_assistant()
         self.model = self.project.get_model()
-        labels = self.project.get_labels()
-        self.ids.annotation_form.labels = self._init_ui_labels(labels)
+        self.ids.annotation_form.labels = self.project.get_labels()
 
         self.ids.annotation_form.sentence = self.assistant.get_sentence(
             annotated=True
         )
         self.manager.get_screen("stats").stats = self.assistant.stats
-
-    def _init_ui_labels(self, label_data: dict) -> list:
-        return [LabelData(label, color) for label, color in label_data.items()]
 
     def confirm_exit(self):
         exit_confirmation_popup = SaveConfirmationPopup(
@@ -62,4 +57,4 @@ class MainMenuScreen(Screen):
         return True
 
     def save(self):
-        self.project.save(self.save_path)
+        self.project.save()

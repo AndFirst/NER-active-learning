@@ -1,13 +1,9 @@
-from kivy.uix.button import Button
 from kivy.uix.screenmanager import Screen
 from kivy.lang import Builder
 from kivy.uix.popup import Popup
-from kivy.uix.filechooser import FileChooserIconView
 from kivy.properties import StringProperty
-from kivy.utils import platform
 from plyer import filechooser
 import os
-from kivy.app import App
 from kivy.uix.label import Label
 
 from app.project import Project
@@ -32,7 +28,7 @@ kv_string = """
                 text: 'Choose directory'
                 size_hint: None, None
                 size: 150, 50
-                on_press: root.open_file_chooser()
+                on_press: root.open_filechooser()
             Label:
                 text: 'Path: ' + root.selected_path
                 color: 0, 0, 0, 1  # Kolor tekstu: czarny
@@ -59,57 +55,10 @@ class ExistingProjectScreen(Screen):
     def go_to_main_menu(self):
         self.manager.current = "main_menu"
 
-    def open_model_filechooser(self):
-        file_path = filechooser.open_file(
-            filters=["*.py"],
-            title="Select Model Implementation File",
-            multiple=False,
-        )
-        if file_path:
-            selected_path = file_path[0]
-            self.form_state.model_implementation_path = selected_path
-            self.ids.model_button.text = selected_path
-
-        else:
-            self.ids.model_button.text = "Choose a model"
-
-    def open_file_chooser(self):
-        app_path = App.get_running_app().home_dir
-        if platform == "win":
-            filters = ["*"]
-        else:
-            filters = [
-                lambda folder, filename: os.path.isdir(
-                    os.path.join(folder, filename)
-                )
-            ]
-
-        file_chooser = FileChooserIconView(
-            path=app_path, filters=filters, dirselect=True
-        )
-        file_chooser.bind(on_submit=self.on_submit)
-
-        choose_button = Button(
-            text="Choose", size_hint=(None, None), size=(150, 50)
-        )
-        choose_button.bind(
-            on_press=lambda instance: self.on_submit(
-                file_chooser, file_chooser.selection, None
-            )
-        )
-        file_chooser.add_widget(choose_button)
-
-        self.popup = Popup(
-            title="Choose directory",
-            content=file_chooser,
-            size_hint=(0.9, 0.9),
-        )
-        self.popup.open()
-
-    def on_submit(self, instance, selection, touch):
-        if selection:
-            self.selected_path = selection[0]
-        self.popup.dismiss()
+    def open_filechooser(self):
+        self.selected_path = filechooser.choose_dir(
+            title="Select Project Folder"
+        )[0]
 
     def check_files(self):
         if self.selected_path:
@@ -149,7 +98,6 @@ class ExistingProjectScreen(Screen):
                     size=(400, 200),
                 ).open()
             else:
-
                 self.manager.get_screen("main_menu").project = Project.load(
                     self.selected_path
                 )
