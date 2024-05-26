@@ -24,7 +24,6 @@ Builder.load_string(kv_string)
 
 
 class AddLabelsScreen(Screen):
-
     def __init__(self, **kwargs):
         form_state = kwargs.pop("form_state", None)
         super(AddLabelsScreen, self).__init__(**kwargs)
