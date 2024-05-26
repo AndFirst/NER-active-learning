@@ -142,15 +142,28 @@ class CreateProjectScreen(Screen):
         self.manager.current = "welcome"
 
     def open_filechooser(self):
-        selected_path = filechooser.choose_dir(title="Select Project Folder")
-        if selected_path:
-            folder_path = selected_path[0]
-            unique_folder_path = create_unique_folder_name(
-                folder_path, self.ids.name_input.text
+        if not self.ids.name_input.text.strip():
+            popup = Popup(
+                title="Error",
+                content=Label(text="You have to enter a project name first."),
+                size_hint=(None, None),
+                size=(300, 200),
             )
-            self.ids.path_button.text = folder_path + "/" + unique_folder_path
+            popup.open()
         else:
-            self.ids.path_button.text = "Save project path"
+            selected_path = filechooser.choose_dir(
+                title="Select Project Folder"
+            )
+            if selected_path:
+                folder_path = selected_path[0]
+                unique_folder_path = create_unique_folder_name(
+                    folder_path, self.ids.name_input.text
+                )
+                self.ids.path_button.text = (
+                    folder_path + "/" + unique_folder_path
+                )
+            else:
+                self.ids.path_button.text = "Save project path"
 
     def save_and_go_to_data_set(self):
         name = self.ids.name_input.text.strip()

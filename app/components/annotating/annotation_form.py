@@ -98,7 +98,6 @@ kv_string = """
 Builder.load_string(kv_string)
 
 
-# @TODO Save on press exit button when there is unsaved progress. - IREK
 class AnnotationForm(BoxLayout):
     selected_label = ObjectProperty(None, allownone=True)
     labels = ListProperty([])
@@ -117,13 +116,12 @@ class AnnotationForm(BoxLayout):
 
     def accept(self):
         self.parent.parent.assistant.give_feedback(self.sentence)
-        next_sentence = self.parent.parent.assistant.get_sentence(
-            annotated=self.ai_assistant_enabled
-        )
-        if next_sentence:
+        try:
+            next_sentence = self.parent.parent.assistant.get_sentence(
+                annotated=self.ai_assistant_enabled
+            )
             self.sentence = next_sentence
-        else:
-
+        except IndexError:
             self.sentence = None
             content = Label(
                 text="All data has been annotated.\nYou're free now! Have a nice day!\nApplication will close now.",
@@ -134,8 +132,14 @@ class AnnotationForm(BoxLayout):
                 size_hint=(None, None),
                 size=(400, 200),
             )
-            popup.bind(on_dismiss=self.close_app)
+            popup.bind(on_dismiss=self.go_to_final_screen)
             popup.open()
+
+    def go_to_final_screen(self, instance):
+        app = App.get_running_app()
+        app.root.current_screen.save()
+        app.root.current = "stats"
+        app.root.current_screen.when_annotating_is_done()
 
     def close_app(self, instance):
         def close(*args):

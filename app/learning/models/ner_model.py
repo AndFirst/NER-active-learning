@@ -161,6 +161,7 @@ class NERModel(ABC):
             loss_class = getattr(torch.nn, state_dict["loss_name"])
             self._loss = loss_class()
             if state_dict["loss_state_dict"] is not None:
+                state_dict["loss_state_dict"].pop("weight", None)
                 self._loss.load_state_dict(state_dict["loss_state_dict"])
         else:
             self._loss = CrossEntropyLoss()

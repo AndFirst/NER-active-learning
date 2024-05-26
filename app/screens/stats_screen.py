@@ -2,7 +2,10 @@ from kivy.uix.screenmanager import Screen
 from kivy.lang import Builder
 
 from kivy.uix.label import Label
-from app.components.popups.popups import SaveConfirmationPopup
+from app.components.popups.popups import (
+    SaveConfirmationPopup,
+    ExitConfirmationPopup,
+)
 
 kv_string = """
 <StatsScreen>:
@@ -17,6 +20,7 @@ kv_string = """
         padding: 20
         size_hint_y: 0.2  
         Button:
+            id: back_button
             text: 'Back to Main Menu'
             on_release: app.root.current = 'main_menu'
             canvas.before:
@@ -34,6 +38,7 @@ class StatsScreen(Screen):
     def __init__(self, **kwargs):
         super(StatsScreen, self).__init__(**kwargs)
         self.stats = None
+        self.is_annotation_done = False
 
     def on_enter(self):
         stats_dict = self.get_stats()
@@ -51,12 +56,20 @@ class StatsScreen(Screen):
         return {"Stat 1": 100, "Stat 2": 200, "Stat 3": 300}
 
     def confirm_exit(self):
-        exit_confirmation_popup = SaveConfirmationPopup(
-            save_function=self.save
-        )
+        if not self.is_annotation_done:
+            exit_confirmation_popup = SaveConfirmationPopup(
+                save_function=self.save
+            )
+        else:
+            exit_confirmation_popup = ExitConfirmationPopup()
         exit_confirmation_popup.open()
         return True
 
     def save(self):
         project = self.manager.get_screen("main_menu").project
         project.save(self.save_path)
+
+    def when_annotating_is_done(self):
+        # Remove the back button
+        self.ids.back_button.parent.remove_widget(self.ids.back_button)
+        self.is_annotation_done = True
