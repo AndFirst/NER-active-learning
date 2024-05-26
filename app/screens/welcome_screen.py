@@ -23,7 +23,7 @@ kv_string = f"""
     FloatLayout:
         # canvas.before:
         #     Color:
-        #         rgba: {BACKGROUND_COLOR} # Kolor tła
+        #         rgba: {BACKGROUND_COLOR}
         #     Rectangle:
         #         size: self.size
         #         pos: self.pos

@@ -25,7 +25,7 @@ Builder.load_string(
 <LabelRow>:
     orientation: 'horizontal'
     size_hint_y: None
-    height: 60
+    height: 35
     spacing: 20
 
     LabelTextInput:
@@ -81,13 +81,26 @@ class LabelRow(BoxLayout):
     def add_new_row(self):
         parent = self.parent
         if parent:
-            new_label_text = self.ids.text_input.text.strip().lower()
             existing_labels = [
                 child.ids.text_input.text.strip().lower()
                 for child in parent.children
                 if isinstance(child, LabelRow) and child is not self
             ]
-            if new_label_text.lower() in existing_labels:
+            if len(existing_labels) >= 11:
+                content = Label(
+                    text="Label limit reached (12 labels).", halign="center"
+                )
+                popup = Popup(
+                    title="Error",
+                    content=content,
+                    size_hint=(None, None),
+                    size=(400, 200),
+                )
+                popup.open()
+                return
+            
+            new_label_text = self.ids.text_input.text.strip().lower()
+            if new_label_text in existing_labels:
                 content = Label(
                     text="This label already exists.", halign="center"
                 )
@@ -99,6 +112,7 @@ class LabelRow(BoxLayout):
                 )
                 popup.open()
                 return
+            
             empty_row_exists = any(
                 child.ids.text_input.text == ""
                 for child in parent.children
@@ -117,6 +131,7 @@ class LabelRow(BoxLayout):
                 new_row.color = self.get_next_color()
                 self.parent.add_widget(new_row)
                 new_row.ids.text_input.focus = True
+
 
     @staticmethod
     def random_color():
