@@ -12,86 +12,54 @@ from app.learning.file_wrappers.unlabeled.wrapper import UnlabeledWrapper
 from app.learning.models.custom import CustomModel
 from app.learning.models.lstm import BiLSTMClassifier
 from app.learning.models.ner_model import NERModel
+from app.data_types import DatasetConf
+from app.data_types import ModelConf, AssistantConf
 
 
 class Factory:
     @staticmethod
-    def create_dataset(config: dict) -> Dataset:
-        unlabeled_path = config["unlabeled_path"]
-        labeled_path = config["labeled_path"]
-        padding_label = config["padding_label"]
-        padding_idx = config["padding_idx"]
-        unlabeled_label = config["unlabeled_label"]
-        unlabeled_idx = config["unlabeled_idx"]
-
-        with open(config["labels_to_idx_path"], "r") as fh:
+    def create_dataset(cfg: DatasetConf) -> Dataset:
+        with open(cfg.labels_to_idx_path, "r") as fh:
             labels_to_idx = json.load(fh)
 
-        with open(config["words_to_idx_path"], "r") as fh:
+        with open(cfg.words_to_idx_path, "r") as fh:
             words_to_idx = json.load(fh)
 
-        unlabeled_extension = os.path.splitext(unlabeled_path)[1]
-        labeled_extension = os.path.splitext(labeled_path)[1]
-
-        match unlabeled_extension:
-            case ".csv":
-                unlabeled_file = UnlabeledCsv(unlabeled_path)
-            case ".json":
-                unlabeled_file = UnlabeledJson(unlabeled_path)
-            case _:
-                raise ValueError(
-                    f"Unsupported extension for unlabeled file: {unlabeled_extension}"
-                )
-        match labeled_extension:
-            case ".csv":
-                labeled_file = LabeledCsv(labeled_path)
-            case ".json":
-                labeled_file = LabeledJson(labeled_path)
-            case _:
-                raise ValueError(
-                    f"Unsupported extension for labeled file: {labeled_extension}"
-                )
+        unlabeled_file = Factory.create_unlabeled_file(cfg.unlabeled_path)
+        labeled_file = Factory.create_labeled_file(cfg.labeled_path)
 
         return Dataset(
             unlabeled_file=unlabeled_file,
             labeled_file=labeled_file,
             labels_to_idx=labels_to_idx,
             words_to_idx=words_to_idx,
-            padding_idx=padding_idx,
-            padding_label=padding_label,
-            unlabeled_idx=unlabeled_idx,
-            unlabeled_label=unlabeled_label,
+            padding_idx=cfg.padding_idx,
+            padding_label=cfg.padding_label,
+            unlabeled_idx=cfg.unlabeled_idx,
+            unlabeled_label=cfg.unlabeled_label,
         )
 
     @staticmethod
-    def create_model(config: dict) -> NERModel:
-        model_type = config.get("model_type")
-        model_state_path = config.get("model_state_path")
-        model_implementation_path = config.get("model_implementation_path")
+    def create_model(cfg: ModelConf) -> NERModel:
         common_params = {
-            "num_words": config["num_words"],
-            "num_classes": config["num_classes"],
-            "learning_rate": config["learning_rate"],
+            "num_words": cfg.num_words,
+            "num_classes": cfg.num_classes,
+            "learning_rate": cfg.learning_rate,
         }
 
-        match model_type:
+        match cfg.type:
             case "BiLSTM":
                 model = BiLSTMClassifier(**common_params)
-                if os.path.exists(model_state_path):
-                    model.load_weights(model_state_path)
-                model.validate_torch_model(
-                    config["num_words"], config["num_classes"]
-                )
+                if os.path.exists(cfg.state_path):
+                    model.load_weights(cfg.state_path)
+                model.validate_torch_model(cfg.num_words, cfg.num_classes)
                 return model
+
             case "custom":
-
-                model = CustomModel(model_implementation_path)
-
-                if os.path.exists(model_state_path):
-                    model.load_weights(model_state_path)
-                model.validate_torch_model(
-                    config["num_words"], config["num_classes"]
-                )
+                model = CustomModel(cfg.implementation_path)
+                if os.path.exists(cfg.state_path):
+                    model.load_weights(cfg.state_path)
+                model.validate_torch_model(cfg.num_words, cfg.num_classes)
                 return model
 
             case _:
@@ -99,9 +67,9 @@ class Factory:
 
     @staticmethod
     def create_assistant(
-        model, dataset, config: dict
+        model, dataset, config: AssistantConf
     ) -> ActiveLearningManager:
-        return ActiveLearningManager(model, dataset, **config)
+        return ActiveLearningManager(model, dataset, config)
 
     @staticmethod
     def create_labeled_file(labeled_path: str) -> LabeledWrapper:

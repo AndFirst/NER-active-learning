@@ -1,13 +1,11 @@
 from kivy.uix.screenmanager import Screen
 from kivy.lang import Builder
 from kivy.uix.popup import Popup
-from kivy.uix.filechooser import FileChooserIconView
 from kivy.properties import StringProperty
-from kivy.utils import platform
 import os
-from kivy.app import App
+from plyer import filechooser
 from kivy.uix.label import Label
-from kivy.uix.button import Button
+from app.data_types import ProjectFormState
 
 kv_string = """
 <DatasetScreen>:
@@ -29,10 +27,10 @@ kv_string = """
                 text: 'Choose file'
                 size_hint: None, None
                 size: 150, 50
-                on_press: root.open_file_chooser()
+                on_press: root.open_dataset_filechooser()
             Label:
                 text: 'Chosen file: ' + root.selected_file
-                color: 0, 0, 0, 1 
+                color: 0, 0, 0, 1
         PrevNextButtons:
             id: prev_next_buttons
             size_hint_y: 0.2
@@ -48,8 +46,7 @@ class DatasetScreen(Screen):
     def __init__(self, **kwargs):
         form_state = kwargs.pop("form_state", None)
         super(DatasetScreen, self).__init__(**kwargs)
-        self.form_state = form_state
-
+        self.form_state: ProjectFormState = form_state
         self.ids.prev_next_buttons.on_back = self.go_to_create_project
         self.ids.prev_next_buttons.on_next = self.check_file
 
@@ -59,42 +56,15 @@ class DatasetScreen(Screen):
     def go_to_add_labels(self):
         self.manager.current = "add_labels"
 
-    def open_file_chooser(self):
-        app_path = App.get_running_app().home_dir
-        if platform == "win":
-            filters = ["*.csv", "*.json", "*.jsonl"]
-        else:
-            filters = [
-                lambda folder, filename: any(
-                    filename.endswith(ext)
-                    for ext in (".csv", ".json", ".jsonl")
-                )
-            ]
-
-        file_chooser = FileChooserIconView(
-            path=app_path, filters=filters, dirselect=False
+    def open_dataset_filechooser(self):
+        file_path = filechooser.open_file(
+            filters=["*.csv", "*.json", "*.jsonl"],
+            title="Select Dataset File",
+            multiple=False,
         )
-        file_chooser.bind(on_submit=self.on_submit)
-
-        choose_button = Button(
-            text="Choose dataset", size_hint=(None, None), size=(150, 50)
-        )
-        choose_button.bind(
-            on_press=lambda instance: self.on_submit(
-                file_chooser, file_chooser.selection, None
-            )
-        )
-        file_chooser.add_widget(choose_button)
-
-        self.popup = Popup(
-            title="Choose file", content=file_chooser, size_hint=(0.9, 0.9)
-        )
-        self.popup.open()
-
-    def on_submit(self, instance, selection, touch):
-        if selection:
-            self.selected_file = selection[0]
-        self.popup.dismiss()
+        if file_path:
+            self.selected_file = file_path[0]
+            self.form_state.dataset_path = self.selected_file
 
     def check_file(self):
         if self.selected_file:

@@ -2,174 +2,109 @@ from __future__ import annotations
 
 import itertools
 import os
-
+from typing import Dict
+from app.data_types import (
+    ProjectFormState,
+    DatasetConf,
+    AssistantConf,
+    ModelConf,
+    ProjectConf,
+    LabelData,
+)
 import json
 import shutil
-from typing import Dict, Set
-
+from typing import Set
 from app.constants import (
-    DEFAULT_BATCH_SIZE,
-    DEFAULT_EPOCHS,
-    DEFAULT_DROPOUT,
-    DEFAULT_INPUT_EXTENSION,
-    DEFAULT_OUTPUT_EXTENSION,
     DEFAULT_PADDING_LABEL,
     DEFAULT_PADDING_IDX,
     DEFAULT_UNLABELED_LABEL,
     DEFAULT_UNLABELED_IDX,
-    DEFAULT_LEARNING_RATE,
 )
 from app.learning.active_learning import ActiveLearningManager
-from app.learning.dataset.dataset import Dataset
 from app.learning.factory import Factory
 from app.learning.models.ner_model import NERModel
 
 
 class Project:
-    def __init__(
-        self,
-        assistant: ActiveLearningManager,
-        dataset: Dataset,
-        model: NERModel,
-    ):
-        self._assistant = assistant
-        self._dataset = dataset
-        self._model = model
+    def __init__(self, config: ProjectConf, dir: str):
+        self.config = config
+        self.dir = dir
+        self._dataset = Factory.create_dataset(config.dataset_conf)
+        self._model = Factory.create_model(config.model_conf)
+        self._assistant = Factory.create_assistant(
+            self._model, self._dataset, config.assistant_conf
+        )
 
     @classmethod
-    def load(cls, directory_path: str) -> Project:
-        config_file = f"{directory_path}/project.json"
-        if not os.path.isfile(config_file):
-            raise FileNotFoundError("Project configuration file not found.")
+    def load(cls, dir_path: str) -> Project:
+        config = ProjectConf.from_file(f"{dir_path}/project.json")
+        return Project(config, dir_path)
 
-        with open(config_file, "r") as config_file:
-            config = json.load(config_file)
-
-        dataset_conf = config["dataset"]
-        dataset = Factory.create_dataset(dataset_conf)
-
-        model_conf = config["model"]
-        model = Factory.create_model(model_conf)
-
-        assistant_conf = config["assistant"]
-        assistant = Factory.create_assistant(model, dataset, assistant_conf)
-
-        return Project(assistant, dataset, model)
-
-    def save(self, directory_path: str) -> None:
-        config_file = f"{directory_path}/project.json"
-        if not os.path.isfile(config_file):
-            raise FileNotFoundError("Project configuration file not found.")
-
-        with open(config_file, "r") as config_file:
-            config = json.load(config_file)
-            model_path = config["model"]["model_state_path"]
-
-        self._model.save(model_path)
+    def save(self) -> None:
+        self.config.save_config(self.dir)
+        self._model.save(self.config.model_conf.state_path)
         self._dataset.save()
 
     @classmethod
-    def create(cls, directory_path: str, project_state: dict) -> None:
-        os.makedirs(directory_path)
+    def create(cls, project_form_state: ProjectFormState) -> None:
+        os.makedirs(project_form_state.save_path)
 
-        assistant_conf = {
-            "batch_size": project_state.get("batch_size", DEFAULT_BATCH_SIZE),
-            "epochs": project_state.get("epochs", DEFAULT_EPOCHS),
-            "labels": {
-                label["label"]: label["color"]
-                for label in project_state["labels"]
-            },
-        }
+        # Create Assistant Config object
+        assistant_conf = AssistantConf.from_state(project_form_state)
 
-        input_extension = project_state.get(
-            "input_extension", DEFAULT_INPUT_EXTENSION
-        )
-        output_extension = project_state.get(
-            "output_extension", DEFAULT_OUTPUT_EXTENSION
-        )
+        # Create Dataset Config object
+        dataset_conf = DatasetConf.from_state(project_form_state)
 
-        dataset_conf = {
-            "unlabeled_path": f"{directory_path}/unlabeled{input_extension}",
-            "labeled_path": f"{directory_path}/labeled{output_extension}",
-            "words_to_idx_path": f"{directory_path}/words_to_idx.json",
-            "labels_to_idx_path": f"{directory_path}/labels_to_idx.json",
-            "padding_label": DEFAULT_PADDING_LABEL,
-            "padding_idx": DEFAULT_PADDING_IDX,
-            "unlabeled_label": DEFAULT_UNLABELED_LABEL,
-            "unlabeled_idx": DEFAULT_UNLABELED_IDX,
-        }
-        # copy dataset to our directory
+        # Copy dataset to project's path
         shutil.copy(
-            project_state["dataset_path"], dataset_conf["unlabeled_path"]
+            project_form_state.dataset_path, dataset_conf.unlabeled_path
         )
 
-        with open(dataset_conf["labeled_path"], "w"):
-            pass
-
+        # Save word to indexes
         unlabeled_file = Factory.create_unlabeled_file(
-            dataset_conf["unlabeled_path"]
+            dataset_conf.unlabeled_path
         )
-        labeled_file = Factory.create_labeled_file(
-            dataset_conf["labeled_path"]
-        )
-
-        unique_words = unlabeled_file.unique_words()
-
-        word_to_idx = Project.create_word_to_idx(unique_words)
-        with open(dataset_conf["words_to_idx_path"], "w") as word_to_idx_file:
+        word_to_idx = Project.create_word_to_idx(unlabeled_file.unique_words())
+        with open(dataset_conf.words_to_idx_path, "w") as word_to_idx_file:
             json.dump(word_to_idx, word_to_idx_file)
 
-        labels = {label["label"] for label in project_state["labels"]}
-        label_to_idx = Project.create_label_to_idx(labels)
-
-        with open(
-            dataset_conf["labels_to_idx_path"], "w"
-        ) as label_to_idx_file:
+        # Save label to indexes
+        Factory.create_labeled_file(dataset_conf.labeled_path)
+        label_to_idx = Project.create_label_to_idx(
+            assistant_conf.get_labelset()
+        )
+        with open(dataset_conf.labels_to_idx_path, "w") as label_to_idx_file:
             json.dump(label_to_idx, label_to_idx_file)
 
-        model_conf = {
-            "model_type": project_state.get("model_type"),
-            "model_state_path": f"{directory_path}/model.pth",
-            "dropout": project_state.get("dropout", DEFAULT_DROPOUT),
-            "learning_rate": project_state.get(
-                "learning_rate", DEFAULT_LEARNING_RATE
-            ),
-            "num_words": len(unique_words),
-            "num_classes": len(labels) * 2 + 1,
-        }
-        print(model_conf)
-        if model_conf["model_type"] == "custom":
-            model_conf["model_implementation_path"] = (
-                f"app/learning/models/custom_model_{project_state['name']}.py"
-            )
-            source_model_implementation = project_state.get(
-                "model_implementation_path"
+        # Create Model Config object
+        model_conf = ModelConf.from_state(
+            project_form_state,
+            len(unlabeled_file.unique_words()),
+            len(assistant_conf.get_labelset()),
+        )
+
+        # Copy implementation of model if it is custom
+        if model_conf.is_custom_model_type():
+            src_model_implementation = (
+                project_form_state.model_implementation_path
             )
             shutil.copy(
-                source_model_implementation,
-                model_conf["model_implementation_path"],
+                src_model_implementation,
+                model_conf.implementation_path,
             )
 
-        source_model_state = project_state.get("model_state_path")
-        if source_model_state:
-            shutil.copy(source_model_state, model_conf["model_state_path"])
+        # Copy model state if it exists
+        if project_form_state.model_state_path:
+            shutil.copy(
+                project_form_state.model_state_path, model_conf.state_path
+            )
 
-        project_conf = {
-            "name": project_state["name"],
-            "description": project_state["description"],
-            "model": model_conf,
-            "assistant": assistant_conf,
-            "dataset": dataset_conf,
-        }
+        # Create Project Config object
+        project_conf = ProjectConf.from_state(
+            project_form_state, model_conf, assistant_conf, dataset_conf
+        )
 
-        # save config
-        with open(
-            f"{directory_path}/project.json", "w"
-        ) as project_config_file:
-            json.dump(project_conf, project_config_file)
-
-        model = Factory.create_model(model_conf)
-        model.save(model_conf["model_state_path"])
+        return Project(project_conf, project_form_state.save_path)
 
     @staticmethod
     def create_word_to_idx(words: Set[str]) -> Dict[str, int]:
@@ -194,5 +129,5 @@ class Project:
     def get_model(self) -> NERModel:
         return self._model
 
-    def get_labels(self) -> dict:
-        return self._assistant.label_mapping
+    def get_labels(self) -> list[LabelData]:
+        return self._assistant.labels

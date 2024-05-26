@@ -15,7 +15,7 @@ kv_string = """
     GridLayout:
         cols: 1
         padding: 20
-        size_hint_y: 0.2    
+        size_hint_y: 0.2  
         Button:
             text: 'Back to Main Menu'
             on_release: app.root.current = 'main_menu'
