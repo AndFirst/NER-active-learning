@@ -27,7 +27,7 @@ kv_string = """
                 text: 'Choose file'
                 size_hint: None, None
                 size: 150, 50
-                on_press: root.open_dataset_filechooser()
+                on_release: root.open_dataset_filechooser()
             Label:
                 text: 'Chosen file: ' + root.selected_file
                 color: 0, 0, 0, 1

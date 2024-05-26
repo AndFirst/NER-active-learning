@@ -28,7 +28,7 @@ kv_string = """
                 text: 'Choose directory'
                 size_hint: None, None
                 size: 150, 50
-                on_press: root.open_filechooser()
+                on_release: root.open_filechooser()
             Label:
                 text: 'Path: ' + root.selected_path
                 color: 0, 0, 0, 1  # Kolor tekstu: czarny

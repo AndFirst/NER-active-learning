@@ -98,7 +98,7 @@ class LabelRow(BoxLayout):
                 )
                 popup.open()
                 return
-            
+
             new_label_text = self.ids.text_input.text.strip().lower()
             if new_label_text in existing_labels:
                 content = Label(
@@ -112,7 +112,7 @@ class LabelRow(BoxLayout):
                 )
                 popup.open()
                 return
-            
+
             empty_row_exists = any(
                 child.ids.text_input.text == ""
                 for child in parent.children
@@ -131,7 +131,6 @@ class LabelRow(BoxLayout):
                 new_row.color = self.get_next_color()
                 self.parent.add_widget(new_row)
                 new_row.ids.text_input.focus = True
-
 
     @staticmethod
     def random_color():
