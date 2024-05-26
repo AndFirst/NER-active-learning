@@ -13,6 +13,7 @@ class ActiveLearningManager:
         self._dataset: Dataset = dataset
         self._config: AssistantConf = config
         self._model: NERModel = model
+        self._annotated_sentences_count = 0
 
     def _get_sentence_idx(self) -> int:
         return 0
@@ -62,17 +63,20 @@ class ActiveLearningManager:
     def give_feedback(self, sentence: Sentence) -> None:
         converted_sentence = sentence.to_list()
         self._dataset.move_sentence_to_labeled(converted_sentence)
+        self._annotated_sentences_count += 1
 
-        features, target = self._dataset.get_training_data()
-        weights = self._dataset.get_weights()
+        if self._annotated_sentences_count == self._config.sampling_batch_size:
+            self._annotated_sentences_count = 0
+            features, target = self._dataset.get_training_data()
+            weights = self._dataset.get_weights()
 
-        self._model.train_async(
-            features,
-            target,
-            epochs=self._config.epochs,
-            batch_size=self._config.batch_size,
-            class_weights=weights,
-        )
+            self._model.train_async(
+                features,
+                target,
+                epochs=self._config.epochs,
+                batch_size=self._config.batch_size,
+                class_weights=weights,
+            )
 
     @property
     def labels(self):

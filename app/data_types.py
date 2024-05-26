@@ -15,6 +15,7 @@ from app.constants import (
     DEFAULT_UNLABELED_LABEL,
     DEFAULT_UNLABELED_IDX,
     DEFAULT_LEARNING_RATE,
+    DEFAULT_SAMPLING_BATCH_SIZE,
 )
 
 
@@ -215,8 +216,9 @@ class DatasetConf:
 
 @dataclass
 class AssistantConf:
-    batch_size: str
-    epochs: str
+    batch_size: int
+    epochs: int
+    sampling_batch_size: int
     labels: List[LabelData] = field(default_factory=list)
 
     @classmethod
@@ -224,6 +226,9 @@ class AssistantConf:
         return AssistantConf(
             project_form_state.get("batch_size", DEFAULT_BATCH_SIZE),
             project_form_state.get("epochs", DEFAULT_EPOCHS),
+            project_form_state.get(
+                "sampling_batch_size", DEFAULT_SAMPLING_BATCH_SIZE
+            ),
             project_form_state.labels,
         )
 
@@ -232,6 +237,7 @@ class AssistantConf:
         return AssistantConf(
             dict["batch_size"],
             dict["epochs"],
+            dict["sampling_batch_size"],
             [
                 LabelData(label["label"], label["color"])
                 for label in dict["labels"]
@@ -243,6 +249,7 @@ class AssistantConf:
         return {
             "batch_size": self.batch_size,
             "epochs": self.epochs,
+            "sampling_batch_size": self.sampling_batch_size,
             "labels": [label.to_dict() for label in self.labels],
         }
 
