@@ -23,7 +23,7 @@ from app.constants import (
 )
 from app.learning.active_learning import ActiveLearningManager
 from app.learning.factory import Factory
-from app.learning.models.ner_model import NERModel
+from app.learning.models.base import NERModel
 
 
 class Project:

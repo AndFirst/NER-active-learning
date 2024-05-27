@@ -46,7 +46,6 @@ assistant_conf = AssistantConf(
 dataset_conf = DatasetConf(
     unlabeled_path="/path/to/unlabeled.csv",
     labeled_path="/path/to/labeled.out",
-    words_to_idx_path="/path/to/words_to_idx.json",
     labels_to_idx_path="/path/to/labels_to_idx.json",
     padding_label=DEFAULT_PADDING_LABEL,
     padding_idx=DEFAULT_PADDING_IDX,

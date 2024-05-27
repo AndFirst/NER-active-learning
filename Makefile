@@ -33,7 +33,7 @@ test:
 	pytest
 
 test-cov: format
-	pytest --cov-report term-missing --cov=app
+	pytest --cov-report term-missing:skip-covered --cov=app
 
 docs:
 	make -C docs html

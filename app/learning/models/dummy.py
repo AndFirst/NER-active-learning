@@ -1,5 +1,5 @@
 from typing import List
-from .ner_model import NERModel
+from .base import NERModel
 import random
 
 

@@ -5,7 +5,7 @@ import threading
 
 import torch
 
-from app.learning.models.ner_model import NERModel
+from app.learning.models.base import NERModel
 
 import inspect
 import torch.nn as nn

@@ -13,7 +13,6 @@ class JsonListStrategy(DataPersistenceStrategy):
     """
 
     def __init__(self, file_path: str) -> None:
-        """Initialize the strategy with the path to the JSON file."""
         if not file_path.endswith(".json"):
             raise ValueError("File type must be .json")
         self._file_path = file_path

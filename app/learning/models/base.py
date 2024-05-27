@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import logging
 import threading
 from abc import ABC
 from queue import Queue
@@ -67,11 +68,10 @@ class NERModel(ABC):
                 loss.backward()
                 optimizer.step()
 
-        # Swap the new model with the old one
         with self._lock:
             self._model = self._new_model.to("cpu")
             self._new_model = None
-            print("swapped model")
+            logging.info("Swapped model.")
 
     def train_async(
         self,
@@ -144,11 +144,9 @@ class NERModel(ABC):
             )
 
         state_dict = torch.load(file_path)
-        print(state_dict)
-        # Load model state
+
         self._model.load_state_dict(state_dict["model_state_dict"])
 
-        # Load or initialize optimizer
         if (
             "optimizer_state_dict" in state_dict
             and "optimizer_name" in state_dict
@@ -159,7 +157,6 @@ class NERModel(ABC):
         else:
             self._optimizer = optim.Adam(self._model.parameters())
 
-        # Load or initialize loss function
         if "loss_state_dict" in state_dict and "loss_name" in state_dict:
             loss_class = getattr(torch.nn, state_dict["loss_name"])
             self._loss = loss_class()
@@ -171,9 +168,6 @@ class NERModel(ABC):
 
     def validate_torch_model(self, num_words: int, num_classes: int) -> None:
         layers = list(self._model.children())
-        print(layers)
-        print(num_words, num_classes)
-        print(layers[0].num_embeddings, layers[-1].out_features)
         embedding_size = layers[0].num_embeddings
         if embedding_size != num_words:
             raise ValueError(

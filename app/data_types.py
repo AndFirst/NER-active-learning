@@ -157,7 +157,6 @@ class ProjectFormState:
 class DatasetConf:
     unlabeled_path: str
     labeled_path: str
-    words_to_idx_path: str
     labels_to_idx_path: str
     padding_label: str
     padding_idx: int
@@ -177,7 +176,6 @@ class DatasetConf:
         return DatasetConf(
             f"{project_form_state.save_path}/unlabeled{input_extension}",
             f"{project_form_state.save_path}/labeled{output_extension}",
-            f"{project_form_state.save_path}/words_to_idx.json",
             f"{project_form_state.save_path}/labels_to_idx.json",
             DEFAULT_PADDING_LABEL,
             DEFAULT_PADDING_IDX,
@@ -191,7 +189,6 @@ class DatasetConf:
         return DatasetConf(
             dict["unlabeled_path"],
             dict["labeled_path"],
-            dict["words_to_idx_path"],
             dict["labels_to_idx_path"],
             dict["padding_label"],
             dict["padding_idx"],
@@ -204,7 +201,6 @@ class DatasetConf:
         return {
             "unlabeled_path": self.unlabeled_path,
             "labeled_path": self.labeled_path,
-            "words_to_idx_path": self.words_to_idx_path,
             "labels_to_idx_path": self.labels_to_idx_path,
             "padding_label": self.padding_label,
             "padding_idx": self.padding_idx,

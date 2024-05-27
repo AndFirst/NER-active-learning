@@ -21,7 +21,6 @@ def test_from_state():
 
     assert dataset_conf.unlabeled_path == "/path/to/save/unlabeled.csv"
     assert dataset_conf.labeled_path == "/path/to/save/labeled.out"
-    assert dataset_conf.words_to_idx_path == "/path/to/save/words_to_idx.json"
     assert (
         dataset_conf.labels_to_idx_path == "/path/to/save/labels_to_idx.json"
     )
@@ -47,7 +46,6 @@ def test_from_state_with_defaults():
         dataset_conf.labeled_path
         == f"/path/to/save/labeled{DEFAULT_OUTPUT_EXTENSION}"
     )
-    assert dataset_conf.words_to_idx_path == "/path/to/save/words_to_idx.json"
     assert (
         dataset_conf.labels_to_idx_path == "/path/to/save/labels_to_idx.json"
     )
@@ -62,7 +60,6 @@ def test_from_dict():
     data = {
         "unlabeled_path": "/path/to/unlabeled.txt",
         "labeled_path": "/path/to/labeled.txt",
-        "words_to_idx_path": "/path/to/words_to_idx.json",
         "labels_to_idx_path": "/path/to/labels_to_idx.json",
         "padding_label": "PAD",
         "padding_idx": 0,
@@ -75,7 +72,6 @@ def test_from_dict():
 
     assert dataset_conf.unlabeled_path == data["unlabeled_path"]
     assert dataset_conf.labeled_path == data["labeled_path"]
-    assert dataset_conf.words_to_idx_path == data["words_to_idx_path"]
     assert dataset_conf.labels_to_idx_path == data["labels_to_idx_path"]
     assert dataset_conf.padding_label == data["padding_label"]
     assert dataset_conf.padding_idx == data["padding_idx"]
@@ -88,7 +84,6 @@ def test_to_dict():
     dataset_conf = DatasetConf(
         unlabeled_path="/path/to/unlabeled.txt",
         labeled_path="/path/to/labeled.txt",
-        words_to_idx_path="/path/to/words_to_idx.json",
         labels_to_idx_path="/path/to/labels_to_idx.json",
         padding_label="PAD",
         padding_idx=0,
@@ -100,7 +95,6 @@ def test_to_dict():
     expected_dict = {
         "unlabeled_path": "/path/to/unlabeled.txt",
         "labeled_path": "/path/to/labeled.txt",
-        "words_to_idx_path": "/path/to/words_to_idx.json",
         "labels_to_idx_path": "/path/to/labels_to_idx.json",
         "padding_label": "PAD",
         "padding_idx": 0,
@@ -116,7 +110,6 @@ def test_get_existing_property():
     dataset_conf = DatasetConf(
         unlabeled_path="/path/to/unlabeled.txt",
         labeled_path="/path/to/labeled.txt",
-        words_to_idx_path="/path/to/words_to_idx.json",
         labels_to_idx_path="/path/to/labels_to_idx.json",
         padding_label="PAD",
         padding_idx=0,
@@ -136,7 +129,6 @@ def test_get_default_property():
     dataset_conf = DatasetConf(
         unlabeled_path="/path/to/unlabeled.txt",
         labeled_path="/path/to/labeled.txt",
-        words_to_idx_path="/path/to/words_to_idx.json",
         labels_to_idx_path="/path/to/labels_to_idx.json",
         padding_label="PAD",
         padding_idx=0,
@@ -152,7 +144,6 @@ def test_default_values():
     dataset_conf = DatasetConf(
         unlabeled_path="/path/to/unlabeled.txt",
         labeled_path="/path/to/labeled.txt",
-        words_to_idx_path="/path/to/words_to_idx.json",
         labels_to_idx_path="/path/to/labels_to_idx.json",
         padding_label=DEFAULT_PADDING_LABEL,
         padding_idx=DEFAULT_PADDING_IDX,

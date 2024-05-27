@@ -3,8 +3,8 @@ from typing import Dict, Any
 import numpy as np
 
 from app.constants import DEFAULT_UNLABELED_LABEL
-from app.learning.dataset.dataset import Dataset
-from app.learning.models.ner_model import NERModel
+from app.learning.dataset import Dataset
+from app.learning.models import NERModel
 from app.data_types import Sentence, Annotation, Word, AssistantConf
 
 

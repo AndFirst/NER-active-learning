@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from .ner_model import NERModel
+from .base import NERModel
 
 
 class BiLSTM(nn.Module):
