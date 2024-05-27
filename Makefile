@@ -15,15 +15,19 @@ clean:
 	find . -type d -name "__pycache__" -delete
 	find . -type d -name "*.so" -delete
 	find . -type d -name "*.pyd" -delete
-	find docs/_build -exec rm -r {} +
+	find . -type f -name ".coverage" -delete
+	if [ -d "docs/_build" ]; then rm -rf docs/build; fi
+	if [ -d "htmlcov" ]; then rm -rf htmlcov; fi
+	find . -type d -name "*.egg-info" -exec rm -rf {} +
+
 	rm -rf .pytest_cache
 
 lint:
-	flake8 src/ app/ tests/
+	flake8 app/ tests/
 
 format:
-	black --line-length 79 --target-version py310 app/ src/ tests/
-	autoflake --remove-all-unused-imports --recursive --remove-unused-variables --in-place app/ src/ tests/ --exclude=__init__.py
+	black --line-length 79 --target-version py310 app/ tests/
+	autoflake --remove-all-unused-imports --recursive --remove-unused-variables --in-place app/ tests/ --exclude=__init__.py
 
 test:
 	pytest
