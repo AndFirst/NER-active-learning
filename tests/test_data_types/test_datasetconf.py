@@ -6,6 +6,7 @@ from app.constants import (
     DEFAULT_UNLABELED_IDX,
     DEFAULT_INPUT_EXTENSION,
     DEFAULT_OUTPUT_EXTENSION,
+    DEFAULT_MAX_SENTENCE_LENGTH,
 )
 
 
@@ -28,6 +29,7 @@ def test_from_state():
     assert dataset_conf.padding_idx == DEFAULT_PADDING_IDX
     assert dataset_conf.unlabeled_label == DEFAULT_UNLABELED_LABEL
     assert dataset_conf.unlabeled_idx == DEFAULT_UNLABELED_IDX
+    assert dataset_conf.max_sentence_length == DEFAULT_MAX_SENTENCE_LENGTH
 
 
 def test_from_state_with_defaults():
@@ -53,6 +55,7 @@ def test_from_state_with_defaults():
     assert dataset_conf.padding_idx == DEFAULT_PADDING_IDX
     assert dataset_conf.unlabeled_label == DEFAULT_UNLABELED_LABEL
     assert dataset_conf.unlabeled_idx == DEFAULT_UNLABELED_IDX
+    assert dataset_conf.max_sentence_length == DEFAULT_MAX_SENTENCE_LENGTH
 
 
 def test_from_dict():
@@ -65,6 +68,7 @@ def test_from_dict():
         "padding_idx": 0,
         "unlabeled_label": "UNLABELED",
         "unlabeled_idx": 1,
+        "max_sentence_length": 50,
     }
 
     dataset_conf = DatasetConf.from_dict(data)
@@ -77,6 +81,7 @@ def test_from_dict():
     assert dataset_conf.padding_idx == data["padding_idx"]
     assert dataset_conf.unlabeled_label == data["unlabeled_label"]
     assert dataset_conf.unlabeled_idx == data["unlabeled_idx"]
+    assert dataset_conf.max_sentence_length == data["max_sentence_length"]
 
 
 def test_to_dict():
@@ -89,6 +94,7 @@ def test_to_dict():
         padding_idx=0,
         unlabeled_label="UNLABELED",
         unlabeled_idx=1,
+        max_sentence_length=50,
     )
 
     expected_dict = {
@@ -100,6 +106,7 @@ def test_to_dict():
         "padding_idx": 0,
         "unlabeled_label": "UNLABELED",
         "unlabeled_idx": 1,
+        "max_sentence_length": 50,
     }
 
     assert dataset_conf.to_dict() == expected_dict
@@ -115,6 +122,7 @@ def test_get_existing_property():
         padding_idx=0,
         unlabeled_label="UNLABELED",
         unlabeled_idx=1,
+        max_sentence_length=50,
     )
 
     assert (
@@ -134,6 +142,7 @@ def test_get_default_property():
         padding_idx=0,
         unlabeled_label="UNLABELED",
         unlabeled_idx=1,
+        max_sentence_length=50,
     )
 
     assert dataset_conf.get("nonexistent_property", "default") == "default"
@@ -149,9 +158,11 @@ def test_default_values():
         padding_idx=DEFAULT_PADDING_IDX,
         unlabeled_label=DEFAULT_UNLABELED_LABEL,
         unlabeled_idx=DEFAULT_UNLABELED_IDX,
+        max_sentence_length=DEFAULT_MAX_SENTENCE_LENGTH,
     )
 
     assert dataset_conf.padding_label == DEFAULT_PADDING_LABEL
     assert dataset_conf.padding_idx == DEFAULT_PADDING_IDX
     assert dataset_conf.unlabeled_label == DEFAULT_UNLABELED_LABEL
     assert dataset_conf.unlabeled_idx == DEFAULT_UNLABELED_IDX
+    assert dataset_conf.max_sentence_length == DEFAULT_MAX_SENTENCE_LENGTH

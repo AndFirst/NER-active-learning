@@ -38,10 +38,10 @@ app.data\_types module
    :undoc-members:
    :show-inheritance:
 
-app.mock\_model module
-----------------------
+app.exceptions module
+---------------------
 
-.. automodule:: app.mock_model
+.. automodule:: app.exceptions
    :members:
    :undoc-members:
    :show-inheritance:

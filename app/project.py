@@ -62,7 +62,7 @@ class Project:
         )
 
         # Save word to indexes
-        unlabeled_file = Factory.create_unlabeled_file(
+        unlabeled_file = Factory.create_unlabeled_repository(
             dataset_conf.unlabeled_path
         )
         word_to_idx = Project.create_word_to_idx(unlabeled_file.unique_words())
@@ -70,7 +70,7 @@ class Project:
             json.dump(word_to_idx, word_to_idx_file)
 
         # Save label to indexes
-        Factory.create_labeled_file(dataset_conf.labeled_path)
+        Factory.create_labeled_repository(dataset_conf.labeled_path)
         label_to_idx = Project.create_label_to_idx(
             assistant_conf.get_labelset()
         )

@@ -1,11 +1,14 @@
-from abc import ABC, abstractmethod
 from typing import List, Set
 
+from app.learning.data_persistence_strategies.base import (
+    DataPersistenceStrategy,
+)
 
-class UnlabeledWrapper(ABC):
-    def __init__(self, file_path: str) -> None:
-        self._file_path = file_path
-        self._sentences = self.load()
+
+class UnlabeledSentenceRepository:
+    def __init__(self, persistence_strategy: DataPersistenceStrategy) -> None:
+        self._persistence_strategy = persistence_strategy
+        self._sentences = self._persistence_strategy.load()
 
     def get_sentence(self, idx: int) -> List[str]:
         return self._sentences[idx]
@@ -21,14 +24,10 @@ class UnlabeledWrapper(ABC):
 
     def remove_sentence(self, idx: int) -> None:
         self._sentences.pop(idx)
+        self._persistence_strategy.save(self._sentences)
 
     def get_all_sentences(self) -> List[List[str]]:
         return self._sentences
 
-    @abstractmethod
-    def load(self) -> List[List[str]]:
-        raise NotImplementedError
-
-    @abstractmethod
     def save(self) -> None:
-        raise NotImplementedError
+        self._persistence_strategy.save(self._sentences)

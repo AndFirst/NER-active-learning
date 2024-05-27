@@ -23,6 +23,7 @@ DEFAULT_PADDING_IDX = 0
 DEFAULT_UNLABELED_LABEL = "UNLABELED"
 DEFAULT_UNLABELED_IDX = 1
 DEFAULT_SAMPLING_BATCH_SIZE = 4
+MAX_SENTENCE_LENGTH = 50
 
 model_conf = ModelConf(
     type="custom",
@@ -51,6 +52,7 @@ dataset_conf = DatasetConf(
     padding_idx=DEFAULT_PADDING_IDX,
     unlabeled_label=DEFAULT_UNLABELED_LABEL,
     unlabeled_idx=DEFAULT_UNLABELED_IDX,
+    max_sentence_length=MAX_SENTENCE_LENGTH,
 )
 
 project_form_state = ProjectFormState(

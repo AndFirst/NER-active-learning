@@ -1,21 +1,24 @@
 import hashlib
 from typing import Dict, List, Tuple
 
-from app.learning.file_wrappers.labeled.wrapper import LabeledWrapper
-from app.learning.file_wrappers.unlabeled.wrapper import UnlabeledWrapper
+from app.learning.repositiories import (
+    LabeledSentenceRepository,
+    UnlabeledSentenceRepository,
+)
 
 
 class Dataset:
     def __init__(
         self,
-        labeled_file: LabeledWrapper,
-        unlabeled_file: UnlabeledWrapper,
+        labeled_file: LabeledSentenceRepository,
+        unlabeled_file: UnlabeledSentenceRepository,
         labels_to_idx: Dict[str, int],
         words_to_idx: Dict[str, int],
         padding_label: str,
         padding_idx: int,
         unlabeled_label: str,
         unlabeled_idx: int,
+        max_sentence_length: int,
     ):
         self._labeled_file = labeled_file
         self._unlabeled_file = unlabeled_file
@@ -36,12 +39,7 @@ class Dataset:
         self._unlabeled_label: str = unlabeled_label
         self._unlabeled_idx: int = unlabeled_idx
 
-        self._longest_sentence_length = 50
-        #     (
-        # max(
-        #     len(self._labeled_file.get_longest_sentence()),
-        #     len(self._unlabeled_file.get_longest_sentence()),
-        # ))
+        self._max_sentence_length: int = max_sentence_length
 
     def count_labels(self) -> Dict[str, int]:
         label_counts = {label: 1 for label in self._labels_to_idx.keys()}
@@ -96,9 +94,9 @@ class Dataset:
         self._unlabeled_file.remove_sentence(idx)
 
     def _apply_padding(self, vector: List[int]) -> List[int]:
-        return vector[: self._longest_sentence_length] + [
-            self._padding_idx
-        ] * (self._longest_sentence_length - len(vector))
+        return vector[: self._max_sentence_length] + [self._padding_idx] * (
+            self._max_sentence_length - len(vector)
+        )
 
     def get_training_data(self) -> Tuple[List[List[int]], List[List[int]]]:
         sentences = self._labeled_file.get_all_sentences()

@@ -12,6 +12,14 @@ app.screens.add\_labels\_screen module
    :undoc-members:
    :show-inheritance:
 
+app.screens.annotating\_screen module
+-------------------------------------
+
+.. automodule:: app.screens.annotating_screen
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 app.screens.create\_project\_screen module
 ------------------------------------------
 
@@ -36,10 +44,10 @@ app.screens.existing\_project\_screen module
    :undoc-members:
    :show-inheritance:
 
-app.screens.main\_menu\_screen module
--------------------------------------
+app.screens.stats\_screen module
+--------------------------------
 
-.. automodule:: app.screens.main_menu_screen
+.. automodule:: app.screens.stats_screen
    :members:
    :undoc-members:
    :show-inheritance:

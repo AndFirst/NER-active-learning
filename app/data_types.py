@@ -17,6 +17,7 @@ from app.constants import (
     DEFAULT_LEARNING_RATE,
     DEFAULT_SAMPLING_BATCH_SIZE,
     DEFAULT_NUM_WORDS,
+    DEFAULT_MAX_SENTENCE_LENGTH,
 )
 
 
@@ -162,6 +163,7 @@ class DatasetConf:
     padding_idx: int
     unlabeled_label: str
     unlabeled_idx: int
+    max_sentence_length: int
 
     @classmethod
     def from_state(cls, project_form_state):
@@ -181,6 +183,7 @@ class DatasetConf:
             DEFAULT_PADDING_IDX,
             DEFAULT_UNLABELED_LABEL,
             DEFAULT_UNLABELED_IDX,
+            DEFAULT_MAX_SENTENCE_LENGTH,
         )
 
     @classmethod
@@ -194,6 +197,7 @@ class DatasetConf:
             dict["padding_idx"],
             dict["unlabeled_label"],
             dict["unlabeled_idx"],
+            dict["max_sentence_length"],
         )
 
     def to_dict(self):
@@ -206,6 +210,7 @@ class DatasetConf:
             "padding_idx": self.padding_idx,
             "unlabeled_label": self.unlabeled_label,
             "unlabeled_idx": self.unlabeled_idx,
+            "max_sentence_length": self.max_sentence_length,
         }
 
     def get(self, prop, default):
