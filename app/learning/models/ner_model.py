@@ -4,9 +4,8 @@ import copy
 import threading
 from abc import ABC
 from queue import Queue
-from typing import List
+from typing import List, Tuple
 
-import numpy as np
 import torch
 from torch import optim
 from torch.nn import CrossEntropyLoss
@@ -96,7 +95,9 @@ class NERModel(ABC):
             )
             self._training_queue.task_done()
 
-    def predict(self, unlabeled_sentence: List[int]) -> List[int]:
+    def predict_with_confidence(
+        self, unlabeled_sentence: List[int]
+    ) -> Tuple[List[int], List[float]]:
         features = torch.tensor(
             [
                 unlabeled_sentence,
@@ -107,9 +108,11 @@ class NERModel(ABC):
         self._model.eval()
 
         with torch.no_grad():
-            predictions = np.argmax(self._model(features).cpu(), axis=-1)
+            probabilities = self._model(features).cpu()
+            max_values, predictions = torch.max(probabilities, dim=-1)
+            confidence_scores = max_values
 
-        return predictions[0].tolist()
+        return predictions[0].tolist(), confidence_scores[0].tolist()
 
     def save(self, path: str) -> None:
         if self._model is None:

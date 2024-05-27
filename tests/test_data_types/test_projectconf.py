@@ -1,5 +1,8 @@
 import json
 from unittest.mock import mock_open, patch
+
+import pytest
+
 from app.data_types import (
     ProjectConf,
     ProjectFormState,
@@ -11,14 +14,15 @@ from app.data_types import (
 
 DEFAULT_DROPOUT = 0.5
 DEFAULT_LEARNING_RATE = 0.001
-DEFAULT_BATCH_SIZE = "32"
-DEFAULT_EPOCHS = "10"
+DEFAULT_BATCH_SIZE = 32
+DEFAULT_EPOCHS = 10
 DEFAULT_INPUT_EXTENSION = ".csv"
 DEFAULT_OUTPUT_EXTENSION = ".out"
 DEFAULT_PADDING_LABEL = "PAD"
 DEFAULT_PADDING_IDX = 0
 DEFAULT_UNLABELED_LABEL = "UNLABELED"
 DEFAULT_UNLABELED_IDX = 1
+DEFAULT_SAMPLING_BATCH_SIZE = 4
 
 model_conf = ModelConf(
     type="custom",
@@ -33,6 +37,7 @@ model_conf = ModelConf(
 
 assistant_conf = AssistantConf(
     batch_size=DEFAULT_BATCH_SIZE,
+    sampling_batch_size=DEFAULT_SAMPLING_BATCH_SIZE,
     epochs=DEFAULT_EPOCHS,
     labels=[LabelData(label="Label1", color=(255, 0, 0, 255))],
 )
@@ -151,6 +156,14 @@ def test_from_file(mock_open):
     assert project_conf.model_conf == model_conf
     assert project_conf.assistant_conf == assistant_conf
     assert project_conf.dataset_conf == dataset_conf
+
+
+def test_from_file_nonexistent_file():
+    path = "/path/to/project.json"
+
+    with pytest.raises(FileNotFoundError):
+        with patch("os.path.isfile", return_value=False):
+            ProjectConf.from_file(path)
 
 
 def test_get_existing_property():

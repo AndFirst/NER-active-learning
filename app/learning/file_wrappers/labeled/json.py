@@ -1,4 +1,5 @@
 import json
+import os
 from typing import List
 
 from .wrapper import LabeledWrapper
@@ -10,6 +11,10 @@ class LabeledJson(LabeledWrapper):
         super().__init__(file_path)
 
     def load(self) -> List[List[str]]:
+        if not os.path.isfile(self._file_path):
+            with open(self._file_path, "w") as file:
+                json.dump([], file)
+                return []
         try:
             with open(self._file_path, "r", encoding="utf-8") as file:
                 data = json.load(file)

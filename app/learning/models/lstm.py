@@ -18,8 +18,7 @@ class BiLSTM(nn.Module):
         dropout=0.1,
     ):
         super(BiLSTM, self).__init__()
-        # @TODO dodać prawdziwy padding idx
-        self.embedding = nn.Embedding(num_words, embedding_dim, padding_idx=0)
+        self.embedding = nn.Embedding(num_words, embedding_dim)
         self.bn = nn.BatchNorm1d(embedding_dim)
         self.dropout = nn.Dropout(dropout)
         self.lstm = nn.LSTM(

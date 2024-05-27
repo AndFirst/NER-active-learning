@@ -1,5 +1,7 @@
 from typing import Dict, Any
 
+import numpy as np
+
 from app.constants import DEFAULT_UNLABELED_LABEL
 from app.learning.dataset.dataset import Dataset
 from app.learning.models.ner_model import NERModel
@@ -32,7 +34,10 @@ class ActiveLearningManager:
                 sentence
             )
 
-            labels_indices = self._model.predict(word_indices)
+            labels_indices, labels_confidences = (
+                self._model.predict_with_confidence(word_indices)
+            )
+            print(np.average(labels_confidences))
 
             labels = self._dataset.map_indices_to_labels(labels_indices)
 

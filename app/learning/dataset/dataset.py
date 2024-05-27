@@ -1,3 +1,4 @@
+import hashlib
 from typing import Dict, List, Tuple
 
 from app.learning.file_wrappers.labeled.wrapper import LabeledWrapper
@@ -35,10 +36,12 @@ class Dataset:
         self._unlabeled_label: str = unlabeled_label
         self._unlabeled_idx: int = unlabeled_idx
 
-        self._longest_sentence_length = max(
-            len(self._labeled_file.get_longest_sentence()),
-            len(self._unlabeled_file.get_longest_sentence()),
-        )
+        self._longest_sentence_length = 50
+        #     (
+        # max(
+        #     len(self._labeled_file.get_longest_sentence()),
+        #     len(self._unlabeled_file.get_longest_sentence()),
+        # ))
 
     def count_labels(self) -> Dict[str, int]:
         label_counts = {label: 1 for label in self._labels_to_idx.keys()}
@@ -76,7 +79,9 @@ class Dataset:
     def map_unlabeled_sentence_to_indices(
         self, sentence: List[str]
     ) -> List[int]:
-        return [self._words_to_idx[word] for word in sentence]
+        hashed_sentence = [self.hash_string(word) for word in sentence]
+        print(hashed_sentence)
+        return hashed_sentence
 
     def map_indices_to_labels(self, indices: List[int]) -> List[str]:
         print(indices)
@@ -119,3 +124,8 @@ class Dataset:
     @property
     def unlabeled_sentences_count(self):
         return len(self._unlabeled_file.get_all_sentences())
+
+    def hash_string(self, s: str, num_hashes: int = 100_000) -> int:
+        return int(hashlib.sha256(s.encode()).hexdigest(), 16) % (
+            num_hashes + 1
+        )

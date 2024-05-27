@@ -19,6 +19,7 @@ from app.constants import (
     DEFAULT_PADDING_IDX,
     DEFAULT_UNLABELED_LABEL,
     DEFAULT_UNLABELED_IDX,
+    DEFAULT_NUM_WORDS,
 )
 from app.learning.active_learning import ActiveLearningManager
 from app.learning.factory import Factory
@@ -79,7 +80,7 @@ class Project:
         # Create Model Config object
         model_conf = ModelConf.from_state(
             project_form_state,
-            len(unlabeled_file.unique_words()),
+            DEFAULT_NUM_WORDS,
             len(assistant_conf.get_labelset()),
         )
 

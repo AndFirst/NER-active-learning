@@ -16,6 +16,7 @@ from app.constants import (
     DEFAULT_UNLABELED_IDX,
     DEFAULT_LEARNING_RATE,
     DEFAULT_SAMPLING_BATCH_SIZE,
+    DEFAULT_NUM_WORDS,
 )
 
 
@@ -292,7 +293,7 @@ class ModelConf:
             f"{project_form_state.save_path}/model.pth",
             project_form_state.get("dropout", DEFAULT_DROPOUT),
             project_form_state.get("learning_rate", DEFAULT_LEARNING_RATE),
-            n_words,
+            project_form_state.get("num_words", DEFAULT_NUM_WORDS),
             n_labels,
             n_labels * 2 + 1,
             impl_path,

@@ -23,12 +23,12 @@ kv_string = """
             id: back_button
             text: 'Back to Main Menu'
             on_release: app.root.current = 'main_menu'
-            canvas.before:
-                Color:
-                    rgba: 1, 0, 0, 1
-                Line:
-                    width: 2.
-                    rectangle: self.x, self.y, self.width, self.height
+            # canvas.before:
+            #     Color:
+            #         rgba: 1, 0, 0, 1
+            #     Line:
+            #         width: 2.
+            #         rectangle: self.x, self.y, self.width, self.height
 """
 
 Builder.load_string(kv_string)
