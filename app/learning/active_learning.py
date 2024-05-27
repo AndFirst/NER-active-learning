@@ -1,8 +1,10 @@
 from typing import Dict, Any
 
+import numpy as np
+
 from app.constants import DEFAULT_UNLABELED_LABEL
-from app.learning.dataset.dataset import Dataset
-from app.learning.models.ner_model import NERModel
+from app.learning.dataset import Dataset
+from app.learning.models import NERModel
 from app.data_types import Sentence, Annotation, Word, AssistantConf
 
 
@@ -13,6 +15,7 @@ class ActiveLearningManager:
         self._dataset: Dataset = dataset
         self._config: AssistantConf = config
         self._model: NERModel = model
+        self._annotated_sentences_count = 0
 
     def _get_sentence_idx(self) -> int:
         return 0
@@ -31,7 +34,10 @@ class ActiveLearningManager:
                 sentence
             )
 
-            labels_indices = self._model.predict(word_indices)
+            labels_indices, labels_confidences = (
+                self._model.predict_with_confidence(word_indices)
+            )
+            print(np.average(labels_confidences))
 
             labels = self._dataset.map_indices_to_labels(labels_indices)
 
@@ -62,17 +68,20 @@ class ActiveLearningManager:
     def give_feedback(self, sentence: Sentence) -> None:
         converted_sentence = sentence.to_list()
         self._dataset.move_sentence_to_labeled(converted_sentence)
+        self._annotated_sentences_count += 1
 
-        features, target = self._dataset.get_training_data()
-        weights = self._dataset.get_weights()
+        if self._annotated_sentences_count == self._config.sampling_batch_size:
+            self._annotated_sentences_count = 0
+            features, target = self._dataset.get_training_data()
+            weights = self._dataset.get_weights()
 
-        self._model.train_async(
-            features,
-            target,
-            epochs=self._config.epochs,
-            batch_size=self._config.batch_size,
-            class_weights=weights,
-        )
+            self._model.train_async(
+                features,
+                target,
+                epochs=self._config.epochs,
+                batch_size=self._config.batch_size,
+                class_weights=weights,
+            )
 
     @property
     def labels(self):

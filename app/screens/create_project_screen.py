@@ -35,6 +35,7 @@ kv_string = """
                 id: name_input
                 hint_text: 'Project name'
                 multiline: False
+                on_text_validate: root.update_save_button_text(self.text)
             TextInput:
                 id: description_input
                 hint_text: 'Description'
@@ -116,6 +117,7 @@ class CreateProjectScreen(Screen):
             selected_path = file_path[0]
             self.form_state.model_implementation_path = selected_path
             self.ids.model_button.text = selected_path
+            self.form_state.model_type = "custom"
 
         else:
             self.ids.model_button.text = "Choose a model"
@@ -142,20 +144,34 @@ class CreateProjectScreen(Screen):
         self.manager.current = "welcome"
 
     def open_filechooser(self):
-        selected_path = filechooser.choose_dir(title="Select Project Folder")
-        if selected_path:
-            folder_path = selected_path[0]
-            unique_folder_path = create_unique_folder_name(
-                folder_path, self.ids.name_input.text
+        if not self.ids.name_input.text.strip():
+            popup = Popup(
+                title="Error",
+                content=Label(text="You have to enter a project name first."),
+                size_hint=(None, None),
+                size=(300, 200),
             )
-            self.ids.path_button.text = folder_path + "/" + unique_folder_path
+            popup.open()
         else:
-            self.ids.path_button.text = "Save project path"
+            selected_path = filechooser.choose_dir(
+                title="Select Project Folder"
+            )
+            if selected_path:
+                folder_path = selected_path[0]
+                unique_folder_path = create_unique_folder_name(
+                    folder_path, self.ids.name_input.text
+                )
+                self.ids.path_button.text = (
+                    folder_path + "/" + unique_folder_path
+                )
+            else:
+                self.ids.path_button.text = "Save project path"
 
     def save_and_go_to_data_set(self):
         name = self.ids.name_input.text.strip()
         description = self.ids.description_input.text.strip()
         path = self.ids.path_button.text.strip()
+        print(self.form_state)
 
         if (
             name
@@ -167,7 +183,6 @@ class CreateProjectScreen(Screen):
             self.form_state.name = name
             self.form_state.description = description
             self.form_state.save_path = path
-            print(self.form_state)
             self.manager.current = "data_set"
         else:
             popup = Popup(
@@ -177,3 +192,13 @@ class CreateProjectScreen(Screen):
                 size=(300, 200),
             )
             popup.open()
+
+    def update_save_button_text(self, text):
+        text = text.strip()
+        if not text.strip():
+            self.ids.path_button.text = "Save project path"
+            return
+        if self.ids.path_button.text.strip() != "Save project path":
+            folder_path = "/".join(self.ids.path_button.text.split("/")[:-1])
+            unique_folder_path = create_unique_folder_name(folder_path, text)
+            self.ids.path_button.text = folder_path + "/" + unique_folder_path

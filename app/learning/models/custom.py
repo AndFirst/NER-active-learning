@@ -5,7 +5,7 @@ import threading
 
 import torch
 
-from app.learning.models.ner_model import NERModel
+from app.learning.models.base import NERModel
 
 import inspect
 import torch.nn as nn
@@ -20,7 +20,8 @@ class CustomModel(NERModel):
         self._loss = None
         self._lock = threading.Lock()
 
-        # Add the directory containing the model implementation to the Python path
+        # Add the directory containing the model implementation to the Python
+        # path
         sys.path.append(os.path.dirname(model_implementation_path))
 
         # Import the module containing the model
@@ -40,7 +41,8 @@ class CustomModel(NERModel):
         # If there are multiple or no such classes, raise an error
         if len(model_classes) > 1:
             raise ValueError(
-                "The module contains multiple classes that inherit from torch.nn.Module. Please ensure there is only one such class."
+                "The module contains multiple classes that inherit from torch.nn.Module.\
+                Please ensure there is only one such class."
             )
         elif not model_classes:
             raise ValueError(

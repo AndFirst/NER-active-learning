@@ -15,6 +15,9 @@ from app.constants import (
     DEFAULT_UNLABELED_LABEL,
     DEFAULT_UNLABELED_IDX,
     DEFAULT_LEARNING_RATE,
+    DEFAULT_SAMPLING_BATCH_SIZE,
+    DEFAULT_NUM_WORDS,
+    DEFAULT_MAX_SENTENCE_LENGTH,
 )
 
 
@@ -154,12 +157,12 @@ class ProjectFormState:
 class DatasetConf:
     unlabeled_path: str
     labeled_path: str
-    words_to_idx_path: str
     labels_to_idx_path: str
     padding_label: str
     padding_idx: int
     unlabeled_label: str
     unlabeled_idx: int
+    max_sentence_length: int
 
     @classmethod
     def from_state(cls, project_form_state):
@@ -173,12 +176,12 @@ class DatasetConf:
         return DatasetConf(
             f"{project_form_state.save_path}/unlabeled{input_extension}",
             f"{project_form_state.save_path}/labeled{output_extension}",
-            f"{project_form_state.save_path}/words_to_idx.json",
             f"{project_form_state.save_path}/labels_to_idx.json",
             DEFAULT_PADDING_LABEL,
             DEFAULT_PADDING_IDX,
             DEFAULT_UNLABELED_LABEL,
             DEFAULT_UNLABELED_IDX,
+            DEFAULT_MAX_SENTENCE_LENGTH,
         )
 
     @classmethod
@@ -186,24 +189,24 @@ class DatasetConf:
         return DatasetConf(
             dict["unlabeled_path"],
             dict["labeled_path"],
-            dict["words_to_idx_path"],
             dict["labels_to_idx_path"],
             dict["padding_label"],
             dict["padding_idx"],
             dict["unlabeled_label"],
             dict["unlabeled_idx"],
+            dict["max_sentence_length"],
         )
 
     def to_dict(self):
         return {
             "unlabeled_path": self.unlabeled_path,
             "labeled_path": self.labeled_path,
-            "words_to_idx_path": self.words_to_idx_path,
             "labels_to_idx_path": self.labels_to_idx_path,
             "padding_label": self.padding_label,
             "padding_idx": self.padding_idx,
             "unlabeled_label": self.unlabeled_label,
             "unlabeled_idx": self.unlabeled_idx,
+            "max_sentence_length": self.max_sentence_length,
         }
 
     def get(self, prop, default):
@@ -215,8 +218,9 @@ class DatasetConf:
 
 @dataclass
 class AssistantConf:
-    batch_size: str
-    epochs: str
+    batch_size: int
+    epochs: int
+    sampling_batch_size: int
     labels: List[LabelData] = field(default_factory=list)
 
     @classmethod
@@ -224,6 +228,9 @@ class AssistantConf:
         return AssistantConf(
             project_form_state.get("batch_size", DEFAULT_BATCH_SIZE),
             project_form_state.get("epochs", DEFAULT_EPOCHS),
+            project_form_state.get(
+                "sampling_batch_size", DEFAULT_SAMPLING_BATCH_SIZE
+            ),
             project_form_state.labels,
         )
 
@@ -232,6 +239,7 @@ class AssistantConf:
         return AssistantConf(
             dict["batch_size"],
             dict["epochs"],
+            dict["sampling_batch_size"],
             [
                 LabelData(label["label"], label["color"])
                 for label in dict["labels"]
@@ -243,6 +251,7 @@ class AssistantConf:
         return {
             "batch_size": self.batch_size,
             "epochs": self.epochs,
+            "sampling_batch_size": self.sampling_batch_size,
             "labels": [label.to_dict() for label in self.labels],
         }
 
@@ -279,13 +288,14 @@ class ModelConf:
     ):
         impl_path = ""
         if project_form_state.model_type == "custom":
-            impl_path = f"app/learning/models/custom_model_{project_form_state.name}.py"
+            model_path = "app/learning/models/custom_model_"
+            impl_path = f"{model_path}{project_form_state.name}.py"
         return ModelConf(
             project_form_state.model_type,
             f"{project_form_state.save_path}/model.pth",
             project_form_state.get("dropout", DEFAULT_DROPOUT),
             project_form_state.get("learning_rate", DEFAULT_LEARNING_RATE),
-            n_words,
+            project_form_state.get("num_words", DEFAULT_NUM_WORDS),
             n_labels,
             n_labels * 2 + 1,
             impl_path,

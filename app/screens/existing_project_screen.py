@@ -28,7 +28,7 @@ kv_string = """
                 text: 'Choose directory'
                 size_hint: None, None
                 size: 150, 50
-                on_press: root.open_filechooser()
+                on_release: root.open_filechooser()
             Label:
                 text: 'Path: ' + root.selected_path
                 color: 0, 0, 0, 1  # Kolor tekstu: czarny
@@ -56,9 +56,9 @@ class ExistingProjectScreen(Screen):
         self.manager.current = "main_menu"
 
     def open_filechooser(self):
-        self.selected_path = filechooser.choose_dir(
-            title="Select Project Folder"
-        )[0]
+        selected_path = filechooser.choose_dir(title="Select Project Folder")
+        if selected_path:
+            self.selected_path = selected_path[0]
 
     def check_files(self):
         if self.selected_path:

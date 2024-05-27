@@ -12,14 +12,6 @@ app.learning.models.custom module
    :undoc-members:
    :show-inheritance:
 
-app.learning.models.custom\_model\_chuu module
-----------------------------------------------
-
-.. automodule:: app.learning.models.custom_model_chuu
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 app.learning.models.dummy module
 --------------------------------
 

@@ -8,7 +8,7 @@ ZPRP-Active-Learning-NER documentation!
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 6
 
    getting-started
    commands

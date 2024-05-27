@@ -23,31 +23,13 @@ kv_string = """
     spacing: 10
     padding: 20
     orientation: 'vertical'
-    LabelChooseContainer:
-        size_hint_y: 0.3
-        id: choose_container
-        label_callback: root.update_selected_label
     BoxLayout:
-        size_hint_y: 0.1
+        size_hint_y: 0.3
         orientation: 'horizontal'
-        BoxLayout:
-            id: current_annotation
-            orientation: 'horizontal'
-            size_hint_x: 0.5
-            canvas.before:
-                Color:
-                    rgba: 0, 0, 0, 1 
-                Line:
-                    rectangle: (self.x, self.y, self.width, self.height)
-                    width: 1 
-        BoxLayout:
-            size_hint_x: 0.25
-            Button:
-                id: ai_assistant_button
-                text: "AI Assistant"
-                font_size: '25sp'
-                background_color: [0, 1, 0, 1] if root.ai_assistant_enabled else [1, 0, 0, 1]
-                on_release: root.toggle_ai_assistant()
+        LabelChooseContainer:
+            size_hint_x: 0.75
+            id: choose_container
+            label_callback: root.update_selected_label
         BoxLayout:
             size_hint_x: 0.25
             Button:
@@ -60,14 +42,50 @@ kv_string = """
                     Color:
                         rgba: 0.5, 0.5, 0.5, 1
                     Ellipse:
-                        pos: (self.pos[0] + self.width / 2 - self.height / 2, self.pos[1])
-                        size: (self.height, self.height)
+                        pos: (self.pos[0] + self.width / 2 - self.height / 2 * 0.5, self.pos[1] + self.height / 2 * 0.5)
+                        size: (self.height * 0.5, self.height * 0.5)
                 on_release: root.show_instruction_popup()
+    BoxLayout:
+        size_hint_y: 0.1
+        orientation: 'horizontal'
+        spacing: 10
+        BoxLayout:
+            id: current_annotation
+            orientation: 'horizontal'
+            size_hint_x: 0.25
+            canvas.before:
+                Color:
+                    rgba: 0, 0, 0, 1
+                Line:
+                    rectangle: (self.x, self.y, self.width, self.height)
+                    width: 1
+        BoxLayout:
+            size_hint_x: 0.25
+            Button:
+                id: ai_assistant_button
+                text: "AI Assistant"
+                font_size: '25sp'
+                background_color: [0, 1, 0, 1] if root.ai_assistant_enabled else [1, 0, 0, 1]
+                on_release: root.toggle_ai_assistant()
+        BoxLayout:
+            size_hint_x: 0.25
+            Button:
+                id: stats_button
+                text: "Stats"
+                font_size: '25sp'
+                on_release: app.root.current = 'stats'
+        BoxLayout:
+            size_hint_x: 0.25
+            Button:
+                id: save_button
+                text: "Save"
+                font_size: '25sp'
+                on_release: root.save()
     AnnotationContainer:
         id: annotation_container
         size_hint_y: 0.6
     BoxLayout:
-        id: buttons 
+        id: buttons
         orientation: 'horizontal'
         size_hint_y: 0.1
         canvas.before:
@@ -75,11 +93,11 @@ kv_string = """
                 rgba: 0, 0, 0, 1
             Line:
                 rectangle: (self.x, self.y, self.width, self.height)
-                width: 1 
+                width: 1
         Button:
             text: 'Accept'
             font_size: '25sp'
-            background_color: 0, 1, 0, 1  
+            background_color: 0, 1, 0, 1
             on_release: root.accept()
         Button:
             text: 'Reset'
@@ -88,7 +106,7 @@ kv_string = """
             on_release: root.reset()
         Button:
             id: multiword_mode_button
-            
+
             text: 'Multiword Mode'
             font_size: '25sp'
             background_color: [0, 1, 0, 1] if root.multiword_mode else [1, 0, 0, 1]
@@ -98,7 +116,6 @@ kv_string = """
 Builder.load_string(kv_string)
 
 
-# @TODO Save on press exit button when there is unsaved progress. - IREK
 class AnnotationForm(BoxLayout):
     selected_label = ObjectProperty(None, allownone=True)
     labels = ListProperty([])
@@ -116,14 +133,13 @@ class AnnotationForm(BoxLayout):
         )
 
     def accept(self):
-        self.parent.parent.assistant.give_feedback(self.sentence)
-        next_sentence = self.parent.parent.assistant.get_sentence(
-            annotated=self.ai_assistant_enabled
-        )
-        if next_sentence:
+        self.parent.assistant.give_feedback(self.sentence)
+        try:
+            next_sentence = self.parent.assistant.get_sentence(
+                annotated=self.ai_assistant_enabled
+            )
             self.sentence = next_sentence
-        else:
-
+        except IndexError:
             self.sentence = None
             content = Label(
                 text="All data has been annotated.\nYou're free now! Have a nice day!\nApplication will close now.",
@@ -134,8 +150,29 @@ class AnnotationForm(BoxLayout):
                 size_hint=(None, None),
                 size=(400, 200),
             )
-            popup.bind(on_dismiss=self.close_app)
+            popup.bind(on_dismiss=self.go_to_final_screen)
             popup.open()
+
+    def save(self):
+        app = App.get_running_app()
+        app.root.current_screen.save()
+
+        # Create a new Popup
+        popup = Popup(
+            title="Success",
+            content=Label(text="Data has been saved successfully."),
+            size_hint=(None, None),
+            size=(400, 200),
+        )
+
+        # Open the Popup
+        popup.open()
+
+    def go_to_final_screen(self, instance):
+        app = App.get_running_app()
+        app.root.current_screen.save()
+        app.root.current = "stats"
+        app.root.current_screen.when_annotating_is_done()
 
     def close_app(self, instance):
         def close(*args):

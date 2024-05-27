@@ -7,9 +7,10 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
+   app.learning.data_persistence_strategies
    app.learning.dataset
-   app.learning.file_wrappers
    app.learning.models
+   app.learning.repositiories
 
 Submodules
 ----------

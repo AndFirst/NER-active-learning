@@ -1,5 +1,5 @@
 from typing import List
-from .ner_model import NERModel
+from .base import NERModel
 import random
 
 
@@ -7,7 +7,9 @@ class Dummy(NERModel):
     def __init__(self):
         super().__init__()
 
-    def predict(self, unlabeled_sentence: List[int]) -> List[int]:
+    def predict_with_confidence(
+        self, unlabeled_sentence: List[int]
+    ) -> List[int]:
         return [random.randint(0, 6) for sentence in unlabeled_sentence]
 
     def train(

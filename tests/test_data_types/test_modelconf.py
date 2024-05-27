@@ -1,5 +1,9 @@
 from app.data_types import ProjectFormState, ModelConf, LabelData
-from app.constants import DEFAULT_DROPOUT, DEFAULT_LEARNING_RATE
+from app.constants import (
+    DEFAULT_DROPOUT,
+    DEFAULT_LEARNING_RATE,
+    DEFAULT_NUM_WORDS,
+)
 
 
 def test_from_state():
@@ -20,7 +24,7 @@ def test_from_state():
     assert model_conf.state_path == "/path/to/save/model.pth"
     assert model_conf.dropout == DEFAULT_DROPOUT
     assert model_conf.learning_rate == DEFAULT_LEARNING_RATE
-    assert model_conf.num_words == 1000
+    assert model_conf.num_words == DEFAULT_NUM_WORDS
     assert model_conf.num_labels == 10
     assert model_conf.num_classes == 21
     assert (

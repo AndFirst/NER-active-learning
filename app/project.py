@@ -19,10 +19,11 @@ from app.constants import (
     DEFAULT_PADDING_IDX,
     DEFAULT_UNLABELED_LABEL,
     DEFAULT_UNLABELED_IDX,
+    DEFAULT_NUM_WORDS,
 )
 from app.learning.active_learning import ActiveLearningManager
 from app.learning.factory import Factory
-from app.learning.models.ner_model import NERModel
+from app.learning.models.base import NERModel
 
 
 class Project:
@@ -61,7 +62,7 @@ class Project:
         )
 
         # Save word to indexes
-        unlabeled_file = Factory.create_unlabeled_file(
+        unlabeled_file = Factory.create_unlabeled_repository(
             dataset_conf.unlabeled_path
         )
         word_to_idx = Project.create_word_to_idx(unlabeled_file.unique_words())
@@ -69,7 +70,7 @@ class Project:
             json.dump(word_to_idx, word_to_idx_file)
 
         # Save label to indexes
-        Factory.create_labeled_file(dataset_conf.labeled_path)
+        Factory.create_labeled_repository(dataset_conf.labeled_path)
         label_to_idx = Project.create_label_to_idx(
             assistant_conf.get_labelset()
         )
@@ -79,7 +80,7 @@ class Project:
         # Create Model Config object
         model_conf = ModelConf.from_state(
             project_form_state,
-            len(unlabeled_file.unique_words()),
+            DEFAULT_NUM_WORDS,
             len(assistant_conf.get_labelset()),
         )
 

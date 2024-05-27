@@ -9,10 +9,10 @@ kv_string = """
     spacing: 10
     canvas.before:
         Color:
-            rgba: 0, 0, 0, 1 
+            rgba: 0, 0, 0, 1
         Line:
             rectangle: (self.x, self.y, self.width, self.height)
-            width: 1 
+            width: 1
 """
 Builder.load_string(kv_string)
 
