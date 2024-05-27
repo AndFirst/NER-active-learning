@@ -41,7 +41,8 @@ class CustomModel(NERModel):
         # If there are multiple or no such classes, raise an error
         if len(model_classes) > 1:
             raise ValueError(
-                "The module contains multiple classes that inherit from torch.nn.Module. Please ensure there is only one such class."
+                "The module contains multiple classes that inherit from torch.nn.Module.\
+                Please ensure there is only one such class."
             )
         elif not model_classes:
             raise ValueError(
