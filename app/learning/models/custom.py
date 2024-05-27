@@ -20,7 +20,8 @@ class CustomModel(NERModel):
         self._loss = None
         self._lock = threading.Lock()
 
-        # Add the directory containing the model implementation to the Python path
+        # Add the directory containing the model implementation to the Python
+        # path
         sys.path.append(os.path.dirname(model_implementation_path))
 
         # Import the module containing the model

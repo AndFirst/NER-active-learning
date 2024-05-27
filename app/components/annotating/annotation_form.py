@@ -55,10 +55,10 @@ kv_string = """
             size_hint_x: 0.25
             canvas.before:
                 Color:
-                    rgba: 0, 0, 0, 1 
+                    rgba: 0, 0, 0, 1
                 Line:
                     rectangle: (self.x, self.y, self.width, self.height)
-                    width: 1 
+                    width: 1
         BoxLayout:
             size_hint_x: 0.25
             Button:
@@ -85,7 +85,7 @@ kv_string = """
         id: annotation_container
         size_hint_y: 0.6
     BoxLayout:
-        id: buttons 
+        id: buttons
         orientation: 'horizontal'
         size_hint_y: 0.1
         canvas.before:
@@ -93,11 +93,11 @@ kv_string = """
                 rgba: 0, 0, 0, 1
             Line:
                 rectangle: (self.x, self.y, self.width, self.height)
-                width: 1 
+                width: 1
         Button:
             text: 'Accept'
             font_size: '25sp'
-            background_color: 0, 1, 0, 1  
+            background_color: 0, 1, 0, 1
             on_release: root.accept()
         Button:
             text: 'Reset'
@@ -106,7 +106,7 @@ kv_string = """
             on_release: root.reset()
         Button:
             id: multiword_mode_button
-            
+
             text: 'Multiword Mode'
             font_size: '25sp'
             background_color: [0, 1, 0, 1] if root.multiword_mode else [1, 0, 0, 1]

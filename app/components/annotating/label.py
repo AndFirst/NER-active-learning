@@ -9,12 +9,12 @@ kv_string = """
     padding: 1
     canvas.before:
         Color:
-            rgba: root.border_color[:3] + [1] if root.selected else root.border_color[:3] + [0] 
+            rgba: root.border_color[:3] + [1] if root.selected else root.border_color[:3] + [0]
         Line:
             rectangle: (self.x, self.y, self.width, self.height)
             width: 3
         Color:
-            rgba: root.border_color[:3] + [0.5] 
+            rgba: root.border_color[:3] + [0.5]
         Rectangle:
             pos: self.pos
             size: self.size

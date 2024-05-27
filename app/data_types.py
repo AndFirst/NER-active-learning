@@ -287,7 +287,8 @@ class ModelConf:
     ):
         impl_path = ""
         if project_form_state.model_type == "custom":
-            impl_path = f"app/learning/models/custom_model_{project_form_state.name}.py"
+            model_path = "app/learning/models/custom_model_"
+            impl_path = f"{model_path}{project_form_state.name}.py"
         return ModelConf(
             project_form_state.model_type,
             f"{project_form_state.save_path}/model.pth",

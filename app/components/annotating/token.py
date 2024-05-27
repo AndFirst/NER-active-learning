@@ -18,10 +18,10 @@ token_kv_string = """
         id: labels
         spacing: 10
         size_hint: None, None
-        size: self.minimum_size 
+        size: self.minimum_size
 
     BoxLayout:
-        size_hint: 1, None    
+        size_hint: 1, None
         pos_hint: {'center_x': 0.5}
         size: self.minimum_size
         orientation: 'vertical'

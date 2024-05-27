@@ -37,13 +37,13 @@ Builder.load_string(
         on_text_validate: root.add_new_row() if self.text else None
 
     Button:
-        id: color_display    
+        id: color_display
         text: ""
         size_hint_x: 0.2
         height: root.height
-        background_color: root.random_color() 
+        background_color: root.random_color()
         background_normal: ''
-        background_down: '' 
+        background_down: ''
         on_release: root.show_color_picker()
 
     Button:

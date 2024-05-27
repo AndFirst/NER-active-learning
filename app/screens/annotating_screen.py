@@ -8,7 +8,7 @@ from app.components.popups.popups import (
 kv_string = """
 <MainMenuScreen>:
     AnnotationForm:
-        id: annotation_form        
+        id: annotation_form
 """
 
 Builder.load_string(kv_string)

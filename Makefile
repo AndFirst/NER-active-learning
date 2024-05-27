@@ -5,7 +5,7 @@ PROFILE = default
 PROJECT_NAME = zprp-ner-active-learning
 PYTHON_INTERPRETER = python
 
-build: clean install format lint test
+build: clean requirements format lint test
 
 app: format
 	$(PYTHON_INTERPRETER) -m app.app
@@ -23,7 +23,7 @@ clean:
 	rm -rf .pytest_cache
 
 lint:
-	flake8 app/ tests/
+	flake8 --max-line-length=120 app/ tests/ --exclude=__init__.py
 
 format:
 	black --line-length 79 --target-version py310 app/ tests/

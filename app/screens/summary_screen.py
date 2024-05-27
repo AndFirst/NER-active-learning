@@ -17,7 +17,7 @@ kv_string = """
                 color: (0, 0, 0, 1)
                 halign: 'center'
                 valign: 'middle'
-        GridLayout: 
+        GridLayout:
             id: field_value_grid
             cols: 2
             spacing: [5, 5]

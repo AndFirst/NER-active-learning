@@ -174,12 +174,14 @@ class NERModel(ABC):
         print(layers)
         print(num_words, num_classes)
         print(layers[0].num_embeddings, layers[-1].out_features)
-        if layers[0].num_embeddings != num_words:
+        embedding_size = layers[0].num_embeddings
+        if embedding_size != num_words:
             raise ValueError(
-                f"Expected embedding size {num_words}, but got {layers[0].num_embeddings}."
+                f"Expected embedding size {num_words}, but got {embedding_size}."
             )
 
-        if layers[-1].out_features != num_classes:
+        out_features = layers[-1].out_features
+        if out_features != num_classes:
             raise ValueError(
-                f"Expected output size {num_classes}, but got {layers[-1].out_features}."
+                f"Expected output size {num_classes}, but got {out_features}."
             )
