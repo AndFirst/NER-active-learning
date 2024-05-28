@@ -98,9 +98,26 @@ class ExistingProjectScreen(Screen):
                     size=(400, 200),
                 ).open()
             else:
-                self.manager.get_screen("main_menu").project = Project.load(
-                    self.selected_path
-                )
+                try:
+                    project = Project.load(self.selected_path)
+                except Exception as e:
+                    popup = Popup(
+                        title="Error",
+                        content=Label(
+                            text=str(e),
+                            text_size=(
+                                360,
+                                None,
+                            ),
+                            halign="left",
+                            valign="top",
+                        ),
+                        size_hint=(None, None),
+                        size=(400, 400),
+                    )
+                    popup.open()
+                    return
+                self.manager.get_screen("main_menu").project = project
                 self.manager.get_screen("main_menu").save_path = (
                     self.selected_path
                 )
