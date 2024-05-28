@@ -26,11 +26,12 @@ class MainMenuScreen(Screen):
         self.assistant = self.project.assistant
         self.model = self.project.model
         self.ids.annotation_form.labels = self.project.labels
-
         self.ids.annotation_form.sentence = self.assistant.get_sentence(
             annotated=True
         )
-        self.manager.get_screen("stats").stats = self.assistant.stats
+        stats_screen = self.manager.get_screen("stats")
+        stats_screen.stats = self.assistant.stats
+        stats_screen.labels = [label_data.label for label_data in self.project.labels]
 
     def confirm_exit(self):
         exit_confirmation_popup = SaveConfirmationPopup(
