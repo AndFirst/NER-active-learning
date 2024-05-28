@@ -11,7 +11,7 @@ kv_string = """
         id: box_layout
         orientation: 'vertical'
         BoxLayout:
-            size_hint_y: 0.3
+            size_hint_y: 0.1
             Label:
                 text: "Summary"
                 font_size: 24
@@ -21,11 +21,10 @@ kv_string = """
         GridLayout:
             id: field_value_grid
             cols: 2
-            spacing: [5, 5]
+            spacing: [0, 0]
             row_default_height: 60
             row_force_default: True
             size_hint_y: None
-            height: self.minimum_height
 
         PrevNextButtons:
             id: prev_next_buttons
@@ -40,7 +39,7 @@ kv_string = """
             width: 1
             rectangle: self.x, self.y, self.width, self.height
     size_hint_y: None
-    height: self.texture_size[1]
+    height: 60
     text_size: self.width, None
     halign: 'left'
     valign: 'middle'
