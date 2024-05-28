@@ -117,19 +117,19 @@ class Project:
 
     @staticmethod
     def _create_assistant_config(
-            project_form_state: ProjectFormState,
+        project_form_state: ProjectFormState,
     ) -> AssistantConf:
         return AssistantConf.from_state(project_form_state)
 
     @staticmethod
     def _create_dataset_config(
-            project_form_state: ProjectFormState,
+        project_form_state: ProjectFormState,
     ) -> DatasetConf:
         return DatasetConf.from_state(project_form_state)
 
     @staticmethod
     def _copy_dataset_to_project_path(
-            dataset_path: str, unlabeled_path: str
+        dataset_path: str, unlabeled_path: str
     ) -> None:
         shutil.copy(dataset_path, unlabeled_path)
 
@@ -139,7 +139,7 @@ class Project:
 
     @classmethod
     def _save_label_to_indexes(
-            cls, labeled_path: str, labelset: Set[str], labels_to_idx_path: str
+        cls, labeled_path: str, labelset: Set[str], labels_to_idx_path: str
     ) -> None:
         Factory.create_labeled_repository(labeled_path)
         label_to_idx = cls.create_label_to_idx(labelset)
@@ -148,13 +148,13 @@ class Project:
 
     @staticmethod
     def _create_model_config(
-            project_form_state: ProjectFormState, labelset_length: int
+        project_form_state: ProjectFormState, labelset_length: int
     ) -> ModelConf:
         return ModelConf.from_state(project_form_state, labelset_length)
 
     @staticmethod
     def _copy_model_implementation_if_custom(
-            model_implementation_path: str, model_conf: ModelConf
+        model_implementation_path: str, model_conf: ModelConf
     ) -> None:
         if model_conf.is_custom_model_type():
             shutil.copy(
@@ -163,17 +163,17 @@ class Project:
 
     @staticmethod
     def _copy_model_state_if_exists(
-            model_state_path: str, state_path: str
+        model_state_path: str, state_path: str
     ) -> None:
         if model_state_path:
             shutil.copy(model_state_path, state_path)
 
     @staticmethod
     def _create_project_config(
-            project_form_state: ProjectFormState,
-            model_conf: ModelConf,
-            assistant_conf: AssistantConf,
-            dataset_conf: DatasetConf,
+        project_form_state: ProjectFormState,
+        model_conf: ModelConf,
+        assistant_conf: AssistantConf,
+        dataset_conf: DatasetConf,
     ) -> ProjectConf:
         return ProjectConf.from_state(
             project_form_state, model_conf, assistant_conf, dataset_conf
@@ -195,8 +195,8 @@ class Project:
             {
                 f"{prefix}-{label}": idx
                 for idx, (label, prefix) in enumerate(
-                product(sorted_labels, "BI"), 1
-            )
+                    product(sorted_labels, "BI"), 1
+                )
             }
         )
         return label_to_idx
@@ -204,11 +204,11 @@ class Project:
     @property
     def assistant(self) -> ActiveLearningManager:
         """
-         The assistant for the project.
+        The assistant for the project.
 
-         :return: The assistant.
-         :rtype: ActiveLearningManager
-         """
+        :return: The assistant.
+        :rtype: ActiveLearningManager
+        """
         return self._assistant
 
     @property
