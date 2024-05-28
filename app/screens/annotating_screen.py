@@ -23,9 +23,9 @@ class MainMenuScreen(Screen):
         self.save_path = None
 
     def on_enter(self):
-        self.assistant = self.project.get_assistant()
-        self.model = self.project.get_model()
-        self.ids.annotation_form.labels = self.project.get_labels()
+        self.assistant = self.project.assistant
+        self.model = self.project.model
+        self.ids.annotation_form.labels = self.project.labels
 
         self.ids.annotation_form.sentence = self.assistant.get_sentence(
             annotated=True

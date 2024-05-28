@@ -1,3 +1,4 @@
+from kivy.uix.popup import Popup
 from kivy.uix.screenmanager import Screen
 from kivy.lang import Builder
 from kivy.uix.label import Label
@@ -130,8 +131,26 @@ class SummaryScreen(Screen):
         self.manager.current = "add_labels"
 
     def go_to_main_menu(self):
-        project = Project.create(self.form_state)
-        project.save()
+        try:
+            project = Project.create(self.form_state)
+            project.save()
+        except Exception as e:
+            popup = Popup(
+                title="Error",
+                content=Label(
+                    text=str(e),
+                    text_size=(
+                        360,
+                        None,
+                    ),
+                    halign="left",
+                    valign="top",
+                ),
+                size_hint=(None, None),
+                size=(400, 400),
+            )
+            popup.open()
+            return
         self.manager.get_screen("main_menu").project = Project.load(
             self.form_state.save_path
         )

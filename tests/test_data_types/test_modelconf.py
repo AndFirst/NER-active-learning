@@ -18,7 +18,7 @@ def test_from_state():
         model_implementation_path="/path/to/model/implementation",
     )
 
-    model_conf = ModelConf.from_state(project_form_state, 1000, 10)
+    model_conf = ModelConf.from_state(project_form_state, 10)
 
     assert model_conf.type == "custom"
     assert model_conf.state_path == "/path/to/save/model.pth"

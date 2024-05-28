@@ -1,3 +1,4 @@
+from __future__ import annotations
 import os
 from dataclasses import dataclass, field
 from itertools import chain
@@ -45,7 +46,7 @@ class LabelData:
 class Word:
     word: str
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(id(self))
 
     def __eq__(self, other: Any) -> bool:
@@ -145,7 +146,7 @@ class ProjectFormState:
             "output_extension": self.output_extension,
         }
 
-    def get(self, prop, default):
+    def get(self, prop: str, default: Any) -> Any:
         if prop in self.to_dict():
             val = self.to_dict()[prop]
             if val != "" and val is not None:
@@ -165,8 +166,7 @@ class DatasetConf:
     max_sentence_length: int
 
     @classmethod
-    def from_state(cls, project_form_state):
-        print(project_form_state)
+    def from_state(cls, project_form_state: ProjectFormState) -> DatasetConf:
         input_extension = project_form_state.get(
             "input_extension", DEFAULT_INPUT_EXTENSION
         )
@@ -185,19 +185,19 @@ class DatasetConf:
         )
 
     @classmethod
-    def from_dict(cls, dict):
+    def from_dict(cls, dictionary: Dict[str, Any]) -> DatasetConf:
         return DatasetConf(
-            dict["unlabeled_path"],
-            dict["labeled_path"],
-            dict["labels_to_idx_path"],
-            dict["padding_label"],
-            dict["padding_idx"],
-            dict["unlabeled_label"],
-            dict["unlabeled_idx"],
-            dict["max_sentence_length"],
+            dictionary["unlabeled_path"],
+            dictionary["labeled_path"],
+            dictionary["labels_to_idx_path"],
+            dictionary["padding_label"],
+            dictionary["padding_idx"],
+            dictionary["unlabeled_label"],
+            dictionary["unlabeled_idx"],
+            dictionary["max_sentence_length"],
         )
 
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, Any]:
         return {
             "unlabeled_path": self.unlabeled_path,
             "labeled_path": self.labeled_path,
@@ -209,7 +209,7 @@ class DatasetConf:
             "max_sentence_length": self.max_sentence_length,
         }
 
-    def get(self, prop, default):
+    def get(self, prop: str, default: Any) -> Any:
         if prop in self.to_dict():
             return self.to_dict()[prop]
         else:
@@ -224,7 +224,7 @@ class AssistantConf:
     labels: List[LabelData] = field(default_factory=list)
 
     @classmethod
-    def from_state(cls, project_form_state: ProjectFormState):
+    def from_state(cls, project_form_state: ProjectFormState) -> AssistantConf:
         return AssistantConf(
             project_form_state.get("batch_size", DEFAULT_BATCH_SIZE),
             project_form_state.get("epochs", DEFAULT_EPOCHS),
@@ -235,19 +235,18 @@ class AssistantConf:
         )
 
     @classmethod
-    def from_dict(cls, dict):
+    def from_dict(cls, dictionary: Dict[str, Any]) -> AssistantConf:
         return AssistantConf(
-            dict["batch_size"],
-            dict["epochs"],
-            dict["sampling_batch_size"],
+            dictionary["batch_size"],
+            dictionary["epochs"],
+            dictionary["sampling_batch_size"],
             [
                 LabelData(label["label"], label["color"])
-                for label in dict["labels"]
+                for label in dictionary["labels"]
             ],
         )
 
-    def to_dict(self):
-        print("SELF LABELS:", self.labels)
+    def to_dict(self) -> Dict[str, Any]:
         return {
             "batch_size": self.batch_size,
             "epochs": self.epochs,
@@ -255,16 +254,16 @@ class AssistantConf:
             "labels": [label.to_dict() for label in self.labels],
         }
 
-    def get_label(self, label_name):
+    def get_label(self, label_name: str) -> LabelData:
         for label in self.labels:
             if label.label == label_name:
                 return label
         raise NoLabelFoundError
 
-    def get_labelset(self):
+    def get_labelset(self) -> set[str]:
         return {label.to_dict()["label"] for label in self.labels}
 
-    def get(self, prop, default):
+    def get(self, prop: str, default: Any) -> Any:
         if prop in self.to_dict():
             return self.to_dict()[prop]
         else:
@@ -284,8 +283,8 @@ class ModelConf:
 
     @classmethod
     def from_state(
-        cls, project_form_state: ProjectFormState, n_words: int, n_labels: int
-    ):
+        cls, project_form_state: ProjectFormState, n_labels: int
+    ) -> ModelConf:
         impl_path = ""
         if project_form_state.model_type == "custom":
             model_path = "app/learning/models/custom_model_"
@@ -302,19 +301,19 @@ class ModelConf:
         )
 
     @classmethod
-    def from_dict(cls, dict):
+    def from_dict(cls, dictionary: Dict[str, Any]) -> ModelConf:
         return ModelConf(
-            dict["type"],
-            dict["state_path"],
-            dict["dropout"],
-            dict["learning_rate"],
-            dict["num_words"],
-            dict["num_labels"],
-            dict["num_classes"],
-            dict["implementation_path"],
+            dictionary["type"],
+            dictionary["state_path"],
+            dictionary["dropout"],
+            dictionary["learning_rate"],
+            dictionary["num_words"],
+            dictionary["num_labels"],
+            dictionary["num_classes"],
+            dictionary["implementation_path"],
         )
 
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, Any]:
         return {
             "type": self.type,
             "state_path": self.state_path,
@@ -326,10 +325,10 @@ class ModelConf:
             "implementation_path": self.implementation_path,
         }
 
-    def is_custom_model_type(self):
+    def is_custom_model_type(self) -> bool:
         return self.type == "custom"
 
-    def get(self, prop, default):
+    def get(self, prop: str, default: Any) -> Any:
         if prop in self.to_dict():
             return self.to_dict()[prop]
         else:
@@ -351,7 +350,7 @@ class ProjectConf:
         m_conf: ModelConf,
         a_conf: AssistantConf,
         d_conf: DatasetConf,
-    ):
+    ) -> ProjectConf:
         return ProjectConf(
             project_form_state.name,
             project_form_state.description,
@@ -360,7 +359,7 @@ class ProjectConf:
             d_conf,
         )
 
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, Any]:
         return {
             "name": self.name,
             "description": self.description,
@@ -369,28 +368,32 @@ class ProjectConf:
             "dataset": self.dataset_conf.to_dict(),
         }
 
-    def save_config(self, path):
+    def save_config(self, path: str) -> None:
         with open(f"{path}/project.json", "w") as project_cfg_file:
             json.dump(self.to_dict(), project_cfg_file)
 
     @classmethod
-    def from_dict(self, dict):
-        m_conf = ModelConf.from_dict(dict["model"])
-        a_conf = AssistantConf.from_dict(dict["assistant"])
-        d_conf = DatasetConf.from_dict(dict["dataset"])
+    def from_dict(cls, dictionary: Dict[str, Any]) -> ProjectConf:
+        m_conf = ModelConf.from_dict(dictionary["model"])
+        a_conf = AssistantConf.from_dict(dictionary["assistant"])
+        d_conf = DatasetConf.from_dict(dictionary["dataset"])
         return ProjectConf(
-            dict["name"], dict["description"], m_conf, a_conf, d_conf
+            dictionary["name"],
+            dictionary["description"],
+            m_conf,
+            a_conf,
+            d_conf,
         )
 
     @classmethod
-    def from_file(cls, path):
+    def from_file(cls, path: str) -> ProjectConf:
         if not os.path.isfile(path):
             raise FileNotFoundError("Project configuration file not found.")
         with open(path, "r") as cfg_file:
             cfg = json.load(cfg_file)
         return ProjectConf.from_dict(cfg)
 
-    def get(self, prop, default):
+    def get(self, prop: str, default: Any) -> Any:
         if prop in self.to_dict():
             return self.to_dict()[prop]
         else:

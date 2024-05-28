@@ -1,4 +1,6 @@
 import csv
+import os
+
 from .base import DataPersistenceStrategy, Sentences
 
 
@@ -23,6 +25,9 @@ class CsvTabSeparatedStrategy(DataPersistenceStrategy):
         :return: A list of sentences, where each sentence is a list of strings.
         :rtype: Sentences
         """
+        if not os.path.isfile(self._file_path):
+            with open(self._file_path, "w"):
+                return []
         with open(self._file_path, "r") as file:
             reader = csv.reader(file, delimiter="\t", quoting=csv.QUOTE_NONE)
             sentences = list(reader)
