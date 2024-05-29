@@ -1,4 +1,4 @@
-from typing import Dict, Any
+from typing import Dict
 
 import numpy as np
 
@@ -88,8 +88,15 @@ class ActiveLearningManager:
         return self._config.labels
 
     @property
-    def stats(self) -> Dict[str, Any]:
-        return {
+    def stats(self) -> Dict[str, int | float]:
+        stats = {
             "labeled_sentences_count": self._dataset.labeled_sentences_count,
             "unlabeled_sentences_count": self._dataset.unlabeled_sentences_count,
         }
+
+        if self._dataset.labeled_sentences_count > 0:
+            features, targets = self._dataset.get_labeled_sentences_converted()
+            metrics = self._model.evaluate_metrics(features, targets)
+            stats.update(metrics)
+        print(stats)
+        return stats

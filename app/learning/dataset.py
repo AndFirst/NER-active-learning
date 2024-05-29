@@ -178,7 +178,9 @@ class Dataset:
         self._labeled_file.save_sentence(sentence)
         self._unlabeled_file.remove_sentence(idx)
 
-    def _apply_padding(self, vector: List[int]) -> List[int]:
+    def _apply_padding(
+        self, vector: List[int], max_length: int = None
+    ) -> List[int]:
         """
         Applies padding to a vector.
 
@@ -191,7 +193,7 @@ class Dataset:
         :return: The padded or truncated vector.
         :rtype: List[int]
         """
-        return vector[: self._max_sentence_length] + [self._padding_idx] * (
+        return vector[:max_length] + [self._padding_idx] * (
             self._max_sentence_length - len(vector)
         )
 
@@ -273,3 +275,29 @@ class Dataset:
         return int(hashlib.sha256(s.encode()).hexdigest(), 16) % (
             num_hashes + 1
         )
+
+    def get_labeled_sentences_converted(
+        self,
+    ) -> Tuple[List[List[int]], List[List[int]]]:
+        """
+        Retrieves the labeled sentences from the dataset.
+
+        This method retrieves all sentences from the labeled file, extracts features and labels from each sentence,
+        applies padding to the features and labels, and returns them as two lists.
+
+        The features are the hashed words from the sentences and the labels are the indices of the labels.
+
+        :return: A tuple containing a list of features and a list of labels.
+            Each feature and label is a list of integers.
+        :rtype: Tuple[List[List[int]], List[List[int]]]
+        """
+        sentences = self._labeled_file.get_all_sentences()
+
+        features, labels = zip(
+            *[
+                self._extract_features_and_labels(sentence)
+                for sentence in sentences
+            ]
+        )
+
+        return features, labels
