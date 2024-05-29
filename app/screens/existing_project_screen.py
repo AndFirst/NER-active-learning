@@ -70,20 +70,12 @@ class ExistingProjectScreen(Screen):
                 "unlabeled.csv",
             }
 
-            existing_files = [
-                f
-                for f in dataset_files
-                if os.path.exists(os.path.join(self.selected_path, f))
-            ]
+            existing_files = [f for f in dataset_files if os.path.exists(os.path.join(self.selected_path, f))]
 
-            if not os.path.exists(
-                os.path.join(self.selected_path, setup_path)
-            ):
+            if not os.path.exists(os.path.join(self.selected_path, setup_path)):
                 Popup(
                     title="Error",
-                    content=Label(
-                        text="Data inconsistency: not found project setup file."
-                    ),
+                    content=Label(text="Data inconsistency: not found project setup file."),
                     size_hint=(None, None),
                     size=(400, 200),
                 ).open()
@@ -91,9 +83,7 @@ class ExistingProjectScreen(Screen):
             elif len(existing_files) != 1:
                 Popup(
                     title="Error",
-                    content=Label(
-                        text="Data inconsistency: \nThere must be exactly one file with unlabeled data."
-                    ),
+                    content=Label(text="Data inconsistency: \nThere must be exactly one file with unlabeled data."),
                     size_hint=(None, None),
                     size=(400, 200),
                 ).open()
@@ -118,9 +108,7 @@ class ExistingProjectScreen(Screen):
                     popup.open()
                     return
                 self.manager.get_screen("main_menu").project = project
-                self.manager.get_screen("main_menu").save_path = (
-                    self.selected_path
-                )
+                self.manager.get_screen("main_menu").save_path = self.selected_path
                 self.manager.current = "main_menu"
         else:
             Popup(

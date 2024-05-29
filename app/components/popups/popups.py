@@ -12,9 +12,7 @@ class ExitConfirmationPopup(Popup):
         self.title = "Exit Confirmation"
         self.size_hint = (None, None)
         self.size = (300, 200)
-        content_layout = BoxLayout(
-            orientation="vertical", padding=10, spacing=10
-        )
+        content_layout = BoxLayout(orientation="vertical", padding=10, spacing=10)
         message_label = Label(text="Are you sure you want to exit?")
         button_layout = BoxLayout(padding=10, spacing=10)
         confirm_button = Button(text="Yes", on_release=self.confirm_exit)
@@ -44,9 +42,7 @@ class SaveConfirmationPopup(Popup):
         self.button_layout.add_widget(self.yes_button)
         self.button_layout.add_widget(self.no_button)
         self.button_layout.add_widget(self.cancel_button)
-        content_layout = BoxLayout(
-            orientation="vertical", padding=10, spacing=10
-        )
+        content_layout = BoxLayout(orientation="vertical", padding=10, spacing=10)
         content_layout.add_widget(self.message_label)
         content_layout.add_widget(self.button_layout)
         self.content = content_layout

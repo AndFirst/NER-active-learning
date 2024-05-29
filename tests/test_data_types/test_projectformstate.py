@@ -46,18 +46,12 @@ def test_to_dict():
 def test_get_existing_property():
     project_form_state = ProjectFormState(name="TestProject")
     assert project_form_state.get("name", "DefaultName") == "TestProject"
-    assert (
-        project_form_state.get("nonexistent_property", "DefaultValue")
-        == "DefaultValue"
-    )
+    assert project_form_state.get("nonexistent_property", "DefaultValue") == "DefaultValue"
 
 
 def test_get_default_property():
     project_form_state = ProjectFormState()
-    assert (
-        project_form_state.get("nonexistent_property", "DefaultValue")
-        == "DefaultValue"
-    )
+    assert project_form_state.get("nonexistent_property", "DefaultValue") == "DefaultValue"
 
 
 def test_default_values():

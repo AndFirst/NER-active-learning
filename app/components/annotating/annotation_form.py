@@ -15,6 +15,7 @@ from kivy.uix.popup import Popup
 from kivy.uix.textinput import TextInput
 
 from app.components.annotating.label import ColorLabel
+from app.constants import MAX_WORDS_IN_ONE_LABEL
 
 from app.data_types import Annotation, Sentence, Word
 
@@ -128,16 +129,12 @@ class AnnotationForm(BoxLayout):
 
     def toggle_ai_assistant(self):
         self.ai_assistant_enabled = not self.ai_assistant_enabled
-        self.ids.ai_assistant_button.background_color = (
-            [0, 1, 0, 1] if self.ai_assistant_enabled else [1, 0, 0, 1]
-        )
+        self.ids.ai_assistant_button.background_color = [0, 1, 0, 1] if self.ai_assistant_enabled else [1, 0, 0, 1]
 
     def accept(self):
         self.parent.assistant.give_feedback(self.sentence)
         try:
-            next_sentence = self.parent.assistant.get_sentence(
-                annotated=self.ai_assistant_enabled
-            )
+            next_sentence = self.parent.assistant.get_sentence(annotated=self.ai_assistant_enabled)
             self.sentence = next_sentence
         except IndexError:
             self.sentence = None
@@ -196,17 +193,11 @@ class AnnotationForm(BoxLayout):
             "       Right click removes label from clicked word. \n"
         )
 
-        content_layout = BoxLayout(
-            orientation="vertical", padding=20, spacing=10
-        )
+        content_layout = BoxLayout(orientation="vertical", padding=20, spacing=10)
 
-        instruction_input = TextInput(
-            text=instruction_text, readonly=True, padding=(10, 10)
-        )
+        instruction_input = TextInput(text=instruction_text, readonly=True, padding=(10, 10))
 
-        close_button = Button(
-            text="Close", size_hint=(None, None), size=(100, 50)
-        )
+        close_button = Button(text="Close", size_hint=(None, None), size=(100, 50))
         close_button.bind(on_release=lambda btn: popup.dismiss())
 
         content_layout.add_widget(instruction_input)
@@ -222,9 +213,7 @@ class AnnotationForm(BoxLayout):
 
     def toggle_multiword_mode(self):
         self.multiword_mode = not self.multiword_mode
-        self.ids.multiword_mode_button.background_color = (
-            [0, 1, 0, 1] if self.multiword_mode else [1, 0, 0, 1]
-        )
+        self.ids.multiword_mode_button.background_color = [0, 1, 0, 1] if self.multiword_mode else [1, 0, 0, 1]
         self.commit_multi_label()
 
     def on_labels(self, instance, value):
@@ -246,10 +235,7 @@ class AnnotationForm(BoxLayout):
 
     def update_selected_label(self, new_label: ColorLabel):
         for label_widget in self.ids.choose_container.children:
-            if (
-                isinstance(label_widget, ColorLabel)
-                and label_widget != new_label
-            ):
+            if isinstance(label_widget, ColorLabel) and label_widget != new_label:
                 label_widget.selected = 0
 
         new_label.selected = 1 - new_label.selected
@@ -282,19 +268,13 @@ class AnnotationForm(BoxLayout):
             right_words = token.words[word_index + 1 :]
             new_tokens = []
             if left_words:
-                new_tokens.append(
-                    Annotation(words=left_words, label=token.label)
-                )
+                new_tokens.append(Annotation(words=left_words, label=token.label))
             new_tokens.append(Annotation(words=[word], label=None))
             if right_words:
-                new_tokens.append(
-                    Annotation(words=right_words, label=token.label)
-                )
+                new_tokens.append(Annotation(words=right_words, label=token.label))
             index_to_replace = self.sentence.tokens.index(token)
             self.sentence.tokens.pop(index_to_replace)
-            self.sentence.tokens[index_to_replace:index_to_replace] = (
-                new_tokens
-            )
+            self.sentence.tokens[index_to_replace:index_to_replace] = new_tokens
         self.ids.annotation_container.sentence = self.sentence
         self.ids.annotation_container.update_tokens()
 
@@ -307,20 +287,10 @@ class AnnotationForm(BoxLayout):
         left_parent = self.sentence.get_word_parent(left_neighbor)
         right_parent = self.sentence.get_word_parent(right_neighbor)
 
-        annotation = Annotation(
-            words=[word], label=self.selected_label.label_data
-        )
+        annotation = Annotation(words=[word], label=self.selected_label.label_data)
 
-        left_index = (
-            parent.words.index(left_neighbor)
-            if left_parent == parent
-            else None
-        )
-        right_index = (
-            parent.words.index(right_neighbor)
-            if right_parent == parent
-            else None
-        )
+        left_index = parent.words.index(left_neighbor) if left_parent == parent else None
+        right_index = parent.words.index(right_neighbor) if right_parent == parent else None
         new_tokens = []
         if left_index is not None:
             left_index += 1
@@ -329,9 +299,7 @@ class AnnotationForm(BoxLayout):
         new_tokens.append(annotation)
         if right_index is not None:
             right_words = parent.words[right_index:]
-            new_tokens.append(
-                Annotation(words=right_words, label=parent.label)
-            )
+            new_tokens.append(Annotation(words=right_words, label=parent.label))
         index_to_replace = self.sentence.tokens.index(parent)
         self.sentence.tokens.pop(index_to_replace)
         self.sentence.tokens[index_to_replace:index_to_replace] = new_tokens
@@ -340,13 +308,13 @@ class AnnotationForm(BoxLayout):
         self.ids.annotation_container.update_tokens()
 
     def update_multi_word_mode(self, word: Word):
+        if len(self.labels_to_merge) == MAX_WORDS_IN_ONE_LABEL:
+            return
         if not self.labels_to_merge:
             self.labels_to_merge.append(word)
         elif word == self.sentence.get_left_neighbor(self.labels_to_merge[0]):
             self.labels_to_merge.appendleft(word)
-        elif word == self.sentence.get_right_neighbor(
-            self.labels_to_merge[-1]
-        ):
+        elif word == self.sentence.get_right_neighbor(self.labels_to_merge[-1]):
             self.labels_to_merge.append(word)
         else:
             return
@@ -366,11 +334,7 @@ class AnnotationForm(BoxLayout):
         for index, token in enumerate(self.sentence.tokens):
             if first_removed_word in token.words:
                 index_to_insert = index
-                if (
-                    len(token.words) > 1
-                    and right_neighbor not in token.words
-                    or left_neighbor in token.words
-                ):
+                if len(token.words) > 1 and right_neighbor not in token.words or left_neighbor in token.words:
                     index_to_insert += 1
                 break
 
@@ -385,9 +349,7 @@ class AnnotationForm(BoxLayout):
         if self.sentence.get_word_parent(right_neighbor) == parent:
             right_index = parent.words.index(right_neighbor)
             right_words = parent.words[right_index:]
-            new_tokens.append(
-                Annotation(words=right_words, label=parent.label)
-            )
+            new_tokens.append(Annotation(words=right_words, label=parent.label))
 
         index_to_replace = self.sentence.tokens.index(parent)
         self.sentence.tokens[index_to_replace:index_to_replace] = new_tokens

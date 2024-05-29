@@ -64,9 +64,7 @@ project_form_state = ProjectFormState(
 
 
 def test_from_state():
-    project_conf = ProjectConf.from_state(
-        project_form_state, model_conf, assistant_conf, dataset_conf
-    )
+    project_conf = ProjectConf.from_state(project_form_state, model_conf, assistant_conf, dataset_conf)
 
     assert project_conf.name == "TestProject"
     assert project_conf.description == "A test project"
@@ -109,9 +107,7 @@ def test_save_config(mock_open):
         project_conf.save_config("/path/to/save")
 
         mock_open.assert_called_once_with("/path/to/save/project.json", "w")
-        mock_json_dump.assert_called_once_with(
-            project_conf.to_dict(), mock_open()
-        )
+        mock_json_dump.assert_called_once_with(project_conf.to_dict(), mock_open())
 
 
 def test_from_dict():

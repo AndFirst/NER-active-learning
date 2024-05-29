@@ -58,7 +58,6 @@ class DatasetScreen(Screen):
 
     def open_dataset_filechooser(self):
         file_path = filechooser.open_file(
-            filters=["*.csv", "*.json", "*.jsonl"],
             title="Select Dataset File",
             multiple=False,
         )

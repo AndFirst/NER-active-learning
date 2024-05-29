@@ -63,9 +63,7 @@ class Annotation:
             return [DEFAULT_UNLABELED_LABEL]
         else:
             label_text = self.label.label
-            labels = ["B-" + label_text] + ["I-" + label_text] * (
-                len(self.words) - 1
-            )
+            labels = ["B-" + label_text] + ["I-" + label_text] * (len(self.words) - 1)
             return labels
 
 
@@ -109,9 +107,7 @@ class Sentence:
                 return token
 
     def to_list(self) -> List[str]:
-        labels = list(
-            chain.from_iterable(token.get_label() for token in self.tokens)
-        )
+        labels = list(chain.from_iterable(token.get_label() for token in self.tokens))
         words = [word.word for token in self.tokens for word in token.words]
         return words + labels
 
@@ -167,12 +163,8 @@ class DatasetConf:
 
     @classmethod
     def from_state(cls, project_form_state: ProjectFormState) -> DatasetConf:
-        input_extension = project_form_state.get(
-            "input_extension", DEFAULT_INPUT_EXTENSION
-        )
-        output_extension = project_form_state.get(
-            "output_extension", DEFAULT_OUTPUT_EXTENSION
-        )
+        input_extension = project_form_state.get("input_extension", DEFAULT_INPUT_EXTENSION)
+        output_extension = project_form_state.get("output_extension", DEFAULT_OUTPUT_EXTENSION)
         return DatasetConf(
             f"{project_form_state.save_path}/unlabeled{input_extension}",
             f"{project_form_state.save_path}/labeled{output_extension}",
@@ -228,9 +220,7 @@ class AssistantConf:
         return AssistantConf(
             project_form_state.get("batch_size", DEFAULT_BATCH_SIZE),
             project_form_state.get("epochs", DEFAULT_EPOCHS),
-            project_form_state.get(
-                "sampling_batch_size", DEFAULT_SAMPLING_BATCH_SIZE
-            ),
+            project_form_state.get("sampling_batch_size", DEFAULT_SAMPLING_BATCH_SIZE),
             project_form_state.labels,
         )
 
@@ -240,10 +230,7 @@ class AssistantConf:
             dictionary["batch_size"],
             dictionary["epochs"],
             dictionary["sampling_batch_size"],
-            [
-                LabelData(label["label"], label["color"])
-                for label in dictionary["labels"]
-            ],
+            [LabelData(label["label"], label["color"]) for label in dictionary["labels"]],
         )
 
     def to_dict(self) -> Dict[str, Any]:
@@ -282,9 +269,7 @@ class ModelConf:
     implementation_path: str = ""
 
     @classmethod
-    def from_state(
-        cls, project_form_state: ProjectFormState, n_labels: int
-    ) -> ModelConf:
+    def from_state(cls, project_form_state: ProjectFormState, n_labels: int) -> ModelConf:
         impl_path = ""
         if project_form_state.model_type == "custom":
             model_path = "app/learning/models/custom_model_"

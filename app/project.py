@@ -38,9 +38,7 @@ class Project:
         self._directory = directory
         self._dataset = Factory.create_dataset(config.dataset_conf)
         self._model = Factory.create_model(config.model_conf)
-        self._assistant = Factory.create_assistant(
-            self._model, self._dataset, config.assistant_conf
-        )
+        self._assistant = Factory.create_assistant(self._model, self._dataset, config.assistant_conf)
 
     @classmethod
     def load(cls, dir_path: str) -> Project:
@@ -85,27 +83,17 @@ class Project:
             cls._create_project_directory(project_form_state.save_path)
             assistant_conf = cls._create_assistant_config(project_form_state)
             dataset_conf = cls._create_dataset_config(project_form_state)
-            cls._copy_dataset_to_project_path(
-                project_form_state.dataset_path, dataset_conf.unlabeled_path
-            )
+            cls._copy_dataset_to_project_path(project_form_state.dataset_path, dataset_conf.unlabeled_path)
             cls._save_word_to_indexes(dataset_conf.unlabeled_path)
             cls._save_label_to_indexes(
                 dataset_conf.labeled_path,
                 assistant_conf.get_labelset(),
                 dataset_conf.labels_to_idx_path,
             )
-            model_conf = cls._create_model_config(
-                project_form_state, len(assistant_conf.get_labelset())
-            )
-            cls._copy_model_implementation_if_custom(
-                project_form_state.model_implementation_path, model_conf
-            )
-            cls._copy_model_state_if_exists(
-                project_form_state.model_state_path, model_conf.state_path
-            )
-            project_conf = cls._create_project_config(
-                project_form_state, model_conf, assistant_conf, dataset_conf
-            )
+            model_conf = cls._create_model_config(project_form_state, len(assistant_conf.get_labelset()))
+            cls._copy_model_implementation_if_custom(project_form_state.model_implementation_path, model_conf)
+            cls._copy_model_state_if_exists(project_form_state.model_state_path, model_conf.state_path)
+            project_conf = cls._create_project_config(project_form_state, model_conf, assistant_conf, dataset_conf)
             return Project(project_conf, project_form_state.save_path)
         except Exception as e:
             logging.error(f"Failed to create project: {e}")
@@ -128,9 +116,7 @@ class Project:
         return DatasetConf.from_state(project_form_state)
 
     @staticmethod
-    def _copy_dataset_to_project_path(
-        dataset_path: str, unlabeled_path: str
-    ) -> None:
+    def _copy_dataset_to_project_path(dataset_path: str, unlabeled_path: str) -> None:
         shutil.copy(dataset_path, unlabeled_path)
 
     @staticmethod
@@ -138,33 +124,23 @@ class Project:
         Factory.create_unlabeled_repository(unlabeled_path)
 
     @classmethod
-    def _save_label_to_indexes(
-        cls, labeled_path: str, labelset: Set[str], labels_to_idx_path: str
-    ) -> None:
+    def _save_label_to_indexes(cls, labeled_path: str, labelset: Set[str], labels_to_idx_path: str) -> None:
         Factory.create_labeled_repository(labeled_path)
         label_to_idx = cls.create_label_to_idx(labelset)
         with open(labels_to_idx_path, "w") as label_to_idx_file:
             json.dump(label_to_idx, label_to_idx_file)
 
     @staticmethod
-    def _create_model_config(
-        project_form_state: ProjectFormState, labelset_length: int
-    ) -> ModelConf:
+    def _create_model_config(project_form_state: ProjectFormState, labelset_length: int) -> ModelConf:
         return ModelConf.from_state(project_form_state, labelset_length)
 
     @staticmethod
-    def _copy_model_implementation_if_custom(
-        model_implementation_path: str, model_conf: ModelConf
-    ) -> None:
+    def _copy_model_implementation_if_custom(model_implementation_path: str, model_conf: ModelConf) -> None:
         if model_conf.is_custom_model_type():
-            shutil.copy(
-                model_implementation_path, model_conf.implementation_path
-            )
+            shutil.copy(model_implementation_path, model_conf.implementation_path)
 
     @staticmethod
-    def _copy_model_state_if_exists(
-        model_state_path: str, state_path: str
-    ) -> None:
+    def _copy_model_state_if_exists(model_state_path: str, state_path: str) -> None:
         if model_state_path:
             shutil.copy(model_state_path, state_path)
 
@@ -175,9 +151,7 @@ class Project:
         assistant_conf: AssistantConf,
         dataset_conf: DatasetConf,
     ) -> ProjectConf:
-        return ProjectConf.from_state(
-            project_form_state, model_conf, assistant_conf, dataset_conf
-        )
+        return ProjectConf.from_state(project_form_state, model_conf, assistant_conf, dataset_conf)
 
     @staticmethod
     def create_label_to_idx(labels: Set[str]) -> Dict[str, int]:
@@ -191,14 +165,7 @@ class Project:
         """
         sorted_labels = sorted(list(labels))
         label_to_idx = {DEFAULT_UNLABELED_LABEL: DEFAULT_UNLABELED_IDX}
-        label_to_idx.update(
-            {
-                f"{prefix}-{label}": idx
-                for idx, (label, prefix) in enumerate(
-                    product(sorted_labels, "BI"), 1
-                )
-            }
-        )
+        label_to_idx.update({f"{prefix}-{label}": idx for idx, (label, prefix) in enumerate(product(sorted_labels, "BI"), 1)})
         return label_to_idx
 
     @property

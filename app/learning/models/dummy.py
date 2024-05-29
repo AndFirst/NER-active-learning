@@ -7,9 +7,7 @@ class Dummy(NERModel):
     def __init__(self):
         super().__init__()
 
-    def predict_with_confidence(
-        self, unlabeled_sentence: List[int]
-    ) -> List[int]:
+    def predict_with_confidence(self, unlabeled_sentence: List[int]) -> List[int]:
         return [random.randint(0, 6) for sentence in unlabeled_sentence]
 
     def train(

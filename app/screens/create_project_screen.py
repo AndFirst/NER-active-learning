@@ -1,3 +1,5 @@
+import re
+
 from kivy.uix.screenmanager import Screen
 from kivy.lang import Builder
 from kivy.uix.popup import Popup
@@ -35,6 +37,7 @@ kv_string = """
                 id: name_input
                 hint_text: 'Project name'
                 multiline: False
+                on_text: root.filter_text(self, self.text)
                 on_text_validate: root.update_save_button_text(self.text)
             TextInput:
                 id: description_input
@@ -73,12 +76,8 @@ class CreateProjectScreen(Screen):
         super(CreateProjectScreen, self).__init__(**kwargs)
 
         self.form_state = form_state
-        self.model_dropdown = self.create_dropdown(
-            ["BiLSTM", "Your model"], self.handle_model_selection
-        )
-        self.output_type_dropdown = self.create_dropdown(
-            [".csv", ".json"], self.handle_output_type_selection
-        )
+        self.model_dropdown = self.create_dropdown(["BiLSTM", "Your model"], self.handle_model_selection)
+        self.output_type_dropdown = self.create_dropdown([".csv", ".json"], self.handle_output_type_selection)
         self.ids.prev_next_buttons.on_back = self.go_to_welcome
         self.ids.prev_next_buttons.on_next = self.save_and_go_to_data_set
 
@@ -153,17 +152,11 @@ class CreateProjectScreen(Screen):
             )
             popup.open()
         else:
-            selected_path = filechooser.choose_dir(
-                title="Select Project Folder"
-            )
+            selected_path = filechooser.choose_dir(title="Select Project Folder")
             if selected_path:
                 folder_path = selected_path[0]
-                unique_folder_path = create_unique_folder_name(
-                    folder_path, self.ids.name_input.text
-                )
-                self.ids.path_button.text = (
-                    folder_path + "/" + unique_folder_path
-                )
+                unique_folder_path = create_unique_folder_name(folder_path, self.ids.name_input.text)
+                self.ids.path_button.text = folder_path + "/" + unique_folder_path
             else:
                 self.ids.path_button.text = "Save project path"
 
@@ -194,7 +187,6 @@ class CreateProjectScreen(Screen):
             popup.open()
 
     def update_save_button_text(self, text):
-        text = text.strip()
         if not text.strip():
             self.ids.path_button.text = "Save project path"
             return
@@ -202,3 +194,8 @@ class CreateProjectScreen(Screen):
             folder_path = "/".join(self.ids.path_button.text.split("/")[:-1])
             unique_folder_path = create_unique_folder_name(folder_path, text)
             self.ids.path_button.text = folder_path + "/" + unique_folder_path
+
+    def filter_text(self, instance, value):
+        filtered_text = re.sub(r"[^a-zA-Z0-9_-]", "", value)
+        if filtered_text != value:
+            instance.text = filtered_text

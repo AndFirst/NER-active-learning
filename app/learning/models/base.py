@@ -28,9 +28,7 @@ class NERModel(ABC):
         self._new_model = None
         self._lock = None
         self._training_queue = Queue()
-        self._worker_thread = threading.Thread(
-            target=self._worker, daemon=True
-        )
+        self._worker_thread = threading.Thread(target=self._worker, daemon=True)
         self._worker_thread.start()
 
     def _train_model(
@@ -59,9 +57,7 @@ class NERModel(ABC):
         if class_weights is None:
             self._loss = CrossEntropyLoss()
         else:
-            class_weights_tensor = torch.tensor(
-                class_weights, dtype=torch.float
-            ).to(device)
+            class_weights_tensor = torch.tensor(class_weights, dtype=torch.float).to(device)
             self._loss = CrossEntropyLoss(weight=class_weights_tensor)
 
         for epoch in range(epochs):
@@ -88,23 +84,15 @@ class NERModel(ABC):
         batch_size: int,
         class_weights: List[float] = None,
     ) -> None:
-        self._training_queue.put(
-            (features, targets, epochs, batch_size, class_weights)
-        )
+        self._training_queue.put((features, targets, epochs, batch_size, class_weights))
 
     def _worker(self) -> None:
         while True:
-            features, targets, epochs, batch_size, class_weights = (
-                self._training_queue.get()
-            )
-            self._train_model(
-                features, targets, epochs, batch_size, class_weights
-            )
+            features, targets, epochs, batch_size, class_weights = self._training_queue.get()
+            self._train_model(features, targets, epochs, batch_size, class_weights)
             self._training_queue.task_done()
 
-    def predict_with_confidence(
-        self, unlabeled_sentence: List[int]
-    ) -> Tuple[List[int], List[float]]:
+    def predict_with_confidence(self, unlabeled_sentence: List[int]) -> Tuple[List[int], List[float]]:
         features = torch.tensor(
             [
                 unlabeled_sentence,
@@ -127,37 +115,26 @@ class NERModel(ABC):
         if self._optimizer is None:
             raise ValueError("Optimizer must be initialized before saving.")
         if self._loss is None:
-            raise ValueError(
-                "Loss function must be initialized before saving."
-            )
+            raise ValueError("Loss function must be initialized before saving.")
 
         model_state = {
             "model_state_dict": self._model.state_dict(),
             "optimizer_name": type(self._optimizer).__name__,
             "optimizer_state_dict": self._optimizer.state_dict(),
             "loss_name": type(self._loss).__name__,
-            "loss_state_dict": (
-                self._loss.state_dict()
-                if hasattr(self._loss, "state_dict")
-                else None
-            ),
+            "loss_state_dict": (self._loss.state_dict() if hasattr(self._loss, "state_dict") else None),
         }
         torch.save(model_state, path)
 
     def load_weights(self, file_path: str) -> None:
         if self._model is None:
-            raise ValueError(
-                "Model must be initialized before loading weights."
-            )
+            raise ValueError("Model must be initialized before loading weights.")
 
         state_dict = torch.load(file_path)
 
         self._model.load_state_dict(state_dict["model_state_dict"])
 
-        if (
-            "optimizer_state_dict" in state_dict
-            and "optimizer_name" in state_dict
-        ):
+        if "optimizer_state_dict" in state_dict and "optimizer_name" in state_dict:
             optimizer_class = getattr(optim, state_dict["optimizer_name"])
             self._optimizer = optimizer_class(self._model.parameters())
             self._optimizer.load_state_dict(state_dict["optimizer_state_dict"])
@@ -177,19 +154,13 @@ class NERModel(ABC):
         layers = list(self._model.children())
         embedding_size = layers[0].num_embeddings
         if embedding_size != num_words:
-            raise ValueError(
-                f"Expected embedding size {num_words}, but got {embedding_size}."
-            )
+            raise ValueError(f"Expected embedding size {num_words}, but got {embedding_size}.")
 
         out_features = layers[-1].out_features
         if out_features != num_classes:
-            raise ValueError(
-                f"Expected output size {num_classes}, but got {out_features}."
-            )
+            raise ValueError(f"Expected output size {num_classes}, but got {out_features}.")
 
-    def evaluate_metrics(
-        self, features: List[List[int]], targets: List[List[int]]
-    ) -> Dict[str, float | int]:
+    def evaluate_metrics(self, features: List[List[int]], targets: List[List[int]]) -> Dict[str, float | int]:
         """
         Evaluates the model's performance metrics on a given dataset.
 
@@ -222,15 +193,9 @@ class NERModel(ABC):
 
         # Calculate the metrics
         accuracy = accuracy_score(targets_flat, predictions_flat)
-        precision = precision_score(
-            targets_flat, predictions_flat, average="weighted", zero_division=0
-        )
-        recall = recall_score(
-            targets_flat, predictions_flat, average="weighted", zero_division=0
-        )
-        f1 = f1_score(
-            targets_flat, predictions_flat, average="weighted", zero_division=0
-        )
+        precision = precision_score(targets_flat, predictions_flat, average="weighted", zero_division=0)
+        recall = recall_score(targets_flat, predictions_flat, average="weighted", zero_division=0)
+        f1 = f1_score(targets_flat, predictions_flat, average="weighted", zero_division=0)
 
         return {
             "accuracy": accuracy,

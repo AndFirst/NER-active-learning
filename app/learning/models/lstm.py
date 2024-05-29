@@ -42,19 +42,13 @@ class BiLSTM(nn.Module):
 
 class BiLSTMClassifier(NERModel):
 
-    def __init__(
-        self, num_words: int, num_classes: int, learning_rate: float
-    ) -> None:
+    def __init__(self, num_words: int, num_classes: int, learning_rate: float) -> None:
         super().__init__()
         self._model = BiLSTM(num_words, num_classes)
         self._loss = nn.CrossEntropyLoss()
-        self._optimizer = torch.optim.Adam(
-            self._model.parameters(), lr=learning_rate
-        )
+        self._optimizer = torch.optim.Adam(self._model.parameters(), lr=learning_rate)
         self._new_model = None
         self._lock = threading.Lock()
         self._training_queue = Queue()
-        self._worker_thread = threading.Thread(
-            target=self._worker, daemon=True
-        )
+        self._worker_thread = threading.Thread(target=self._worker, daemon=True)
         self._worker_thread.start()
