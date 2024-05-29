@@ -5,11 +5,18 @@ import logging
 import threading
 from abc import ABC
 from queue import Queue
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 
 import torch
+from sklearn.metrics import (
+    accuracy_score,
+    precision_score,
+    recall_score,
+    f1_score,
+)
 from torch import optim
 from torch.nn import CrossEntropyLoss
+from torch.nn.utils.rnn import pad_sequence
 from torch.utils.data import TensorDataset, DataLoader
 
 
@@ -179,3 +186,55 @@ class NERModel(ABC):
             raise ValueError(
                 f"Expected output size {num_classes}, but got {out_features}."
             )
+
+    def evaluate_metrics(
+        self, features: List[List[int]], targets: List[List[int]]
+    ) -> Dict[str, float | int]:
+        """
+        Evaluates the model's performance metrics on a given dataset.
+
+        :param features: The features of the dataset.
+        :type features: List[List[int]]
+        :param targets: The true labels of the dataset.
+        :type targets: List[List[int]]
+        :return: A dictionary containing the accuracy, precision, recall, and F1 score of the model.
+        :rtype: Dict[str, float]
+        """
+        # Convert the features and targets to tensors and pad sequences
+        features_tensor = pad_sequence(
+            [torch.tensor(f, dtype=torch.long) for f in features],
+            batch_first=True,
+        )
+        targets_tensor = pad_sequence(
+            [torch.tensor(t, dtype=torch.long) for t in targets],
+            batch_first=True,
+        )
+
+        # Get the model's predictions
+        self._model.eval()
+        with torch.no_grad():
+            probabilities = self._model(features_tensor).cpu()
+            _, predictions = torch.max(probabilities, dim=-1)
+
+        # Flatten the predictions and targets
+        predictions_flat = predictions.view(-1).tolist()
+        targets_flat = targets_tensor.view(-1).tolist()
+
+        # Calculate the metrics
+        accuracy = accuracy_score(targets_flat, predictions_flat)
+        precision = precision_score(
+            targets_flat, predictions_flat, average="weighted", zero_division=0
+        )
+        recall = recall_score(
+            targets_flat, predictions_flat, average="weighted", zero_division=0
+        )
+        f1 = f1_score(
+            targets_flat, predictions_flat, average="weighted", zero_division=0
+        )
+
+        return {
+            "accuracy": accuracy,
+            "precision": precision,
+            "recall": recall,
+            "f1": f1,
+        }
