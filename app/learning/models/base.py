@@ -94,12 +94,12 @@ class NERModel:
             self._optimizer.step()
 
     def _train_model(
-            self,
-            features: List[List[int]],
-            targets: List[List[int]],
-            epochs: int,
-            batch_size: int,
-            class_weights: List[float] = None,
+        self,
+        features: List[List[int]],
+        targets: List[List[int]],
+        epochs: int,
+        batch_size: int,
+        class_weights: List[float] = None,
     ) -> None:
         """
         Trains the model.
@@ -128,12 +128,12 @@ class NERModel:
             logging.info("Swapped model.")
 
     def train_async(
-            self,
-            features: List[List[int]],
-            targets: List[List[int]],
-            epochs: int,
-            batch_size: int,
-            class_weights: List[float] = None,
+        self,
+        features: List[List[int]],
+        targets: List[List[int]],
+        epochs: int,
+        batch_size: int,
+        class_weights: List[float] = None,
     ) -> None:
         """
         Trains the model asynchronously.
@@ -225,7 +225,7 @@ class NERModel:
     def _initialize_optimizer(self, state_dict: dict) -> None:
         """
         Initializes the optimizer based on the state dictionary.
-        
+
         :param state_dict: The state dictionary to initialize the optimizer.
         :type state_dict: dict
         """
@@ -286,8 +286,7 @@ class NERModel:
         predictions_flat, targets_flat = self._get_predictions(features_tensor, targets_tensor)
         return self._calculate_metrics(targets_flat, predictions_flat)
 
-    def _prepare_tensors(self, features: List[List[int]], targets: List[List[int]]) -> Tuple[
-        torch.Tensor, torch.Tensor]:
+    def _prepare_tensors(self, features: List[List[int]], targets: List[List[int]]) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Prepares the tensors for evaluation.
 
