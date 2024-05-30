@@ -132,7 +132,8 @@ class AnnotationForm(BoxLayout):
         self.ids.ai_assistant_button.background_color = [0, 1, 0, 1] if self.ai_assistant_enabled else [1, 0, 0, 1]
 
     def accept(self):
-        self.parent.assistant.give_feedback(self.sentence)
+        if self.sentence:
+            self.parent.assistant.give_feedback(self.sentence)
         try:
             next_sentence = self.parent.assistant.get_sentence(annotated=self.ai_assistant_enabled)
             self.sentence = next_sentence
@@ -165,7 +166,7 @@ class AnnotationForm(BoxLayout):
         # Open the Popup
         popup.open()
 
-    def go_to_final_screen(self, instance):
+    def go_to_final_screen(self, instance=None):
         app = App.get_running_app()
         app.root.current_screen.save()
         app.root.current = "stats"

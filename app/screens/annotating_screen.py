@@ -26,8 +26,10 @@ class MainMenuScreen(Screen):
         self.assistant = self.project.assistant
         self.model = self.project.model
         self.ids.annotation_form.labels = self.project.labels
-
-        self.ids.annotation_form.sentence = self.assistant.get_sentence(annotated=True)
+        try:
+            self.ids.annotation_form.sentence = self.assistant.get_sentence(annotated=True)
+        except IndexError:
+            self.ids.annotation_form.go_to_final_screen()
         self.manager.get_screen("stats").stats = self.assistant.stats
 
     def confirm_exit(self):
