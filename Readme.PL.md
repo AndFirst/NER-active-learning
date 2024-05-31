@@ -10,7 +10,7 @@
 
 ---
 
-## TLDR
+## TL;DR
 
 Aplikacja umożliwia adnotowanie danych tekstowych w celu uczenia modeli NLP.
 Użytkownik może wczytać zbiór danych, zdefiniować adnotacje, iteracyjnie adnotować
@@ -157,32 +157,32 @@ Aplikacja jest kompatybilna z `Python 3.12`, pozostałe wersje nie są gwarantow
         - `MISC` - inne
 
 6. **Wczytanie istniejącego projektu**
-    - Użytkownik może wczytać istniejący projekt, aby kontynuować proces adnotacji
-    - Wymagane jest podanie ścieżki do folderu z projektem
+    - Użytkownik może wczytać istniejący projekt, aby kontynuować proces adnotacji.
+    - Wymagane jest podanie ścieżki do folderu z projektem.
     - Wczytane dane zostaną załadowane do aplikacji, a użytkownik będzie mógł kontynuować proces adnotacji w miejscu,
       w którym został przerwany.
     - Stan modelu zostanie załadowany z pliku.
 
 7. **Adnotacja tekstu**
-    - Użytkownikowi wyświetlany jest fragment tekstu, który musi zostać oznaczony zgodnie z zdefiniowanymi adnotacjami
-    - W górnej części ekranu wyświetlane są adnotacje, które użytkownik może przypisać do wyrazów
+    - Użytkownikowi wyświetlany jest fragment tekstu, który musi zostać oznaczony zgodnie ze zdefiniowanymi adnotacjami.
+    - W górnej części ekranu wyświetlane są adnotacje, które użytkownik może przypisać do wyrazów.
     - W dolnej części ekranu wyświetlany jest fragment tekstu, który użytkownik może adnotować.
     - Przyciski
-        - `AI Assistant` - włącza lub wyłącza podpowiedzi od modelu AI.
-        - `Stats` - przejście do statystyk projektu.
-        - `Save` - zapisuje obecny stan projektu.
-        - `Accept` - zapisuje adnotacje i przechodzi do kolejnego fragmentu tekstu.
-        - `Reset` - resetuje adnotacje w obecnym fragmencie tekstu.
-        - `Multiword Mode` - włącza lub wyłącza tryb adnotacji wielowyrazowej.
+        - `AI Assistant` - włącza lub wyłącza podpowiedzi od modelu AI
+        - `Stats` - przejście do statystyk projektu
+        - `Save` - zapisuje obecny stan projektu
+        - `Accept` - zapisuje adnotacje i przechodzi do kolejnego fragmentu tekstu
+        - `Reset` - resetuje adnotacje w obecnym fragmencie tekstu
+        - `Multiword Mode` - włącza lub wyłącza tryb adnotacji wielowyrazowej
     - Instrukcja adnotacji:
         1. Kliknij na etykietę, którą chcesz przypisać do wyrazu.
         2. Jeżeli `Multiword Mode` jest wyłączone:
-            - kliknięcie `Lewym przyciskiem` przypisze etykietę do jednego wyrazu.
-            - kliknięcie `Prawym przyciskiem` usunie etykietę z wyrazu.
+            - kliknięcie `Lewym przyciskiem` przypisze etykietę do jednego wyrazu
+            - kliknięcie `Prawym przyciskiem` usunie etykietę z wyrazu
         3. Jeżeli `Multiword Mode` jest włączone:
-            - kliknięcie `Lewym przyciskiem` rozpocznie adnotację wielowyrazową.
-            - kliknięcie `Prawym przyciskiem` zakończy adnotację wielowyrazową.
-            - maksymalnie można przypisać etykietę do 5 wyrazów.
+            - kliknięcie `Lewym przyciskiem` rozpocznie adnotację wielowyrazową
+            - kliknięcie `Prawym przyciskiem` zakończy adnotację wielowyrazową
+            - maksymalnie można przypisać etykietę do 5 wyrazów
     - Przy próbie wyjścia z aplikacji użytkownik zostanie zapytany, czy chce zapisać obecny stan projektu.
 
 8. **Zapis adnotacji**
@@ -198,7 +198,7 @@ Aplikacja jest kompatybilna z `Python 3.12`, pozostałe wersje nie są gwarantow
       ]
       ```
     - Adnotacje są zapisywane w formacie: `[wyraz1, wyraz2, ..., etykieta1, etykieta2, ...]`
-    - Aby wydobyć adnotacje z pliku należy podzielić listę na pół, gdzie pierwsza połowa to wyrazy, a druga to etykiety.
+    - Aby wydobyć adnotacje z pliku, należy podzielić listę na pół, gdzie pierwsza połowa to wyrazy, a druga to etykiety.
     - W przypadku adnotacji wielowyrazowej, etykieta `B-...` jest przypisywana do pierwszego wyrazu, a etykieta `I-...`
       do kolejnych wyrazów.
     - W przypadku braku adnotacji, przypisywana jest etykieta `<O>`
@@ -227,14 +227,14 @@ Aplikacja jest kompatybilna z `Python 3.12`, pozostałe wersje nie są gwarantow
 - Model w formie API, dzięki czemu użytkownik mógłby korzystać z modelu bez konieczności jego wczytywania
 - Dodanie możliwości podglądu i edycji adnotacji
 - Ulepszenie strategii wyboru fragmentów tekstu do adnotacji
-- Dodanie większej ilości statystyk
-- Dodanie większej ilości modeli do wyboru
+- Dodanie większej liczby statystyk
+- Dodanie większej liczby modeli do wyboru
 
 ---
 
 ## Wkład
 
-Jeżeli chcesz pomóc w rozwoju projektu, skontaktuj się przedsawicielem zespołu.
+Jeżeli chcesz pomóc w rozwoju projektu, skontaktuj się przedstawicielem zespołu.
 
 `01158211@pw.edu.pl` - Ireneusz Okniński
 
