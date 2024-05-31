@@ -21,8 +21,7 @@ class MainMenuScreen(Screen):
         self.project = None
         self.assistant = None
         self.save_path = None
-        self.manager.get_screen("stats").labels = [label_data.label for label_data in self.project.labels]
-
+        
     def on_enter(self):
         self.assistant = self.project.assistant
         self.model = self.project.model
@@ -31,6 +30,9 @@ class MainMenuScreen(Screen):
             self.ids.annotation_form.sentence = self.assistant.get_sentence(annotated=True)
         except IndexError:
             self.ids.annotation_form.go_to_final_screen()
+        stats_screen = self.manager.get_screen("stats")
+        stats_screen.stats = self.assistant.stats
+        stats_screen.labels = [label_data.label for label_data in self.project.labels]
 
     def confirm_exit(self):
         exit_confirmation_popup = SaveConfirmationPopup(save_function=self.save)

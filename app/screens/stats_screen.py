@@ -14,7 +14,7 @@ kv_string = """
         cols: 2
         size_hint_y: 0.8
         pos_hint: {'top': 1}
-        padding: 20
+        padding: 10
 
         BoxLayout:
             orientation: 'vertical'
@@ -23,7 +23,7 @@ kv_string = """
             Label:
                 text: "Occurrences per label"
                 size_hint_y: None
-                height: 60
+                height: 40
                 halign: 'center'
                 valign: 'middle'
                 text_size: self.size
@@ -33,12 +33,25 @@ kv_string = """
                 id: labels_grid
                 cols: 2
                 padding: 0
-                spacing: 1
+                spacing: 0
 
-        GridLayout:
-            id: stats_grid
-            cols: 2
+        BoxLayout:
+            orientation: 'vertical'
             padding: 20
+
+            Label:
+                text: "Statistics"
+                size_hint_y: None
+                height: 40
+                halign: 'center'
+                valign: 'middle'
+                text_size: self.size
+                color: (0, 0, 0, 1)
+
+            GridLayout:
+                id: stats_grid
+                cols: 2
+                padding: 0
 
     GridLayout:
         cols: 1
@@ -88,20 +101,37 @@ class StatsScreen(Screen):
 
         for label in labels:
             self.ids.labels_grid.add_widget(
-                BorderedLabel(text=label, color=(0, 0, 0, 1), size_hint_y=None, height=40)
+                BorderedLabel(text=label, color=(0, 0, 0, 1), size_hint_y=None, height=34)
             )
             self.ids.labels_grid.add_widget(
-                BorderedLabel(text="0", color=(0, 0, 0, 1), size_hint_y=None, height=40)
+                BorderedLabel(text="0", color=(0, 0, 0, 1), size_hint_y=None, height=34)
             )
 
         stats_dict = self.get_stats()
-        for key, value in stats_dict.items():
-            self.ids.stats_grid.add_widget(Label(text=str(key), color=(0, 0, 0, 1)))
-            self.ids.stats_grid.add_widget(Label(text=str(value), color=(0, 0, 0, 1)))
+        keys = list(stats_dict.keys())
+        values = list(stats_dict.values())
+        
+        keys[0] = "Labeled sentences"
+        keys[1] = "Unlabeled sentences"
+
+        for i, key in enumerate(keys):
+            if i < 2:
+                self.ids.stats_grid.add_widget(
+                    BorderedLabel(text=key, font_size=18, color=(0, 0, 0, 1))
+                )
+                self.ids.stats_grid.add_widget(
+                    BorderedLabel(text=str(int(values[i])), font_size=18, color=(0, 0, 0, 1))
+                )
+            else:
+                self.ids.stats_grid.add_widget(
+                    BorderedLabel(text=key, font_size=18, color=(0, 0, 0, 1))
+                )
+                self.ids.stats_grid.add_widget(
+                    BorderedLabel(text=f"{values[i]:.2f}", font_size=18, color=(0, 0, 0, 1))
+                )
 
     def get_stats(self):
-        print(self.stats)
-        return {"Stat 1": 100, "Stat 2": 200, "Stat 3": 300}
+        return self.stats
 
     def confirm_exit(self):
         if not self.is_annotation_done:
