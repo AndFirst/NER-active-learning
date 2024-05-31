@@ -74,7 +74,7 @@ kv_string = """
                 id: stats_button
                 text: "Stats"
                 font_size: '25sp'
-                on_release: app.root.current = 'stats'
+                on_release: root.toggle_stats()
         BoxLayout:
             size_hint_x: 0.25
             Button:
@@ -127,6 +127,12 @@ class AnnotationForm(BoxLayout):
 
     ai_assistant_enabled = BooleanProperty(True)
 
+    def toggle_stats(self):
+        app = App.get_running_app()
+        stats_screen = app.manager.get_screen("stats")
+        stats_screen.stats = app.manager.get_screen("main_menu").assistant.stats
+        app.root.current = "stats"
+
     def toggle_ai_assistant(self):
         self.ai_assistant_enabled = not self.ai_assistant_enabled
         self.ids.ai_assistant_button.background_color = [0, 1, 0, 1] if self.ai_assistant_enabled else [1, 0, 0, 1]
@@ -169,6 +175,8 @@ class AnnotationForm(BoxLayout):
     def go_to_final_screen(self, instance=None):
         app = App.get_running_app()
         app.root.current_screen.save()
+        stats_screen = app.manager.get_screen("stats")
+        stats_screen.stats = app.manager.get_screen("main_menu").assistant.stats
         app.root.current = "stats"
         app.root.current_screen.when_annotating_is_done()
 

@@ -1,3 +1,5 @@
+from typing import List
+
 from kivy.uix.label import Label
 from kivy.uix.popup import Popup
 from kivy.uix.screenmanager import Screen
@@ -36,15 +38,21 @@ class AddLabelsScreen(Screen):
 
     def go_to_summary(self):
         labels = [LabelData(label=item.label, color=item.color) for item in self.ids.add_label_form.label_rows]
+        if not self.validate_labels(labels):
+            return
+        self.form_state.labels = labels
+        self.manager.current = "summary"
+
+    def validate_labels(self, labels: List[LabelData]) -> bool:
         if any(label.is_empty() for label in labels):
             self.show_error_popup("Labels cannot be empty")
+            return False
         elif len(set(labels)) != len(labels):
             self.show_error_popup("Labels must be unique")
-        else:
-            self.form_state.labels = labels
-            self.manager.current = "summary"
+            return False
+        return True
 
-    def show_error_popup(self, message):
+    def show_error_popup(self, message: str):
         content = Label(text=message, halign="center")
         popup = Popup(
             title="Error",

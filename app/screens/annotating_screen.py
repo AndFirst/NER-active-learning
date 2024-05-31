@@ -30,7 +30,6 @@ class MainMenuScreen(Screen):
             self.ids.annotation_form.sentence = self.assistant.get_sentence(annotated=True)
         except IndexError:
             self.ids.annotation_form.go_to_final_screen()
-        self.manager.get_screen("stats").stats = self.assistant.stats
 
     def confirm_exit(self):
         exit_confirmation_popup = SaveConfirmationPopup(save_function=self.save)
