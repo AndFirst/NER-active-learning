@@ -56,7 +56,9 @@ class Application(App):
             SummaryScreen(name="summary", form_state=project_form_state)
         )
         self._sm.add_widget(MainMenuScreen(name="main_menu"))
-        self._sm.add_widget(StatsScreen(name="stats"))
+        self._sm.add_widget(
+            StatsScreen(name="stats", form_state=project_form_state)
+        )
         return self._sm
 
     def on_start(self):
