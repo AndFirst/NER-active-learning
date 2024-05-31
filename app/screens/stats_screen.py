@@ -23,7 +23,7 @@ kv_string = """
             Label:
                 text: "Occurrences per label"
                 size_hint_y: None
-                height: 40
+                height: 60
                 halign: 'center'
                 valign: 'middle'
                 text_size: self.size
