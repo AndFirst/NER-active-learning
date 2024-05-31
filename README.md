@@ -1,9 +1,10 @@
-ZPRP-NER-Active-Learning
+# ZPRP-NER-Active-Learning
 ==============================
 
-Tool for training in the loop annotation
+## Project description
+NER Active Learning is a tool for semi-automated text annotation, focusing on Named Entity Recognition (NER). This project aims to facilitate the annotation process by leveraging active learning techniques, making it more efficient and faster to label large text datasets.
 
-Project Organization
+## Project organization
 ------------
 
     ├── LICENSE
@@ -55,3 +56,88 @@ Project Organization
 --------
 
 <p><small>Project based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. #cookiecutterdatascience</small></p>
+
+## Dataset
+The tool accepts datasets in .csv and .json formats.
+
+### CSV example
+```csv
+Thousands	of	demonstrators	have	marched	through	London	to	protest	the	war	in	Iraq	and	demand	the	withdrawal	of	British	troops	from	that	country	.
+Iranian	officials	say	they	expect	to	get	access	to	sealed	sensitive	parts	of	the	plant	Wednesday	,	after	an	IAEA	surveillance	system	begins	functioning	.
+```
+
+### JSON example
+```json
+[
+    [
+        "Thousands",
+        "of",
+        "demonstrators",
+        "have",
+        "marched",
+        "through",
+        "London",
+        "to",
+        "protest",
+        "the",
+        "war",
+        "in",
+        "Iraq",
+        "and",
+        "demand",
+        "the",
+        "withdrawal",
+        "of",
+        "British",
+        "troops",
+        "from",
+        "that",
+        "country",
+        "."
+    ],
+    [
+        "Iranian",
+        "officials",
+        "say",
+        "they",
+        "expect",
+        "to",
+        "get",
+        "access",
+        "to",
+        "sealed",
+        "sensitive",
+        "parts",
+        "of",
+        "the",
+        "plant",
+        "Wednesday",
+        ",",
+        "after",
+        "an",
+        "IAEA",
+        "surveillance",
+        "system",
+        "begins",
+        "functioning",
+        "."
+    ]
+]
+```
+## How does it work
+1. The user uploads the dataset to the model.
+2. The dataset is processed into a format understandable by the model.
+3. The model selects N sentences:
+    a. randomly,
+    b. those it understands the least.
+4. The model provides the sentences to the user for annotation.
+5. The user annotates the sentences, which are then returned to the model.
+6. The sentences are saved in annotated_data.
+7. The model trains on a batch of the annotated sentences.
+8. Steps 3 to 7 are repeated until the entire dataset is exhausted.
+
+## Contributing
+If you would like to contribute to the project, please open an issue or submit a pull request with your changes.
+
+## License
+This project is licensed under the MIT License. Details can be found in the LICENSE file.

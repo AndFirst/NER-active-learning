@@ -10,7 +10,7 @@ import random
 
 
 class LabelTextInput(TextInput):
-    max_length = 20
+    max_length = 10
     allowed_characters = set(string.ascii_letters + string.digits + "-_")
 
     def insert_text(self, substring, from_undo=False):
@@ -33,7 +33,7 @@ Builder.load_string(
         font_size: 20
         multiline: False
         size_hint_x: 0.6
-        hint_text: "Label e.g. GEO_123 (max 20 chars)"
+        hint_text: "Label e.g. GEO_123 (max 10 chars)"
         on_text_validate: root.add_new_row() if self.text else None
 
     Button:
