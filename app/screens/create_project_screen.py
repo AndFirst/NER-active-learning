@@ -6,6 +6,7 @@ from kivy.uix.popup import Popup
 from kivy.uix.label import Label
 from kivy.uix.button import Button
 from kivy.uix.dropdown import DropDown
+from kivy.uix.textinput import TextInput
 
 from app.data_types import ProjectFormState
 from plyer import filechooser
@@ -39,7 +40,7 @@ kv_string = """
                 multiline: False
                 on_text: root.filter_text(self, self.text)
                 on_text_validate: root.update_save_button_text(self.text)
-            TextInput:
+            MaxLengthInput:
                 id: description_input
                 hint_text: 'Description'
             Button:
@@ -68,6 +69,13 @@ kv_string = """
 """
 
 Builder.load_string(kv_string)
+
+class MaxLengthInput(TextInput):
+    max_length = 200
+
+    def insert_text(self, substring, from_undo=False):
+        if len(self.text) + len(substring) <= self.max_length:
+            return super().insert_text(substring, from_undo=from_undo)
 
 
 class CreateProjectScreen(Screen):
@@ -117,7 +125,6 @@ class CreateProjectScreen(Screen):
             self.form_state.model_implementation_path = selected_path
             self.ids.model_button.text = selected_path
             self.form_state.model_type = "custom"
-
         else:
             self.ids.model_button.text = "Choose a model"
 
@@ -139,7 +146,7 @@ class CreateProjectScreen(Screen):
         self.ids.name_input.text = ""
         self.ids.model_button.text = "Choose a model"
         self.ids.description_input.text = ""
-        self.ids.path_button.text = "Save  project path"
+        self.ids.path_button.text = "Save project path"
         self.manager.current = "welcome"
 
     def open_filechooser(self):
@@ -166,13 +173,13 @@ class CreateProjectScreen(Screen):
         path = self.ids.path_button.text.strip()
         print(self.form_state)
 
-        if (
-            name
-            and description
-            and path != "Save project path"
-            and self.form_state.output_extension
-            and self.form_state.model_type
-        ):
+        if all([
+            name,
+            description,
+            path != "Save project path",
+            self.form_state.output_extension,
+            self.form_state.model_type
+        ]):
             self.form_state.name = name
             self.form_state.description = description
             self.form_state.save_path = path

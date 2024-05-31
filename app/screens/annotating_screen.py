@@ -21,6 +21,7 @@ class MainMenuScreen(Screen):
         self.project = None
         self.assistant = None
         self.save_path = None
+        self.manager.get_screen("stats").labels = [label_data.label for label_data in self.project.labels]
 
     def on_enter(self):
         self.assistant = self.project.assistant

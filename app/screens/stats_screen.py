@@ -1,7 +1,8 @@
 from kivy.uix.screenmanager import Screen
 from kivy.lang import Builder
-
 from kivy.uix.label import Label
+from kivy.graphics import Color, Line
+from app.data_types import ProjectFormState
 from app.components.popups.popups import (
     SaveConfirmationPopup,
     ExitConfirmationPopup,
@@ -10,11 +11,35 @@ from app.components.popups.popups import (
 kv_string = """
 <StatsScreen>:
     GridLayout:
-        id: stats_grid
-        size_hint_y: 0.8
-        pos_hint: {'top':1}
-        padding: 20
         cols: 2
+        size_hint_y: 0.8
+        pos_hint: {'top': 1}
+        padding: 20
+
+        BoxLayout:
+            orientation: 'vertical'
+            padding: 20
+
+            Label:
+                text: "Occurrences per label"
+                size_hint_y: None
+                height: 40
+                halign: 'center'
+                valign: 'middle'
+                text_size: self.size
+                color: (0, 0, 0, 1)
+
+            GridLayout:
+                id: labels_grid
+                cols: 2
+                padding: 0
+                spacing: 1
+
+        GridLayout:
+            id: stats_grid
+            cols: 2
+            padding: 20
+
     GridLayout:
         cols: 1
         padding: 20
@@ -33,14 +58,42 @@ kv_string = """
 
 Builder.load_string(kv_string)
 
+class BorderedLabel(Label):
+    def __init__(self, **kwargs):
+        super(BorderedLabel, self).__init__(**kwargs)
+        with self.canvas.before:
+            Color(0, 0, 0, 1)
+            self.rect = Line(rectangle=(self.x, self.y, self.width, self.height), width=1)
+        self.bind(pos=self.update_rect, size=self.update_rect)
+
+    def update_rect(self, *args):
+        self.rect.rectangle = (self.x, self.y, self.width, self.height)
 
 class StatsScreen(Screen):
     def __init__(self, **kwargs):
+        form_state = kwargs.pop("form_state", None)
         super(StatsScreen, self).__init__(**kwargs)
         self.stats = None
+        self.labels = []
         self.is_annotation_done = False
+        self.form_state: ProjectFormState = form_state
 
     def on_enter(self):
+        self.ids.labels_grid.clear_widgets()
+        self.ids.stats_grid.clear_widgets()
+        print(self.form_state.labels)
+        labels = [label_data.label for label_data in self.form_state.labels]
+        if not labels:
+            labels = self.labels
+
+        for label in labels:
+            self.ids.labels_grid.add_widget(
+                BorderedLabel(text=label, color=(0, 0, 0, 1), size_hint_y=None, height=40)
+            )
+            self.ids.labels_grid.add_widget(
+                BorderedLabel(text="0", color=(0, 0, 0, 1), size_hint_y=None, height=40)
+            )
+
         stats_dict = self.get_stats()
         for key, value in stats_dict.items():
             self.ids.stats_grid.add_widget(Label(text=str(key), color=(0, 0, 0, 1)))
@@ -48,7 +101,6 @@ class StatsScreen(Screen):
 
     def get_stats(self):
         print(self.stats)
-        # Return a dictionary of stats for demonstration
         return {"Stat 1": 100, "Stat 2": 200, "Stat 3": 300}
 
     def confirm_exit(self):
@@ -64,6 +116,5 @@ class StatsScreen(Screen):
         project.save(self.save_path)
 
     def when_annotating_is_done(self):
-        # Remove the back button
         self.ids.back_button.parent.remove_widget(self.ids.back_button)
         self.is_annotation_done = True
