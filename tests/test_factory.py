@@ -8,9 +8,7 @@ from app.data_types import DatasetConf, ModelConf, AssistantConf, LabelData
 
 @patch("app.learning.factory.CsvTabSeparatedStrategy")
 @patch("app.learning.factory.JsonListStrategy")
-def test_create_data_persistence_strategy(
-    mock_json_strategy, mock_csv_strategy
-):
+def test_create_data_persistence_strategy(mock_json_strategy, mock_csv_strategy):
     csv_path = "test.csv"
     json_path = "test.json"
     Factory.create_data_persistence_strategy(csv_path)
@@ -35,9 +33,7 @@ def test_create_unlabeled_repository(mock_repo):
 
 def test_create_data_persistence_strategy_with_unsupported_extension():
     unsupported_file_path = "test.unsupported"
-    with pytest.raises(
-        ValueError, match="Unsupported extension: .unsupported"
-    ):
+    with pytest.raises(ValueError, match="Unsupported extension: .unsupported"):
         Factory.create_data_persistence_strategy(unsupported_file_path)
 
 
@@ -101,9 +97,7 @@ def test_create_model_with_unsupported_type():
         "dropout": 0.5,
     }
     unsupported_config = ModelConf(type="unsupported", **common_params)
-    with pytest.raises(
-        ValueError, match="Unsupported model type: unsupported"
-    ):
+    with pytest.raises(ValueError, match="Unsupported model type: unsupported"):
         Factory.create_model(unsupported_config)
 
 
@@ -143,9 +137,7 @@ def test_load_weights_bilstm(mock_bilstm, mock_exists):
     }
     bilstm_config = ModelConf(type="BiLSTM", **common_params)
     Factory.create_model(bilstm_config)
-    mock_bilstm_instance.load_weights.assert_called_once_with(
-        common_params["state_path"]
-    )
+    mock_bilstm_instance.load_weights.assert_called_once_with(common_params["state_path"])
 
 
 @patch("os.path.exists")
@@ -164,6 +156,4 @@ def test_load_weights_custom(mock_custom, mock_exists):
     }
     custom_config = ModelConf(type="custom", **common_params)
     Factory.create_model(custom_config)
-    mock_custom_instance.load_weights.assert_called_once_with(
-        common_params["state_path"]
-    )
+    mock_custom_instance.load_weights.assert_called_once_with(common_params["state_path"])

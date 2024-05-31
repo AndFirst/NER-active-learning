@@ -41,7 +41,5 @@ class CsvTabSeparatedStrategy(DataPersistenceStrategy):
         :type sentences: Sentences
         """
         with open(self._file_path, "w") as file:
-            writer = csv.writer(
-                file, delimiter="\t", quoting=csv.QUOTE_NONE, escapechar="\\"
-            )
+            writer = csv.writer(file, delimiter="\t", quoting=csv.QUOTE_NONE, escapechar="\\")
             writer.writerows(sentences)

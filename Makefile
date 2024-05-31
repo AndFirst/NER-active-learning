@@ -5,10 +5,15 @@ PROFILE = default
 PROJECT_NAME = zprp-ner-active-learning
 PYTHON_INTERPRETER = python
 
-build: clean requirements format lint test
+build: clean venv requirements format lint test
+
+venv:
+	virtualenv .venv
 
 app: format
-	$(PYTHON_INTERPRETER) -m app.app
+	. .venv/bin/activate; \
+	$(PYTHON_INTERPRETER) -m app.app; \
+	deactivate
 
 clean:
 	find . -type f -name "*.py[co]" -delete
@@ -23,17 +28,25 @@ clean:
 	rm -rf .pytest_cache
 
 lint:
-	flake8 --max-line-length=120 app/ tests/ --exclude=__init__.py
+	. .venv/bin/activate; \
+	flake8 --max-line-length=130 app/ tests/ --exclude=__init__.py; \
+	deactivate
 
 format:
-	black --line-length 79 --target-version py310 app/ tests/
-	autoflake --remove-all-unused-imports --recursive --remove-unused-variables --in-place app/ tests/ --exclude=__init__.py
+	. .venv/bin/activate; \
+	black --line-length 130 --target-version py310 app/ tests/; \
+	autoflake --remove-all-unused-imports --recursive --remove-unused-variables --in-place app/ tests/ --exclude=__init__.py; \
+	deactivate
 
 test:
-	pytest
+	. .venv/bin/activate; \
+	pytest; \
+	deactivate
 
 test-cov: format
-	pytest --cov-report term-missing:skip-covered --cov=app
+	. .venv/bin/activate; \
+	pytest --cov-report term-missing:skip-covered --cov=app; \
+	deactivate
 
 docs:
 	make -C docs html
@@ -42,8 +55,10 @@ docs-clean:
 	make -C docs clean
 
 requirements:
-	$(PYTHON_INTERPRETER) -m pip install -U pip setuptools wheel
-	$(PYTHON_INTERPRETER) -m pip install -r requirements.txt
+	. .venv/bin/activate; \
+	$(PYTHON_INTERPRETER) -m pip install -U pip setuptools wheel; \
+	$(PYTHON_INTERPRETER) -m pip install -r requirements.txt; \
+	deactivate
 
 help:
 	@echo "clean        remove all build, test, coverage and Python artifacts"

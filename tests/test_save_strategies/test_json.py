@@ -30,9 +30,7 @@ def test_json_list_strategy_load(mock_open, mock_isfile):
 
 @patch("os.path.isfile", return_value=False)
 @patch("builtins.open", new_callable=mock_open)
-def test_json_list_strategy_load_creates_file_if_not_exists(
-    mock_open, mock_isfile
-):
+def test_json_list_strategy_load_creates_file_if_not_exists(mock_open, mock_isfile):
     strategy = JsonListStrategy("test.json")
     result = strategy.load()
     assert result == []
@@ -40,9 +38,7 @@ def test_json_list_strategy_load_creates_file_if_not_exists(
 
 
 @patch("os.path.isfile", return_value=True)
-@patch(
-    "builtins.open", new_callable=mock_open, read_data='["incorrect_format"]'
-)
+@patch("builtins.open", new_callable=mock_open, read_data='["incorrect_format"]')
 def test_json_list_strategy_load_incorrect_format(mock_open, mock_isfile):
     strategy = JsonListStrategy("test.json")
     with pytest.raises(ValueError, match="JSON format is incorrect"):
@@ -63,6 +59,4 @@ def test_json_list_strategy_save(mock_json_dump, mock_open):
     strategy = JsonListStrategy("test.json")
     sentences: Sentences = [["sentence1", "sentence2"]]
     strategy.save(sentences)
-    mock_json_dump.assert_called_once_with(
-        sentences, mock_open(), ensure_ascii=False, indent=4
-    )
+    mock_json_dump.assert_called_once_with(sentences, mock_open(), ensure_ascii=False, indent=4)

@@ -96,12 +96,8 @@ class StatsScreen(Screen):
 
         stats_dict = self.get_stats()
         for key, value in stats_dict.items():
-            self.ids.stats_grid.add_widget(
-                Label(text=str(key), color=(0, 0, 0, 1))
-            )
-            self.ids.stats_grid.add_widget(
-                Label(text=str(value), color=(0, 0, 0, 1))
-            )
+            self.ids.stats_grid.add_widget(Label(text=str(key), color=(0, 0, 0, 1)))
+            self.ids.stats_grid.add_widget(Label(text=str(value), color=(0, 0, 0, 1)))
 
     def get_stats(self):
         print(self.stats)
@@ -109,9 +105,7 @@ class StatsScreen(Screen):
 
     def confirm_exit(self):
         if not self.is_annotation_done:
-            exit_confirmation_popup = SaveConfirmationPopup(
-                save_function=self.save
-            )
+            exit_confirmation_popup = SaveConfirmationPopup(save_function=self.save)
         else:
             exit_confirmation_popup = ExitConfirmationPopup()
         exit_confirmation_popup.open()

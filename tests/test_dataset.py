@@ -15,9 +15,7 @@ def test_extract_features_and_labels():
         unlabeled_idx=0,
         max_sentence_length=10,
     )
-    hashed_words, label_indices = dataset._extract_features_and_labels(
-        ["word1", "word2", "label1", "label2"]
-    )
+    hashed_words, label_indices = dataset._extract_features_and_labels(["word1", "word2", "label1", "label2"])
     assert hashed_words == [
         dataset.hash_string("word1"),
         dataset.hash_string("word2"),
@@ -75,9 +73,7 @@ def test_move_sentence_to_labeled():
         max_sentence_length=10,
     )
     dataset.move_sentence_to_labeled(["word1", "word2", "label1", "label2"])
-    labeled_file.save_sentence.assert_called_once_with(
-        ["word1", "word2", "label1", "label2"]
-    )
+    labeled_file.save_sentence.assert_called_once_with(["word1", "word2", "label1", "label2"])
     unlabeled_file.remove_sentence.assert_called_once_with(0)
 
 
@@ -99,9 +95,7 @@ def test_apply_padding():
 
 def test_get_training_data():
     labeled_file = MagicMock()
-    labeled_file.get_all_sentences.return_value = [
-        ["word1", "word2", "label1", "label2"]
-    ]
+    labeled_file.get_all_sentences.return_value = [["word1", "word2", "label1", "label2"]]
     dataset = Dataset(
         labeled_file=labeled_file,
         unlabeled_file=MagicMock(),
@@ -113,9 +107,7 @@ def test_get_training_data():
         max_sentence_length=10,
     )
     features, labels = dataset.get_training_data()
-    assert features == [
-        [dataset.hash_string("word1"), dataset.hash_string("word2")] + [0] * 8
-    ]
+    assert features == [[dataset.hash_string("word1"), dataset.hash_string("word2")] + [0] * 8]
     assert labels == [[0, 1] + [0] * 8]
 
 
@@ -139,9 +131,7 @@ def test_save():
 
 def test_labeled_sentences_count():
     labeled_file = MagicMock()
-    labeled_file.get_all_sentences.return_value = [
-        ["word1", "word2", "label1", "label2"]
-    ]
+    labeled_file.get_all_sentences.return_value = [["word1", "word2", "label1", "label2"]]
     dataset = Dataset(
         labeled_file=labeled_file,
         unlabeled_file=MagicMock(),

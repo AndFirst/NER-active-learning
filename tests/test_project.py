@@ -1,5 +1,4 @@
 import logging
-
 import pytest
 
 from app.constants import DEFAULT_UNLABELED_LABEL, DEFAULT_UNLABELED_IDX
@@ -55,29 +54,21 @@ def test_create_dataset_config(mock_from_state):
 
 @patch("shutil.copy")
 def test_copy_dataset_to_project_path(mock_copy):
-    Project._copy_dataset_to_project_path(
-        "test_dataset_path", "test_unlabeled_path"
-    )
-    mock_copy.assert_called_once_with(
-        "test_dataset_path", "test_unlabeled_path"
-    )
+    Project._copy_dataset_to_project_path("test_dataset_path", "test_unlabeled_path")
+    mock_copy.assert_called_once_with("test_dataset_path", "test_unlabeled_path")
 
 
 @patch("app.project.Factory.create_unlabeled_repository")
 def test_save_word_to_indexes(mock_create_unlabeled_repository):
     Project._save_word_to_indexes("test_unlabeled_path")
-    mock_create_unlabeled_repository.assert_called_once_with(
-        "test_unlabeled_path"
-    )
+    mock_create_unlabeled_repository.assert_called_once_with("test_unlabeled_path")
 
 
 @patch("app.project.Factory.create_labeled_repository")
 @patch("builtins.open", new_callable=mock_open)
 def test_save_label_to_indexes(mock_file, mock_create_labeled_repository):
     mock_labelset = set()
-    Project._save_label_to_indexes(
-        "test_labeled_path", mock_labelset, "test_labels_to_idx_path"
-    )
+    Project._save_label_to_indexes("test_labeled_path", mock_labelset, "test_labels_to_idx_path")
     mock_create_labeled_repository.assert_called_once_with("test_labeled_path")
 
 
@@ -92,22 +83,14 @@ def test_create_model_config(mock_from_state):
 def test_copy_model_implementation_if_custom(mock_copy):
     mock_model_conf = MagicMock(spec=ModelConf)
     mock_model_conf.is_custom_model_type.return_value = True
-    Project._copy_model_implementation_if_custom(
-        "test_model_implementation_path", mock_model_conf
-    )
-    mock_copy.assert_called_once_with(
-        "test_model_implementation_path", mock_model_conf.implementation_path
-    )
+    Project._copy_model_implementation_if_custom("test_model_implementation_path", mock_model_conf)
+    mock_copy.assert_called_once_with("test_model_implementation_path", mock_model_conf.implementation_path)
 
 
 @patch("shutil.copy")
 def test_copy_model_state_if_exists(mock_copy):
-    Project._copy_model_state_if_exists(
-        "test_model_state_path", "test_state_path"
-    )
-    mock_copy.assert_called_once_with(
-        "test_model_state_path", "test_state_path"
-    )
+    Project._copy_model_state_if_exists("test_model_state_path", "test_state_path")
+    mock_copy.assert_called_once_with("test_model_state_path", "test_state_path")
 
 
 @patch.object(ProjectConf, "from_state")
@@ -133,9 +116,7 @@ def test_create_project_config(mock_from_state):
 @patch("app.project.Factory.create_dataset", return_value=MagicMock())
 @patch("app.project.Factory.create_model", return_value=MagicMock())
 @patch("app.project.Factory.create_assistant", return_value=MagicMock())
-def test_project_constructor(
-    mock_create_dataset, mock_create_model, mock_create_assistant
-):
+def test_project_constructor(mock_create_dataset, mock_create_model, mock_create_assistant):
     # Arrange
     mock_config = MagicMock(spec=ProjectConf)
     mock_config.dataset_conf = MagicMock()
@@ -217,9 +198,7 @@ def test_save(
 
     # Assert
     mock_config.save_config.assert_called_once_with(mock_directory)
-    mock_create_model.return_value.save.assert_called_once_with(
-        mock_config.model_conf.state_path
-    )
+    mock_create_model.return_value.save.assert_called_once_with(mock_config.model_conf.state_path)
     mock_create_dataset.return_value.save.assert_called_once()
 
 
@@ -293,9 +272,7 @@ def test_create_project(
     project = Project.create(mock_form_state)
 
     # Assert
-    mock_create_project_directory.assert_called_once_with(
-        mock_form_state.save_path
-    )
+    mock_create_project_directory.assert_called_once_with(mock_form_state.save_path)
     mock_create_assistant_config.assert_called_once_with(mock_form_state)
     mock_create_dataset_config.assert_called_once_with(mock_form_state)
     mock_copy_dataset_to_project_path.assert_called_once()
@@ -355,22 +332,15 @@ def test_create_project_exception(
     mock_create_project_config.return_value = mock_project_config
 
     # Make the _create_project_directory method raise an exception
-    mock_create_project_directory.side_effect = Exception(
-        "Failed to create project directory"
-    )
+    mock_create_project_directory.side_effect = Exception("Failed to create project directory")
 
     with caplog.at_level(logging.ERROR):
         # Call the create method and assert that it raises an exception
-        with pytest.raises(
-            Exception, match="Failed to create project directory"
-        ):
+        with pytest.raises(Exception, match="Failed to create project directory"):
             Project.create(mock_form_state)
 
     # Check that the error was logged
-    assert (
-        "Failed to create project: Failed to create project directory"
-        in caplog.text
-    )
+    assert "Failed to create project: Failed to create project directory" in caplog.text
 
 
 @patch("app.project.Factory")

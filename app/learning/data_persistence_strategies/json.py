@@ -32,14 +32,10 @@ class JsonListStrategy(DataPersistenceStrategy):
         try:
             with open(self._file_path, "r", encoding="utf-8") as file:
                 data = json.load(file)
-                if isinstance(data, list) and all(
-                    isinstance(sentence, list) for sentence in data
-                ):
+                if isinstance(data, list) and all(isinstance(sentence, list) for sentence in data):
                     return data
                 else:
-                    raise ValueError(
-                        "JSON format is incorrect. Expected a list of lists."
-                    )
+                    raise ValueError("JSON format is incorrect. Expected a list of lists.")
         except json.JSONDecodeError:
             return []
 

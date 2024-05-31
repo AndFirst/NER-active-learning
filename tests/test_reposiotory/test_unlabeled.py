@@ -54,9 +54,7 @@ def test_remove_sentence():
     ]
     repo = UnlabeledSentenceRepository(persistence_strategy)
     repo.remove_sentence(0)
-    persistence_strategy.save.assert_called_once_with(
-        [["word3", "word4", "word5"]]
-    )
+    persistence_strategy.save.assert_called_once_with([["word3", "word4", "word5"]])
 
 
 def test_get_all_sentences():

@@ -21,9 +21,7 @@ def test_from_state():
 
     assert dataset_conf.unlabeled_path == "/path/to/save/unlabeled.csv"
     assert dataset_conf.labeled_path == "/path/to/save/labeled.out"
-    assert (
-        dataset_conf.labels_to_idx_path == "/path/to/save/labels_to_idx.json"
-    )
+    assert dataset_conf.labels_to_idx_path == "/path/to/save/labels_to_idx.json"
     assert dataset_conf.padding_label == DEFAULT_PADDING_LABEL
     assert dataset_conf.padding_idx == DEFAULT_PADDING_IDX
     assert dataset_conf.unlabeled_label == DEFAULT_UNLABELED_LABEL
@@ -38,17 +36,9 @@ def test_from_state_with_defaults():
 
     dataset_conf = DatasetConf.from_state(project_form_state)
 
-    assert (
-        dataset_conf.unlabeled_path
-        == f"/path/to/save/unlabeled{DEFAULT_INPUT_EXTENSION}"
-    )
-    assert (
-        dataset_conf.labeled_path
-        == f"/path/to/save/labeled{DEFAULT_OUTPUT_EXTENSION}"
-    )
-    assert (
-        dataset_conf.labels_to_idx_path == "/path/to/save/labels_to_idx.json"
-    )
+    assert dataset_conf.unlabeled_path == f"/path/to/save/unlabeled{DEFAULT_INPUT_EXTENSION}"
+    assert dataset_conf.labeled_path == f"/path/to/save/labeled{DEFAULT_OUTPUT_EXTENSION}"
+    assert dataset_conf.labels_to_idx_path == "/path/to/save/labels_to_idx.json"
     assert dataset_conf.padding_label == DEFAULT_PADDING_LABEL
     assert dataset_conf.padding_idx == DEFAULT_PADDING_IDX
     assert dataset_conf.unlabeled_label == DEFAULT_UNLABELED_LABEL
@@ -118,10 +108,7 @@ def test_get_existing_property():
         max_sentence_length=50,
     )
 
-    assert (
-        dataset_conf.get("unlabeled_path", "default")
-        == "/path/to/unlabeled.txt"
-    )
+    assert dataset_conf.get("unlabeled_path", "default") == "/path/to/unlabeled.txt"
     assert dataset_conf.get("nonexistent_property", "default") == "default"
 
 

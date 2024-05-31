@@ -87,9 +87,7 @@ class LabelRow(BoxLayout):
                 if isinstance(child, LabelRow) and child is not self
             ]
             if len(existing_labels) >= 11:
-                content = Label(
-                    text="Label limit reached (12 labels).", halign="center"
-                )
+                content = Label(text="Label limit reached (12 labels).", halign="center")
                 popup = Popup(
                     title="Error",
                     content=content,
@@ -101,9 +99,7 @@ class LabelRow(BoxLayout):
 
             new_label_text = self.ids.text_input.text.strip().lower()
             if new_label_text in existing_labels:
-                content = Label(
-                    text="This label already exists.", halign="center"
-                )
+                content = Label(text="This label already exists.", halign="center")
                 popup = Popup(
                     title="Error",
                     content=content,
@@ -113,17 +109,10 @@ class LabelRow(BoxLayout):
                 popup.open()
                 return
 
-            empty_row_exists = any(
-                child.ids.text_input.text == ""
-                for child in parent.children
-                if isinstance(child, LabelRow)
-            )
+            empty_row_exists = any(child.ids.text_input.text == "" for child in parent.children if isinstance(child, LabelRow))
             if empty_row_exists:
                 for child in parent.children:
-                    if (
-                        isinstance(child, LabelRow)
-                        and child.ids.text_input.text == ""
-                    ):
+                    if isinstance(child, LabelRow) and child.ids.text_input.text == "":
                         child.ids.text_input.focus = True
                         break
             else:

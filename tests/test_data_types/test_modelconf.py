@@ -27,10 +27,7 @@ def test_from_state():
     assert model_conf.num_words == DEFAULT_NUM_WORDS
     assert model_conf.num_labels == 10
     assert model_conf.num_classes == 21
-    assert (
-        model_conf.implementation_path
-        == "app/learning/models/custom_model_TestProject.py"
-    )
+    assert model_conf.implementation_path == "app/learning/models/custom_model_TestProject.py"
 
 
 def test_from_dict():

@@ -105,9 +105,7 @@ class SummaryScreen(Screen):
                     size_hint_x=0.75,
                 )
             elif field_label_text == "Labels":
-                labels_text = ", ".join(
-                    f"{label_data.label}" for label_data in value
-                )
+                labels_text = ", ".join(f"{label_data.label}" for label_data in value)
                 value_label = CustomLabel(
                     text=labels_text,
                     halign="center",
@@ -150,10 +148,6 @@ class SummaryScreen(Screen):
             )
             popup.open()
             return
-        self.manager.get_screen("main_menu").project = Project.load(
-            self.form_state.save_path
-        )
-        self.manager.get_screen("main_menu").save_path = (
-            self.form_state.save_path
-        )
+        self.manager.get_screen("main_menu").project = Project.load(self.form_state.save_path)
+        self.manager.get_screen("main_menu").save_path = self.form_state.save_path
         self.manager.current = "main_menu"

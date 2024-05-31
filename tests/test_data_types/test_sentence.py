@@ -9,9 +9,7 @@ def test_get_left_neighbor():
         words=[word1, word2],
         label=LabelData(label="Label1", color=(255, 0, 0, 255)),
     )
-    annotation2 = Annotation(
-        words=[word3], label=LabelData(label="Label2", color=(0, 255, 0, 255))
-    )
+    annotation2 = Annotation(words=[word3], label=LabelData(label="Label2", color=(0, 255, 0, 255)))
     sentence = Sentence(tokens=[annotation1, annotation2])
 
     assert sentence.get_left_neighbor(word1) is None
@@ -27,9 +25,7 @@ def test_get_right_neighbor():
         words=[word1, word2],
         label=LabelData(label="Label1", color=(255, 0, 0, 255)),
     )
-    annotation2 = Annotation(
-        words=[word3], label=LabelData(label="Label2", color=(0, 255, 0, 255))
-    )
+    annotation2 = Annotation(words=[word3], label=LabelData(label="Label2", color=(0, 255, 0, 255)))
     sentence = Sentence(tokens=[annotation1, annotation2])
 
     assert sentence.get_right_neighbor(word1) == word2
@@ -45,9 +41,7 @@ def test_get_word_parent():
         words=[word1, word2],
         label=LabelData(label="Label1", color=(255, 0, 0, 255)),
     )
-    annotation2 = Annotation(
-        words=[word3], label=LabelData(label="Label2", color=(0, 255, 0, 255))
-    )
+    annotation2 = Annotation(words=[word3], label=LabelData(label="Label2", color=(0, 255, 0, 255)))
     sentence = Sentence(tokens=[annotation1, annotation2])
 
     assert sentence.get_word_parent(word1) == annotation1
@@ -64,9 +58,7 @@ def test_to_list():
         words=[word1, word2],
         label=LabelData(label="Label1", color=(255, 0, 0, 255)),
     )
-    annotation2 = Annotation(
-        words=[word3], label=LabelData(label="Label2", color=(0, 255, 0, 255))
-    )
+    annotation2 = Annotation(words=[word3], label=LabelData(label="Label2", color=(0, 255, 0, 255)))
     sentence = Sentence(tokens=[annotation1, annotation2])
 
     expected_list = [

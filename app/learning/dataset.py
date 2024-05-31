@@ -44,9 +44,7 @@ class Dataset:
         self._unlabeled_file = unlabeled_file
 
         self._labels_to_idx: Dict[str, int] = labels_to_idx
-        self._idx_to_labels: Dict[int, str] = {
-            v: k for k, v in labels_to_idx.items()
-        }
+        self._idx_to_labels: Dict[int, str] = {v: k for k, v in labels_to_idx.items()}
 
         self._padding_label: str = padding_label
         self._padding_idx: int = padding_idx
@@ -85,12 +83,7 @@ class Dataset:
         label_counts = self.count_labels()
         total_count = sum(label_counts.values())
 
-        return [
-            1.0 / (label_counts[label] / total_count)
-            for label in sorted(
-                self._labels_to_idx, key=self._labels_to_idx.get
-            )
-        ]
+        return [1.0 / (label_counts[label] / total_count) for label in sorted(self._labels_to_idx, key=self._labels_to_idx.get)]
 
     def get_unlabeled_sentence(self, idx: int) -> List[str]:
         """
@@ -103,9 +96,7 @@ class Dataset:
         """
         return self._unlabeled_file.get_sentence(idx)
 
-    def _extract_features_and_labels(
-        self, sentence: List[str]
-    ) -> Tuple[List[int], List[int]]:
+    def _extract_features_and_labels(self, sentence: List[str]) -> Tuple[List[int], List[int]]:
         """
         Extracts features and labels from a sentence.
 
@@ -117,9 +108,7 @@ class Dataset:
         :return: A tuple containing a list of hashed words and a list of label indices.
         :rtype: Tuple[List[int], List[int]]
         """
-        assert (
-            len(sentence) % 2 == 0
-        ), "Sentence must have an even number of words."
+        assert len(sentence) % 2 == 0, "Sentence must have an even number of words."
 
         middle = len(sentence) // 2
         words, labels = sentence[:middle], sentence[middle:]
@@ -129,9 +118,7 @@ class Dataset:
 
         return hashed_words, label_indices
 
-    def map_unlabeled_sentence_to_indices(
-        self, sentence: List[str]
-    ) -> List[int]:
+    def map_unlabeled_sentence_to_indices(self, sentence: List[str]) -> List[int]:
         """
         Maps an unlabeled sentence to a list of indices.
 
@@ -169,18 +156,14 @@ class Dataset:
         :param sentence: The sentence to move. Must have an even number of words.
         :type sentence: List[str]
         """
-        assert (
-            len(sentence) % 2 == 0
-        ), "Sentence must have an even number of words."
+        assert len(sentence) % 2 == 0, "Sentence must have an even number of words."
         middle = len(sentence) // 2
         words = sentence[:middle]
         idx = self._unlabeled_file.get_sentence_idx(words)
         self._labeled_file.save_sentence(sentence)
         self._unlabeled_file.remove_sentence(idx)
 
-    def _apply_padding(
-        self, vector: List[int], max_length: int = None
-    ) -> List[int]:
+    def _apply_padding(self, vector: List[int], max_length: int = None) -> List[int]:
         """
         Applies padding to a vector.
 
@@ -193,9 +176,7 @@ class Dataset:
         :return: The padded or truncated vector.
         :rtype: List[int]
         """
-        return vector[:max_length] + [self._padding_idx] * (
-            self._max_sentence_length - len(vector)
-        )
+        return vector[:max_length] + [self._padding_idx] * (self._max_sentence_length - len(vector))
 
     def get_training_data(self) -> Tuple[List[List[int]], List[List[int]]]:
         """
@@ -211,12 +192,7 @@ class Dataset:
         """
         sentences = self._labeled_file.get_all_sentences()
 
-        features, labels = zip(
-            *[
-                self._extract_features_and_labels(sentence)
-                for sentence in sentences
-            ]
-        )
+        features, labels = zip(*[self._extract_features_and_labels(sentence) for sentence in sentences])
         features = [self._apply_padding(feature) for feature in features]
         labels = [self._apply_padding(label) for label in labels]
         return features, labels
@@ -272,9 +248,7 @@ class Dataset:
         :return: The hash of the string as a unique index.
         :rtype: int
         """
-        return int(hashlib.sha256(s.encode()).hexdigest(), 16) % (
-            num_hashes + 1
-        )
+        return int(hashlib.sha256(s.encode()).hexdigest(), 16) % (num_hashes + 1)
 
     def get_labeled_sentences_converted(
         self,
@@ -293,11 +267,6 @@ class Dataset:
         """
         sentences = self._labeled_file.get_all_sentences()
 
-        features, labels = zip(
-            *[
-                self._extract_features_and_labels(sentence)
-                for sentence in sentences
-            ]
-        )
+        features, labels = zip(*[self._extract_features_and_labels(sentence) for sentence in sentences])
 
         return features, labels

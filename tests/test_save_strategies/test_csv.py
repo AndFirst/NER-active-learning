@@ -17,9 +17,7 @@ def test_csv_tab_separated_strategy_init_invalid_file_type():
         CsvTabSeparatedStrategy("test.txt")
 
 
-@patch(
-    "builtins.open", new_callable=mock_open, read_data="sentence1\tsentence2\n"
-)
+@patch("builtins.open", new_callable=mock_open, read_data="sentence1\tsentence2\n")
 @patch("os.path.isfile", return_value=True)
 def test_csv_tab_separated_strategy_load(mock_isfile, mock_file):
     strategy = CsvTabSeparatedStrategy("test.csv")

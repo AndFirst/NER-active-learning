@@ -33,7 +33,5 @@ class LabelChooseContainer(StackLayout):
     def update_labels(self):
         self.clear_widgets()
         for label_data in self.labels:
-            color_label = ColorLabel(
-                label_data=label_data, update_form_state=self.label_callback
-            )
+            color_label = ColorLabel(label_data=label_data, update_form_state=self.label_callback)
             self.add_widget(color_label)

@@ -37,9 +37,7 @@ class Factory:
         with open(cfg.labels_to_idx_path, "r") as fh:
             labels_to_idx = json.load(fh)
 
-        unlabeled_file = Factory.create_unlabeled_repository(
-            cfg.unlabeled_path
-        )
+        unlabeled_file = Factory.create_unlabeled_repository(cfg.unlabeled_path)
         labeled_file = Factory.create_labeled_repository(cfg.labeled_path)
 
         return Dataset(
@@ -82,9 +80,7 @@ class Factory:
         return model
 
     @staticmethod
-    def create_assistant(
-        model, dataset, config: AssistantConf
-    ) -> ActiveLearningManager:
+    def create_assistant(model, dataset, config: AssistantConf) -> ActiveLearningManager:
         """
         Creates an ActiveLearningManager object.
 
@@ -111,9 +107,7 @@ class Factory:
         :return: A LabeledSentenceRepository object.
         :rtype: LabeledSentenceRepository
         """
-        data_persistence_strategy = Factory.create_data_persistence_strategy(
-            labeled_path
-        )
+        data_persistence_strategy = Factory.create_data_persistence_strategy(labeled_path)
         return LabeledSentenceRepository(data_persistence_strategy)
 
     @staticmethod
@@ -128,9 +122,7 @@ class Factory:
         :return: An UnlabeledSentenceRepository object.
         :rtype: UnlabeledSentenceRepository
         """
-        data_persistence_strategy = Factory.create_data_persistence_strategy(
-            unlabeled_path
-        )
+        data_persistence_strategy = Factory.create_data_persistence_strategy(unlabeled_path)
         return UnlabeledSentenceRepository(data_persistence_strategy)
 
     @staticmethod
