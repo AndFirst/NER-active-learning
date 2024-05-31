@@ -19,6 +19,7 @@ kv_string = """
         BoxLayout:
             orientation: 'vertical'
             padding: 20
+            size_hint_x: 0.7
 
             Label:
                 text: "Occurrences per label"
@@ -31,13 +32,14 @@ kv_string = """
 
             GridLayout:
                 id: labels_grid
-                cols: 2
+                cols: 4
                 padding: 0
-                spacing: 0
+                spacing: [1, 1]
 
         BoxLayout:
             orientation: 'vertical'
             padding: 20
+            size_hint_x: 0.3
 
             Label:
                 text: "Statistics"
@@ -94,25 +96,24 @@ class StatsScreen(Screen):
     def on_enter(self):
         self.ids.labels_grid.clear_widgets()
         self.ids.stats_grid.clear_widgets()
-        print(self.form_state.labels)
-        labels = [label_data.label for label_data in self.form_state.labels]
-        if not labels:
-            labels = self.labels
+        stats_dict = self.get_stats()
+        label_count = stats_dict["label_count"]
+        del label_count["<O>"]
+        del stats_dict["label_count"]
 
-        for label in labels:
+        for label, value in label_count.items():
             self.ids.labels_grid.add_widget(
                 BorderedLabel(text=label, color=(0, 0, 0, 1), size_hint_y=None, height=34)
             )
             self.ids.labels_grid.add_widget(
-                BorderedLabel(text="0", color=(0, 0, 0, 1), size_hint_y=None, height=34)
+                BorderedLabel(text=str(value), color=(0, 0, 0, 1), size_hint_y=None, height=34)
             )
 
-        stats_dict = self.get_stats()
         keys = list(stats_dict.keys())
         values = list(stats_dict.values())
         
-        keys[0] = "Labeled sentences"
-        keys[1] = "Unlabeled sentences"
+        keys[0] = "labeled"
+        keys[1] = "unlabeled"
 
         for i, key in enumerate(keys):
             if i < 2:
