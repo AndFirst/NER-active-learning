@@ -1,4 +1,3 @@
-import csv
 import pytest
 from unittest.mock import patch, mock_open
 from app.learning.data_persistence_strategies.csv import (

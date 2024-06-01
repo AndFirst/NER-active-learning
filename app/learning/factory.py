@@ -97,7 +97,7 @@ class Factory:
 
     @staticmethod
     def create_labeled_repository(
-            labeled_path: str,
+        labeled_path: str,
     ) -> LabeledSentenceRepository:
         """
         Creates a LabeledSentenceRepository object.
@@ -112,7 +112,7 @@ class Factory:
 
     @staticmethod
     def create_unlabeled_repository(
-            unlabeled_path: str,
+        unlabeled_path: str,
     ) -> UnlabeledSentenceRepository:
         """
         Creates an UnlabeledSentenceRepository object.
@@ -127,7 +127,7 @@ class Factory:
 
     @staticmethod
     def create_data_persistence_strategy(
-            file_path: str,
+        file_path: str,
     ) -> DataPersistenceStrategy:
         """
         Creates a DataPersistenceStrategy object.

@@ -26,9 +26,10 @@ poprzez wyświetlanie statystyk dotyczących modelu i procesu uczenia.
 ## Instalacja
 
 Aplikacja jest budowana przy użyciu narzędzia `make`.
-Wspieranym systemem operacyjnym jest `Linux`.
+Wspieranym systemem operacyjnym jest `Linux` Aplikacja wykorzystuje `python 3.11.7`, inne wersje mogą nie działać w
+pełni poprawnie.
 
-W przypadku problemów z instalacją
+W przypadku problemów z instalacją:
 
 ```bash
 sudo apt install python3

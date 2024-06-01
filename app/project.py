@@ -105,13 +105,13 @@ class Project:
 
     @staticmethod
     def _create_assistant_config(
-            project_form_state: ProjectFormState,
+        project_form_state: ProjectFormState,
     ) -> AssistantConf:
         return AssistantConf.from_state(project_form_state)
 
     @staticmethod
     def _create_dataset_config(
-            project_form_state: ProjectFormState,
+        project_form_state: ProjectFormState,
     ) -> DatasetConf:
         return DatasetConf.from_state(project_form_state)
 
@@ -146,10 +146,10 @@ class Project:
 
     @staticmethod
     def _create_project_config(
-            project_form_state: ProjectFormState,
-            model_conf: ModelConf,
-            assistant_conf: AssistantConf,
-            dataset_conf: DatasetConf,
+        project_form_state: ProjectFormState,
+        model_conf: ModelConf,
+        assistant_conf: AssistantConf,
+        dataset_conf: DatasetConf,
     ) -> ProjectConf:
         return ProjectConf.from_state(project_form_state, model_conf, assistant_conf, dataset_conf)
 
@@ -165,8 +165,7 @@ class Project:
         """
         sorted_labels = sorted(list(labels))
         label_to_idx = {DEFAULT_UNLABELED_LABEL: DEFAULT_UNLABELED_IDX}
-        label_to_idx.update(
-            {f"{prefix}-{label}": idx for idx, (label, prefix) in enumerate(product(sorted_labels, "BI"), 1)})
+        label_to_idx.update({f"{prefix}-{label}": idx for idx, (label, prefix) in enumerate(product(sorted_labels, "BI"), 1)})
         return label_to_idx
 
     @property
