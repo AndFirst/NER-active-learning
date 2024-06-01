@@ -32,8 +32,8 @@ pełni poprawnie.
 W przypadku problemów z instalacją:
 
 ```bash
-sudo apt install python3
-sudo apt install python3-venv
+sudo apt install python3.11
+sudo apt install python3.11-venv
 ```
 
 ### Instalacja zależności
