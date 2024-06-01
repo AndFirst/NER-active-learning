@@ -1,3 +1,5 @@
+import os
+
 from app.data_types import DatasetConf, ProjectFormState
 from app.constants import (
     DEFAULT_PADDING_IDX,
@@ -47,10 +49,11 @@ def test_from_state_with_defaults():
 
 
 def test_from_dict():
+    directory_path = "/path/to"
     data = {
-        "unlabeled_path": "/path/to/unlabeled.txt",
-        "labeled_path": "/path/to/labeled.txt",
-        "labels_to_idx_path": "/path/to/labels_to_idx.json",
+        "unlabeled_path": "unlabeled.txt",
+        "labeled_path": "labeled.txt",
+        "labels_to_idx_path": "labels_to_idx.json",
         "padding_label": "PAD",
         "padding_idx": 0,
         "unlabeled_label": "UNLABELED",
@@ -58,11 +61,11 @@ def test_from_dict():
         "max_sentence_length": 50,
     }
 
-    dataset_conf = DatasetConf.from_dict(data)
+    dataset_conf = DatasetConf.from_dict(directory_path, data)
 
-    assert dataset_conf.unlabeled_path == data["unlabeled_path"]
-    assert dataset_conf.labeled_path == data["labeled_path"]
-    assert dataset_conf.labels_to_idx_path == data["labels_to_idx_path"]
+    assert dataset_conf.unlabeled_path == os.path.join(directory_path, data["unlabeled_path"])
+    assert dataset_conf.labeled_path == os.path.join(directory_path, data["labeled_path"])
+    assert dataset_conf.labels_to_idx_path == os.path.join(directory_path, data["labels_to_idx_path"])
     assert dataset_conf.padding_label == data["padding_label"]
     assert dataset_conf.padding_idx == data["padding_idx"]
     assert dataset_conf.unlabeled_label == data["unlabeled_label"]
@@ -83,9 +86,9 @@ def test_to_dict():
     )
 
     expected_dict = {
-        "unlabeled_path": "/path/to/unlabeled.txt",
-        "labeled_path": "/path/to/labeled.txt",
-        "labels_to_idx_path": "/path/to/labels_to_idx.json",
+        "unlabeled_path": "unlabeled.txt",
+        "labeled_path": "labeled.txt",
+        "labels_to_idx_path": "labels_to_idx.json",
         "padding_label": "PAD",
         "padding_idx": 0,
         "unlabeled_label": "UNLABELED",
@@ -98,7 +101,7 @@ def test_to_dict():
 
 def test_get_existing_property():
     dataset_conf = DatasetConf(
-        unlabeled_path="/path/to/unlabeled.txt",
+        unlabeled_path="unlabeled.txt",
         labeled_path="/path/to/labeled.txt",
         labels_to_idx_path="/path/to/labels_to_idx.json",
         padding_label="PAD",
@@ -108,7 +111,7 @@ def test_get_existing_property():
         max_sentence_length=50,
     )
 
-    assert dataset_conf.get("unlabeled_path", "default") == "/path/to/unlabeled.txt"
+    assert dataset_conf.get("unlabeled_path", "default") == "unlabeled.txt"
     assert dataset_conf.get("nonexistent_property", "default") == "default"
 
 

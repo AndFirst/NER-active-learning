@@ -173,8 +173,6 @@ class CreateProjectScreen(Screen):
         name = self.ids.name_input.text.strip()
         description = self.ids.description_input.text.strip()
         path = self.ids.path_button.text.strip()
-        print(self.form_state)
-        print(name, description, path)
 
         if all([name, description, path != "Save project path", self.form_state.output_extension, self.form_state.model_type]):
             self.form_state.name = name

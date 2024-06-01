@@ -26,10 +26,9 @@ def test_csv_tab_separated_strategy_load(mock_isfile, mock_file):
 
 
 @patch("builtins.open", new_callable=mock_open)
-@patch.object(csv, "writer")
-def test_csv_tab_separated_strategy_save(mock_csv_writer, mock_file):
-    mock_writer = mock_csv_writer.return_value
+def test_csv_tab_separated_strategy_save(mock_file):
     strategy = CsvTabSeparatedStrategy("test.csv")
     sentences: Sentences = [["sentence1", "sentence2"]]
     strategy.save(sentences)
-    mock_writer.writerows.assert_called_once_with(sentences)
+    mock_file.assert_called_once_with("test.csv", "w")
+    mock_file().write.assert_called_once_with("sentence1\tsentence2\n")

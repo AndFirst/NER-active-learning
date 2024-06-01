@@ -74,7 +74,6 @@ class Factory:
                 model = CustomModel(cfg.implementation_path)
             case _:
                 raise ValueError(f"Unsupported model type: {cfg.type}")
-        print("123", cfg.state_path)
         if os.path.exists(cfg.state_path):
             model.load_weights(cfg.state_path)
         model.validate_torch_model(cfg.num_words, cfg.num_classes)
@@ -98,7 +97,7 @@ class Factory:
 
     @staticmethod
     def create_labeled_repository(
-        labeled_path: str,
+            labeled_path: str,
     ) -> LabeledSentenceRepository:
         """
         Creates a LabeledSentenceRepository object.
@@ -113,7 +112,7 @@ class Factory:
 
     @staticmethod
     def create_unlabeled_repository(
-        unlabeled_path: str,
+            unlabeled_path: str,
     ) -> UnlabeledSentenceRepository:
         """
         Creates an UnlabeledSentenceRepository object.
@@ -128,7 +127,7 @@ class Factory:
 
     @staticmethod
     def create_data_persistence_strategy(
-        file_path: str,
+            file_path: str,
     ) -> DataPersistenceStrategy:
         """
         Creates a DataPersistenceStrategy object.

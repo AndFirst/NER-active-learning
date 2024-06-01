@@ -48,16 +48,3 @@ class CustomModel(NERModel):
         self._training_queue = Queue()
         self._worker_thread = threading.Thread(target=self._worker, daemon=True)
         self._worker_thread.start()
-
-    # def save(self, path: str) -> None:
-    #     if self._model is None:
-    #         raise ValueError("Model has not been instantiated yet.")
-    #     torch.save(self._model.state_dict(), path)
-    #
-    # def load_weights(self, path: str) -> None:
-    #     if self._model is None:
-    #         raise ValueError("Model has not been instantiated yet.")
-    #     state_dict = torch.load(path)
-    #     self._model.load_state_dict(state_dict)
-    #     self._model.eval()
-    #     print(self._model)

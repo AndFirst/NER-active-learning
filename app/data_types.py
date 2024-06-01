@@ -559,7 +559,7 @@ class ModelConf:
             impl_path = f"{model_path}{project_form_state.name}.py"
         return ModelConf(
             project_form_state.model_type,
-            "model.pth",
+            project_form_state.save_path + "/" + "model.pth",
             project_form_state.get("dropout", DEFAULT_DROPOUT),
             project_form_state.get("learning_rate", DEFAULT_LEARNING_RATE),
             project_form_state.get("num_words", DEFAULT_NUM_WORDS),

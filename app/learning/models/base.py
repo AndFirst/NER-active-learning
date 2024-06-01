@@ -94,12 +94,12 @@ class NERModel:
             self._optimizer.step()
 
     def _train_model(
-        self,
-        features: List[List[int]],
-        targets: List[List[int]],
-        epochs: int,
-        batch_size: int,
-        class_weights: List[float] = None,
+            self,
+            features: List[List[int]],
+            targets: List[List[int]],
+            epochs: int,
+            batch_size: int,
+            class_weights: List[float] = None,
     ) -> None:
         """
         Trains the model.
@@ -128,12 +128,12 @@ class NERModel:
             logging.info("Swapped model.")
 
     def train_async(
-        self,
-        features: List[List[int]],
-        targets: List[List[int]],
-        epochs: int,
-        batch_size: int,
-        class_weights: List[float] = None,
+            self,
+            features: List[List[int]],
+            targets: List[List[int]],
+            epochs: int,
+            batch_size: int,
+            class_weights: List[float] = None,
     ) -> None:
         """
         Trains the model asynchronously.
@@ -214,7 +214,6 @@ class NERModel:
         :type file_path: str
         :raises ValueError: If the model is not initialized.
         """
-        print(file_path)
         if self._model is None:
             raise ValueError("Model must be initialized before loading weights.")
 
@@ -287,7 +286,8 @@ class NERModel:
         predictions_flat, targets_flat = self._get_predictions(features_tensor, targets_tensor)
         return self._calculate_metrics(targets_flat, predictions_flat)
 
-    def _prepare_tensors(self, features: List[List[int]], targets: List[List[int]]) -> Tuple[torch.Tensor, torch.Tensor]:
+    def _prepare_tensors(self, features: List[List[int]], targets: List[List[int]]) -> Tuple[
+        torch.Tensor, torch.Tensor]:
         """
         Prepares the tensors for evaluation.
 

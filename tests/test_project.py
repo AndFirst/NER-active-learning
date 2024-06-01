@@ -198,7 +198,7 @@ def test_save(
 
     # Assert
     mock_config.save_config.assert_called_once_with(mock_directory)
-    mock_create_model.return_value.save.assert_called_once_with(mock_config.model_conf.state_path)
+    mock_create_model.return_value.save.assert_called_once_with(mock_directory + "/model.pth")
     mock_create_dataset.return_value.save.assert_called_once()
 
 

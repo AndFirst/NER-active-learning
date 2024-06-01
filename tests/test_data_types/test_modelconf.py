@@ -1,3 +1,5 @@
+import os
+
 from app.data_types import ProjectFormState, ModelConf, LabelData
 from app.constants import (
     DEFAULT_DROPOUT,
@@ -14,14 +16,14 @@ def test_from_state():
         description="A test project",
         dataset_path="/path/to/dataset.csv",
         labels=[LabelData("label1", (255, 0, 0, 255))],
-        model_state_path="/path/to/model/state",
+        model_state_path="model.pth",
         model_implementation_path="/path/to/model/implementation",
     )
 
     model_conf = ModelConf.from_state(project_form_state, 10)
 
     assert model_conf.type == "custom"
-    assert model_conf.state_path == "/path/to/save/model.pth"
+    assert model_conf.state_path == "/path/to/save/" + "model.pth"
     assert model_conf.dropout == DEFAULT_DROPOUT
     assert model_conf.learning_rate == DEFAULT_LEARNING_RATE
     assert model_conf.num_words == DEFAULT_NUM_WORDS
@@ -31,9 +33,10 @@ def test_from_state():
 
 
 def test_from_dict():
+    directory_path = "/path/to"
     data = {
         "type": "custom",
-        "state_path": "/path/to/model.pth",
+        "state_path": "model.pth",
         "dropout": 0.5,
         "learning_rate": 0.001,
         "num_words": 1000,
@@ -42,10 +45,10 @@ def test_from_dict():
         "implementation_path": "app/learning/models/custom_model_TestProject.py",
     }
 
-    model_conf = ModelConf.from_dict(data)
+    model_conf = ModelConf.from_dict(directory_path, data)
 
     assert model_conf.type == data["type"]
-    assert model_conf.state_path == data["state_path"]
+    assert model_conf.state_path == os.path.join(directory_path, data["state_path"])
     assert model_conf.dropout == data["dropout"]
     assert model_conf.learning_rate == data["learning_rate"]
     assert model_conf.num_words == data["num_words"]
@@ -68,7 +71,7 @@ def test_to_dict():
 
     expected_dict = {
         "type": "custom",
-        "state_path": "/path/to/model.pth",
+        "state_path": "model.pth",
         "dropout": 0.5,
         "learning_rate": 0.001,
         "num_words": 1000,

@@ -128,7 +128,6 @@ class SummaryScreen(Screen):
         self.manager.current = "add_labels"
 
     def go_to_main_menu(self):
-        print(self.form_state)
         try:
             project = Project.create(self.form_state)
             project.save()

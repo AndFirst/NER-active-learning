@@ -119,7 +119,8 @@ def test_from_dict():
         "dataset": dataset_conf.to_dict(),
     }
 
-    project_conf = ProjectConf.from_dict(data)
+    directory_path = "/path/to"
+    project_conf = ProjectConf.from_dict(directory_path, data)
 
     assert project_conf.name == data["name"]
     assert project_conf.description == data["description"]
