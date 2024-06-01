@@ -1,19 +1,27 @@
-.PHONY: build app clean data lint format requirements sync-data test test-cov docs help
+.PHONY: build venv app clean lint format requirements test test-cov docs docs-clean help
 
 PROJECT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 PROFILE = default
 PROJECT_NAME = zprp-ner-active-learning
-PYTHON_INTERPRETER = python
+PYTHON_INTERPRETER = python3
+
+ifeq ($(OS),Windows_NT)
+    ACTIVATE = .venv\Scripts\activate
+    DEACTIVATE = deactivate
+else
+    ACTIVATE = . .venv/bin/activate
+    DEACTIVATE = deactivate
+endif
 
 build: clean venv requirements format lint test
 
 venv:
-	virtualenv .venv
+	$(PYTHON_INTERPRETER) -m venv .venv
 
 app: format
-	. .venv/bin/activate; \
+	$(ACTIVATE); \
 	$(PYTHON_INTERPRETER) -m app.app; \
-	deactivate
+	$(DEACTIVATE)
 
 clean:
 	find . -type f -name "*.py[co]" -delete
@@ -28,25 +36,25 @@ clean:
 	rm -rf .pytest_cache
 
 lint:
-	. .venv/bin/activate; \
+	$(ACTIVATE); \
 	flake8 --max-line-length=130 app/ tests/ --exclude=__init__.py; \
-	deactivate
+	$(DEACTIVATE)
 
 format:
-	. .venv/bin/activate; \
+	$(ACTIVATE); \
 	black --line-length 130 --target-version py310 app/ tests/; \
 	autoflake --remove-all-unused-imports --recursive --remove-unused-variables --in-place app/ tests/ --exclude=__init__.py; \
-	deactivate
+	$(DEACTIVATE)
 
 test:
-	. .venv/bin/activate; \
+	$(ACTIVATE); \
 	pytest; \
-	deactivate
+	$(DEACTIVATE)
 
 test-cov: format
-	. .venv/bin/activate; \
+	$(ACTIVATE); \
 	pytest --cov-report term-missing:skip-covered --cov=app; \
-	deactivate
+	$(DEACTIVATE)
 
 docs:
 	make -C docs html
@@ -55,16 +63,21 @@ docs-clean:
 	make -C docs clean
 
 requirements:
-	. .venv/bin/activate; \
+	$(ACTIVATE); \
 	$(PYTHON_INTERPRETER) -m pip install -U pip setuptools wheel; \
 	$(PYTHON_INTERPRETER) -m pip install -r requirements.txt; \
-	deactivate
+	$(DEACTIVATE)
 
 help:
-	@echo "clean        remove all build, test, coverage and Python artifacts"
-	@echo "lint         check style with flake8"
-	@echo "black        format code with black"
-	@echo "test         run tests quickly with the default Python"
-	@echo "test-cov     check code coverage quickly with the default Python"
-	@echo "docs         generate Sphinx HTML documentation, including API docs"
-	@echo "requirements install the Python dependencies"
+	@echo "build         build the project"
+	@echo "venv          create a virtual environment"
+	@echo "app           run the app"
+	@echo "clean         remove all build, test, coverage and Python artifacts"
+	@echo "lint          check style with flake8"
+	@echo "format        format code with black and autoflake"
+	@echo "requirements  install the Python dependencies"
+	@echo "test          run tests quickly with the default Python"
+	@echo "test-cov      check code coverage quickly with the default Python"
+	@echo "docs          generate Sphinx HTML documentation, including API docs"
+	@echo "docs-clean    clean the docs"
+	@echo "help          display this help message"

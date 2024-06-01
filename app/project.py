@@ -63,7 +63,7 @@ class Project:
         """
         try:
             self._config.save_config(self._directory)
-            self._model.save(self._config.model_conf.state_path)
+            self._model.save(self._directory + "/model.pth")
             self._dataset.save()
         except Exception as e:
             logging.error(f"Failed to save project: {e}")
@@ -92,7 +92,9 @@ class Project:
             )
             model_conf = cls._create_model_config(project_form_state, len(assistant_conf.get_labelset()))
             cls._copy_model_implementation_if_custom(project_form_state.model_implementation_path, model_conf)
-            cls._copy_model_state_if_exists(project_form_state.model_state_path, model_conf.state_path)
+            cls._copy_model_state_if_exists(
+                project_form_state.model_state_path, project_form_state.save_path + model_conf.state_path
+            )
             project_conf = cls._create_project_config(project_form_state, model_conf, assistant_conf, dataset_conf)
             return Project(project_conf, project_form_state.save_path)
         except Exception as e:

@@ -214,6 +214,7 @@ class NERModel:
         :type file_path: str
         :raises ValueError: If the model is not initialized.
         """
+        print(file_path)
         if self._model is None:
             raise ValueError("Model must be initialized before loading weights.")
 

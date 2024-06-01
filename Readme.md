@@ -27,7 +27,13 @@ poprzez wyświetlanie statystyk dotyczących modelu i procesu uczenia.
 
 Aplikacja jest budowana przy użyciu narzędzia `make`.
 Wspieranym systemem operacyjnym jest `Linux`.
-Aplikacja jest kompatybilna z `Python 3.12`, pozostałe wersje nie są gwarantowane.
+
+W przypadku problemów z instalacją
+
+```bash
+sudo apt install python3
+sudo apt install python3-venv
+```
 
 ### Instalacja zależności
 

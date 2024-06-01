@@ -1,3 +1,4 @@
+import random
 import string
 from kivy.lang import Builder
 from kivy.uix.boxlayout import BoxLayout
@@ -6,7 +7,6 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.colorpicker import ColorWheel
 from kivy.uix.popup import Popup
 from kivy.properties import ListProperty
-import random
 
 
 class LabelTextInput(TextInput):
@@ -41,7 +41,7 @@ Builder.load_string(
         text: ""
         size_hint_x: 0.2
         height: root.height
-        background_color: root.random_color()
+        background_color: root.color
         background_normal: ''
         background_down: ''
         on_release: root.show_color_picker()
@@ -56,18 +56,13 @@ Builder.load_string(
 
 
 class LabelRow(BoxLayout):
-    last_color = [0, 0, 0, 1]
-
-    @staticmethod
-    def random_color():
-        return [random.random() for _ in range(3)] + [1]
-
-    color = ListProperty(random_color())
+    color = ListProperty([0.5, 0.5, 0.5, 1])
     max_length = 20
 
     def __init__(self, **kwargs):
         super(LabelRow, self).__init__(**kwargs)
         self.popup = None
+        self.color = [random.random() for _ in range(3)] + [1]
 
     @property
     def label(self):
@@ -117,21 +112,8 @@ class LabelRow(BoxLayout):
                         break
             else:
                 new_row = LabelRow()
-                new_row.color = self.get_next_color()
                 self.parent.add_widget(new_row)
                 new_row.ids.text_input.focus = True
-
-    @staticmethod
-    def random_color():
-        return [random.random() for _ in range(3)] + [1]
-
-    @staticmethod
-    def get_next_color():
-        next_color = LabelRow.random_color()
-        while next_color == LabelRow.last_color:
-            next_color = LabelRow.random_color()
-        LabelRow.last_color = next_color
-        return next_color
 
     def show_color_picker(self):
         color_picker = ColorWheel(color=self.color)

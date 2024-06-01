@@ -74,6 +74,7 @@ class Factory:
                 model = CustomModel(cfg.implementation_path)
             case _:
                 raise ValueError(f"Unsupported model type: {cfg.type}")
+        print("123", cfg.state_path)
         if os.path.exists(cfg.state_path):
             model.load_weights(cfg.state_path)
         model.validate_torch_model(cfg.num_words, cfg.num_classes)

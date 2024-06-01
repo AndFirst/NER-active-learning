@@ -341,7 +341,7 @@ class DatasetConf:
         )
 
     @classmethod
-    def from_dict(cls, dictionary: Dict[str, Any]) -> DatasetConf:
+    def from_dict(cls, directory_path: str, dictionary: Dict[str, Any]) -> DatasetConf:
         """
         Create a dataset configuration from a dictionary.
 
@@ -352,9 +352,9 @@ class DatasetConf:
         :rtype: DatasetConf
         """
         return DatasetConf(
-            dictionary["unlabeled_path"],
-            dictionary["labeled_path"],
-            dictionary["labels_to_idx_path"],
+            directory_path + "/" + dictionary["unlabeled_path"],
+            directory_path + "/" + dictionary["labeled_path"],
+            directory_path + "/" + dictionary["labels_to_idx_path"],
             dictionary["padding_label"],
             dictionary["padding_idx"],
             dictionary["unlabeled_label"],
@@ -370,9 +370,9 @@ class DatasetConf:
         :rtype: Dict[str, Any]
         """
         return {
-            "unlabeled_path": self.unlabeled_path,
-            "labeled_path": self.labeled_path,
-            "labels_to_idx_path": self.labels_to_idx_path,
+            "unlabeled_path": os.path.basename(self.unlabeled_path),
+            "labeled_path": os.path.basename(self.labeled_path),
+            "labels_to_idx_path": os.path.basename(self.labels_to_idx_path),
             "padding_label": self.padding_label,
             "padding_idx": self.padding_idx,
             "unlabeled_label": self.unlabeled_label,
@@ -559,7 +559,7 @@ class ModelConf:
             impl_path = f"{model_path}{project_form_state.name}.py"
         return ModelConf(
             project_form_state.model_type,
-            f"{project_form_state.save_path}/model.pth",
+            "model.pth",
             project_form_state.get("dropout", DEFAULT_DROPOUT),
             project_form_state.get("learning_rate", DEFAULT_LEARNING_RATE),
             project_form_state.get("num_words", DEFAULT_NUM_WORDS),
@@ -569,7 +569,7 @@ class ModelConf:
         )
 
     @classmethod
-    def from_dict(cls, dictionary: Dict[str, Any]) -> ModelConf:
+    def from_dict(cls, directory_path: str, dictionary: Dict[str, Any]) -> ModelConf:
         """
         Create a model configuration from a dictionary.
 
@@ -581,7 +581,7 @@ class ModelConf:
         """
         return ModelConf(
             dictionary["type"],
-            dictionary["state_path"],
+            directory_path + "/" + dictionary["state_path"],
             dictionary["dropout"],
             dictionary["learning_rate"],
             dictionary["num_words"],
@@ -599,7 +599,7 @@ class ModelConf:
         """
         return {
             "type": self.type,
-            "state_path": self.state_path,
+            "state_path": os.path.basename(self.state_path),
             "dropout": self.dropout,
             "learning_rate": self.learning_rate,
             "num_words": self.num_words,
@@ -713,19 +713,21 @@ class ProjectConf:
             json.dump(self.to_dict(), project_cfg_file)
 
     @classmethod
-    def from_dict(cls, dictionary: Dict[str, Any]) -> ProjectConf:
+    def from_dict(cls, directory_path: str, dictionary: Dict[str, Any]) -> ProjectConf:
         """
         Create a project configuration from a dictionary.
 
+        :param directory_path: The directory path.
+        :type directory_path: str
         :param dictionary: The dictionary to create the project configuration from.
         :type dictionary: Dict[str, Any]
 
         :return: The project configuration.
         :rtype: ProjectConf
         """
-        m_conf = ModelConf.from_dict(dictionary["model"])
+        m_conf = ModelConf.from_dict(directory_path, dictionary["model"])
         a_conf = AssistantConf.from_dict(dictionary["assistant"])
-        d_conf = DatasetConf.from_dict(dictionary["dataset"])
+        d_conf = DatasetConf.from_dict(directory_path, dictionary["dataset"])
         return ProjectConf(
             dictionary["name"],
             dictionary["description"],
@@ -747,9 +749,10 @@ class ProjectConf:
         """
         if not os.path.isfile(path):
             raise FileNotFoundError("Project configuration file not found.")
+        dir_path = os.path.dirname(path)
         with open(path, "r") as cfg_file:
             cfg = json.load(cfg_file)
-        return ProjectConf.from_dict(cfg)
+        return ProjectConf.from_dict(dir_path, cfg)
 
     def get(self, prop: str, default: Any) -> Any:
         """

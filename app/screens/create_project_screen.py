@@ -149,6 +149,7 @@ class CreateProjectScreen(Screen):
         self.ids.description_input.text = ""
         self.ids.path_button.text = "Save project path"
         self.manager.current = "welcome"
+        self.ids.output_type_button.text = "Choose output file type"
 
     def open_filechooser(self):
         if not self.ids.name_input.text.strip():
@@ -173,6 +174,7 @@ class CreateProjectScreen(Screen):
         description = self.ids.description_input.text.strip()
         path = self.ids.path_button.text.strip()
         print(self.form_state)
+        print(name, description, path)
 
         if all([name, description, path != "Save project path", self.form_state.output_extension, self.form_state.model_type]):
             self.form_state.name = name
