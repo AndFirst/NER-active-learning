@@ -227,6 +227,7 @@ sudo apt install python3-venv
 ## Demo
 
 Zapoznaj się z prezentacją aplikacji na filmie poniżej:
+
 [![Demo](https://i9.ytimg.com/vi_webp/QO-ccS6-LK8/mq3.webp?sqp=CPSq7LIG-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYACwAWKAgwIABABGBUgcigRMA8=&rs=AOn4CLA56h4h97ShBDzqyp8Fw3kbDNo80Q)](https://youtu.be/QO-ccS6-LK8)
 ---
 
