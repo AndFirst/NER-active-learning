@@ -54,18 +54,21 @@ class Dataset:
 
         self._max_sentence_length: int = max_sentence_length
 
-    def count_labels(self) -> Dict[str, int]:
+    def count_labels(self, minimum_one: bool = True) -> Dict[str, int]:
         """
         Counts the labels in the dataset.
 
         This method counts the labels in the dataset by initializing a dictionary with keys from
-        `_labels_to_idx` and values set to 1.
+        `_labels_to_idx` and values set to 1 if minimum_one is True, else 0.
         Then it updates this dictionary with the counts from the labeled file.
 
+        :param minimum_one: Whether to set the initial count to at least 1.
+        :type minimum_one: bool
         :return: A dictionary where the keys are the labels and the values are the counts of each label.
         :rtype: Dict[str, int]
         """
-        label_counts = {label: 1 for label in self._labels_to_idx.keys()}
+        initial_count = 1 if minimum_one else 0
+        label_counts = {label: initial_count for label in self._labels_to_idx.keys()}
         label_counts.update(self._labeled_file.count_labels())
         return label_counts
 

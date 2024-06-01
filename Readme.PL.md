@@ -198,7 +198,8 @@ Aplikacja jest kompatybilna z `Python 3.12`, pozostałe wersje nie są gwarantow
       ]
       ```
     - Adnotacje są zapisywane w formacie: `[wyraz1, wyraz2, ..., etykieta1, etykieta2, ...]`
-    - Aby wydobyć adnotacje z pliku, należy podzielić listę na pół, gdzie pierwsza połowa to wyrazy, a druga to etykiety.
+    - Aby wydobyć adnotacje z pliku, należy podzielić listę na pół, gdzie pierwsza połowa to wyrazy, a druga to
+      etykiety.
     - W przypadku adnotacji wielowyrazowej, etykieta `B-...` jest przypisywana do pierwszego wyrazu, a etykieta `I-...`
       do kolejnych wyrazów.
     - W przypadku braku adnotacji, przypisywana jest etykieta `<O>`
@@ -219,6 +220,8 @@ Aplikacja jest kompatybilna z `Python 3.12`, pozostałe wersje nie są gwarantow
 
 ## Demo
 
+Zapoznaj się z prezentacją aplikacji na filmie poniżej:
+[![Demo](https://i9.ytimg.com/vi_webp/QO-ccS6-LK8/mq3.webp?sqp=CPSq7LIG-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYACwAWKAgwIABABGBUgcigRMA8=&rs=AOn4CLA56h4h97ShBDzqyp8Fw3kbDNo80Q)](https://youtu.be/QO-ccS6-LK8)
 ---
 
 ## Możliwe kierunki rozwoju

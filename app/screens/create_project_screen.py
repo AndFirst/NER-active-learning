@@ -70,6 +70,7 @@ kv_string = """
 
 Builder.load_string(kv_string)
 
+
 class MaxLengthInput(TextInput):
     max_length = 200
 
@@ -173,13 +174,7 @@ class CreateProjectScreen(Screen):
         path = self.ids.path_button.text.strip()
         print(self.form_state)
 
-        if all([
-            name,
-            description,
-            path != "Save project path",
-            self.form_state.output_extension,
-            self.form_state.model_type
-        ]):
+        if all([name, description, path != "Save project path", self.form_state.output_extension, self.form_state.model_type]):
             self.form_state.name = name
             self.form_state.description = description
             self.form_state.save_path = path

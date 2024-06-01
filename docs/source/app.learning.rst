@@ -5,10 +5,9 @@ Subpackages
 -----------
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 10
 
    app.learning.data_persistence_strategies
-   app.learning.dataset
    app.learning.models
    app.learning.repositiories
 
@@ -19,6 +18,14 @@ app.learning.active\_learning module
 ------------------------------------
 
 .. automodule:: app.learning.active_learning
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+app.learning.dataset module
+---------------------------
+
+.. automodule:: app.learning.dataset
    :members:
    :undoc-members:
    :show-inheritance:

@@ -133,7 +133,7 @@ class ActiveLearningManager:
         :rtype: Dict[str, int | float]
         """
         stats = {
-            "label_count": self._dataset.count_labels(),
+            "label_count": self._dataset.count_labels(minimum_one=False),
             "labeled_sentences_count": self._dataset.labeled_sentences_count,
             "unlabeled_sentences_count": self._dataset.unlabeled_sentences_count,
         }

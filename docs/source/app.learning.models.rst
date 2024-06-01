@@ -4,6 +4,14 @@ app.learning.models package
 Submodules
 ----------
 
+app.learning.models.base module
+-------------------------------
+
+.. automodule:: app.learning.models.base
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 app.learning.models.custom module
 ---------------------------------
 
@@ -12,26 +20,10 @@ app.learning.models.custom module
    :undoc-members:
    :show-inheritance:
 
-app.learning.models.dummy module
---------------------------------
-
-.. automodule:: app.learning.models.dummy
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 app.learning.models.lstm module
 -------------------------------
 
 .. automodule:: app.learning.models.lstm
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-app.learning.models.ner\_model module
--------------------------------------
-
-.. automodule:: app.learning.models.ner_model
    :members:
    :undoc-members:
    :show-inheritance:

@@ -73,6 +73,7 @@ kv_string = """
 
 Builder.load_string(kv_string)
 
+
 class BorderedLabel(Label):
     def __init__(self, **kwargs):
         super(BorderedLabel, self).__init__(**kwargs)
@@ -83,6 +84,7 @@ class BorderedLabel(Label):
 
     def update_rect(self, *args):
         self.rect.rectangle = (self.x, self.y, self.width, self.height)
+
 
 class StatsScreen(Screen):
     def __init__(self, **kwargs):
@@ -102,34 +104,22 @@ class StatsScreen(Screen):
         del stats_dict["label_count"]
 
         for label, value in label_count.items():
-            self.ids.labels_grid.add_widget(
-                BorderedLabel(text=label, color=(0, 0, 0, 1), size_hint_y=None, height=34)
-            )
-            self.ids.labels_grid.add_widget(
-                BorderedLabel(text=str(value), color=(0, 0, 0, 1), size_hint_y=None, height=34)
-            )
+            self.ids.labels_grid.add_widget(BorderedLabel(text=label, color=(0, 0, 0, 1), size_hint_y=None, height=34))
+            self.ids.labels_grid.add_widget(BorderedLabel(text=str(value), color=(0, 0, 0, 1), size_hint_y=None, height=34))
 
         keys = list(stats_dict.keys())
         values = list(stats_dict.values())
-        
+
         keys[0] = "labeled"
         keys[1] = "unlabeled"
 
         for i, key in enumerate(keys):
             if i < 2:
-                self.ids.stats_grid.add_widget(
-                    BorderedLabel(text=key, font_size=18, color=(0, 0, 0, 1))
-                )
-                self.ids.stats_grid.add_widget(
-                    BorderedLabel(text=str(int(values[i])), font_size=18, color=(0, 0, 0, 1))
-                )
+                self.ids.stats_grid.add_widget(BorderedLabel(text=key, font_size=18, color=(0, 0, 0, 1)))
+                self.ids.stats_grid.add_widget(BorderedLabel(text=str(int(values[i])), font_size=18, color=(0, 0, 0, 1)))
             else:
-                self.ids.stats_grid.add_widget(
-                    BorderedLabel(text=key, font_size=18, color=(0, 0, 0, 1))
-                )
-                self.ids.stats_grid.add_widget(
-                    BorderedLabel(text=f"{values[i]:.2f}", font_size=18, color=(0, 0, 0, 1))
-                )
+                self.ids.stats_grid.add_widget(BorderedLabel(text=key, font_size=18, color=(0, 0, 0, 1)))
+                self.ids.stats_grid.add_widget(BorderedLabel(text=f"{values[i]:.2f}", font_size=18, color=(0, 0, 0, 1)))
 
     def get_stats(self):
         return self.stats
