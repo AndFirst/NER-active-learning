@@ -56,6 +56,7 @@ docs-clean:
 requirements:
 	$(ACTIVATE) && $(PYTHON_INTERPRETER) -m pip install -U pip setuptools wheel
 	$(ACTIVATE) && $(PYTHON_INTERPRETER) -m pip install -r requirements.txt
+	$(ACTIVATE) && $(PYTHON_INTERPRETER) -m pip install kivy
 
 help:
 	@echo "build         build the project"
